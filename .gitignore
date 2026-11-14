@@ -1,0 +1,17 @@
+# Build and editor output
+**/bin/
+**/obj/
+.vs/
+*.user
+*.suo
+# Local configuration and libraries
+.env
+.env.*
+*.db
+*.db-shm
+*.db-wal
+*.db.bak
+library.json
+library.json.bak
+# Developer scratch data
+work/

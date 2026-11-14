@@ -1,0 +1,1 @@
+Fixtures and original comparison files are from https://github.com/adamhathcock/sharpcompress at commit d9b5f4fc426db50a492f5fb39eec6863ec729658, tests/TestArchives. License included in LICENSE.txt. Executable fixture is data for comparison only; never run it.

@@ -1,0 +1,10 @@
+<Project>
+  <PropertyGroup>
+    <EnableMultiArchive Condition="'$(EnableMultiArchive)' == ''">true</EnableMultiArchive>
+    <TargetFramework>net10.0-windows</TargetFramework>
+    <TargetFramework Condition="'$(CompatibilityCheck)' == 'true'">net8.0-windows</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <DefineConstants Condition="'$(EnableMultiArchive)' == 'true'">$(DefineConstants);MULTI_ARCHIVE</DefineConstants>
+  </PropertyGroup>
+</Project>

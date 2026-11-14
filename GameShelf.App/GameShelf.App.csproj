@@ -1,0 +1,5 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup><OutputType>WinExe</OutputType><UseWPF>true</UseWPF></PropertyGroup>
+  <ItemGroup><Resource Include="Assets/ArcHive-brand-approved.png" /></ItemGroup>
+  <ItemGroup><ProjectReference Include="../GameShelf.Core/GameShelf.Core.csproj" /></ItemGroup>
+</Project>
