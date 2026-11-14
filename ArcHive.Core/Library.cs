@@ -15,11 +15,24 @@ public sealed class Game
     public string Description { get; set; } = "";
     public bool Favorite { get; set; }
     public bool Played { get; set; }
+    private GameProgress progress = GameProgress.Backlog;
+    public GameProgress Progress { get => progress; set { progress = value; HasExplicitProgress = true; } }
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool HasExplicitProgress { get; private set; }
+    public ReleaseInfo LatestRelease { get; set; } = new();
+    public string LatestReleaseSource { get; set; } = "Manual";
+    public DateTimeOffset? LatestReleaseCheckedAt { get; set; }
+    public List<ReleaseObservation> ReleaseHistory { get; set; } = [];
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string UpdateState => VersionTracking.GetUpdateState(this);
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string CardStatus => $"{Progress} · {State}";
     public DateTimeOffset? LastLaunched { get; set; }
     public string? ScreenshotPath { get; set; }
     [System.Text.Json.Serialization.JsonIgnore]
-    public string State => Installations.Any(i => Directory.Exists(i.Path)) || Directory.Exists(DirectoryPath)
-        ? "Extracted / folder" : Archives.Any(a => File.Exists(a.Path)) || File.Exists(ArchivePath) ? "Archive only" : "Missing";
+    public string State => Installations.Any(i => i.Profiles.Any(p => LaunchService.CanLaunch(i, p))) ? "Ready"
+        : Installations.Any(i => Directory.Exists(i.Path)) || Directory.Exists(DirectoryPath) ? "Folder linked"
+        : Archives.Any(a => File.Exists(a.Path)) || File.Exists(ArchivePath) ? "Archived" : "Missing";
 
     public void UpgradeLocations()
     {
@@ -35,6 +48,7 @@ public sealed class GameArchive
 {
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Path { get; set; } = "";
+    public ReleaseInfo Release { get; set; } = new();
     public override string ToString() => Path;
 }
 public sealed class GameInstallation
@@ -43,6 +57,9 @@ public sealed class GameInstallation
     public string Path { get; set; } = "";
     public string? ExecutablePath { get; set; }
     public Guid? SourceArchiveId { get; set; }
+    public List<LaunchProfile> Profiles { get; set; } = [];
+    public Guid? DefaultProfileId { get; set; }
+    public ReleaseInfo Release { get; set; } = new();
     public override string ToString() => Path;
 }
 

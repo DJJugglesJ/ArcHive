@@ -62,6 +62,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        ProfileArgumentRows.ItemsSource = argumentRows;
 #if MULTI_ARCHIVE
         ExtractButton.Content = "Extract archive";
 #endif
@@ -72,6 +73,9 @@ public partial class MainWindow : Window
             MessageBox.Show("Library could not be loaded. Existing files have been retained. See the migration and recovery guide.\n\n" + ex.Message);
             Application.Current.Shutdown(); return;
         }
+        ProgressBox.ItemsSource = Enum.GetValues<GameProgress>();
+        StatusFilter.ItemsSource = new[] { "All statuses" }.Concat(Enum.GetNames<GameProgress>()).ToArray();
+        StatusFilter.SelectedIndex = 0;
         ready = true;
         Refresh();
         Closing += OnClosing;
@@ -85,16 +89,20 @@ public partial class MainWindow : Window
         selected.Description = DescriptionBox.Text;
         selected.Favorite = FavoriteBox.IsChecked == true;
         selected.Played = PlayedBox.IsChecked == true;
+        CommitMilestone();
     }
     private void Refresh()
     {
         var current = selected;
+        var profileId = editorProfile?.Id;
         Games.ItemsSource = library.Games.Where(g =>
             (!archivesView || g.Archives.Count > 0) &&
+            (StatusFilter.SelectedIndex <= 0 || g.Progress.ToString() == StatusFilter.SelectedItem as string) &&
             (FavoritesOnly.IsChecked != true || g.Favorite) &&
             (g.Title.Contains(Search.Text, StringComparison.OrdinalIgnoreCase) || g.Tags.Contains(Search.Text, StringComparison.OrdinalIgnoreCase)))
             .OrderBy(g => g.Title).ToList();
         Games.SelectedItem = current;
+        if (editorInstallation?.Profiles.FirstOrDefault(p => p.Id == profileId) is { } profile) ProfileChoices.SelectedItem = profile;
         ArchiveList.ItemsSource = Games.ItemsSource;
         ArchiveList.SelectedItem = Games.SelectedItem;
         RebuildGallery();
@@ -107,6 +115,7 @@ public partial class MainWindow : Window
     {
         Commit();
         selected = Games.SelectedItem as Game;
+        editorArchive = null; editorInstallation = null; editorProfile = null;
         Details.IsEnabled = selected is not null;
         if (selected is null)
         {
@@ -114,14 +123,16 @@ public partial class MainWindow : Window
             FavoriteBox.IsChecked = PlayedBox.IsChecked = false;
             ArchiveChoices.ItemsSource = null; FolderChoices.ItemsSource = null;
             Screenshot.ImagePath = null; DetailTitle.Text = "Select a game"; DetailState.Text = ""; Paths.Text = "Select a game to see its details.";
+            ClearMilestone();
             return;
         }
-        DetailTitle.Text = selected.Title; DetailState.Text = selected.State;
+        DetailTitle.Text = selected.Title; DetailState.Text = $"{selected.State} · {selected.Progress} · {selected.UpdateState}";
         TitleBox.Text = selected.Title;
         TagsBox.Text = selected.Tags;
         DescriptionBox.Text = selected.Description;
         FavoriteBox.IsChecked = selected.Favorite;
         PlayedBox.IsChecked = selected.Played;
+        LoadGameMilestone();
         ShowPaths();
         ShowImage();
     }
@@ -129,20 +140,28 @@ public partial class MainWindow : Window
     private GameInstallation? ActiveInstallation => FolderChoices.SelectedItem as GameInstallation;
     private void ShowPaths()
     {
+        CommitLocation();
+        loadingEditors = true;
         var archiveId = ActiveArchive?.Id;
         var installationId = ActiveInstallation?.Id;
         ArchiveChoices.ItemsSource = selected?.Archives.ToList();
         FolderChoices.ItemsSource = selected?.Installations.ToList();
         ArchiveChoices.SelectedItem = selected?.Archives.FirstOrDefault(a => a.Id == archiveId) ?? selected?.Archives.FirstOrDefault();
         FolderChoices.SelectedItem = selected?.Installations.FirstOrDefault(i => i.Id == installationId) ?? selected?.Installations.FirstOrDefault();
+        loadingEditors = false;
+        LoadLocationEditors();
         UpdateLocationSummary();
     }
-    private void SelectedLocationChanged(object sender, SelectionChangedEventArgs e) => UpdateLocationSummary();
+    private void SelectedLocationChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (loadingEditors) return;
+        CommitLocation(); LoadLocationEditors(); UpdateLocationSummary();
+    }
     private void UpdateLocationSummary()
     {
         if (Paths is null) return;
         var parsed = FilenameParser.Parse(Path.GetFileName(ActiveArchive?.Path ?? ActiveInstallation?.Path ?? ""));
-        Paths.Text = $"Filename hints: version {parsed.Version ?? "unknown"} / {parsed.Platform ?? "unknown"}\nArchive: {ActiveArchive?.Path ?? "—"}\nFolder: {ActiveInstallation?.Path ?? "—"}\nLaunch: {ActiveInstallation?.ExecutablePath ?? "Choose an executable"}";
+        Paths.Text = $"Filename hints: version {parsed.Version ?? "unknown"} / {parsed.Platform ?? "unknown"}\nArchive: {ActiveArchive?.Path ?? "—"}\nFolder: {ActiveInstallation?.Path ?? "—"}\nLaunch: {editorProfile?.ExecutablePath ?? "Choose an executable"}";
     }
     private void AddArchive(object sender, RoutedEventArgs e) => Guard(() =>
     {
@@ -153,7 +172,7 @@ public partial class MainWindow : Window
         foreach (var path in dialog.FileNames)
         {
             PathSafety.NoLinks(path);
-            if (!selected.Archives.Any(a => Game.SamePath(a.Path, path))) selected.Archives.Add(new() { Path = path });
+            if (!selected.Archives.Any(a => Game.SamePath(a.Path, path))) selected.Archives.Add(new() { Path = path, Release = ReleaseInfo.FromPath(path) });
         }
         store.Save(library); ShowPaths();
     });
@@ -164,7 +183,7 @@ public partial class MainWindow : Window
     {
         if (operation is not null) return;
         Commit();
-        operation = new(); Toolbar.IsEnabled = Workspace.IsEnabled = Search.IsEnabled = FavoritesOnly.IsEnabled = false;
+        operation = new(); Toolbar.IsEnabled = Workspace.IsEnabled = Search.IsEnabled = FavoritesOnly.IsEnabled = StatusFilter.IsEnabled = false;
         CancelButton.IsEnabled = true;
         try { await action(operation.Token); store.Save(library); Refresh(); }
         catch (OperationCanceledException) { Status.Text = "Operation cancelled."; }
@@ -172,7 +191,7 @@ public partial class MainWindow : Window
         finally
         {
             operation.Dispose(); operation = null;
-            Toolbar.IsEnabled = Workspace.IsEnabled = Search.IsEnabled = FavoritesOnly.IsEnabled = true;
+            Toolbar.IsEnabled = Workspace.IsEnabled = Search.IsEnabled = FavoritesOnly.IsEnabled = StatusFilter.IsEnabled = true;
             CancelButton.IsEnabled = false;
         }
     }
@@ -225,7 +244,7 @@ public partial class MainWindow : Window
 #endif
             var folder = await extractor.ExtractAsync(archive, dialog.FolderName,
                 new Progress<string>(s => Status.Text = s), token);
-            var installation = new GameInstallation { Path = folder, SourceArchiveId = source.Id };
+            var installation = new GameInstallation { Path = folder, SourceArchiveId = source.Id, Release = source.Release with { } };
             game.Installations.Add(installation);
             ShowPaths(); FolderChoices.SelectedItem = installation;
             ShowPaths();
@@ -241,7 +260,7 @@ public partial class MainWindow : Window
         var installation = selected.Installations.FirstOrDefault(i => Game.SamePath(i.Path, dialog.FolderName));
         if (installation is null)
         {
-            installation = new GameInstallation { Path = dialog.FolderName };
+            installation = new GameInstallation { Path = dialog.FolderName, Release = ReleaseInfo.FromPath(dialog.FolderName) };
             selected.Installations.Add(installation);
         }
         store.Save(library); Refresh(); ShowPaths(); FolderChoices.SelectedItem = installation;
@@ -253,16 +272,21 @@ public partial class MainWindow : Window
         if (dialog.ShowDialog(this) != true) return;
         if (!PathSafety.IsWithin(folder, dialog.FileName)) throw new IOException("Choose an executable inside the game folder.");
         PathSafety.NoLinks(dialog.FileName);
-        Commit(); ActiveInstallation!.ExecutablePath = dialog.FileName; store.Save(library); ShowPaths();
+        Commit();
+        if (editorProfile is null) AddProfileModel();
+        editorProfile!.ExecutablePath = dialog.FileName;
+        editorProfile.WorkingDirectory = Path.GetDirectoryName(dialog.FileName)!;
+        LoadLocationEditors(); store.Save(library); UpdateLocationSummary();
     });
     private void Launch(object sender, RoutedEventArgs e) => Guard(() =>
     {
-        if (ActiveInstallation?.ExecutablePath is not string exe || !File.Exists(exe)) throw new FileNotFoundException("Choose an existing executable first.");
-        if (ActiveInstallation is null || !PathSafety.IsWithin(ActiveInstallation.Path, exe) || !exe.EndsWith(".exe", StringComparison.OrdinalIgnoreCase))
-            throw new IOException("Invalid executable location.");
-        PathSafety.NoLinks(exe);
-        if (MessageBox.Show(this, "Run this program? Only launch games you trust.\n\n" + exe, "Launch game", MessageBoxButton.YesNo) != MessageBoxResult.Yes) return;
-        using var process = Process.Start(new ProcessStartInfo(exe) { UseShellExecute = false, WorkingDirectory = Path.GetDirectoryName(exe)! });
+        Commit();
+        if (ActiveInstallation is not GameInstallation installation || editorProfile is null)
+            throw new InvalidOperationException("Select an installation and configure a launch profile first.");
+        var plan = LaunchService.Prepare(installation, editorProfile);
+        if (MessageBox.Show(this, "Run this program? Only launch games you trust.\n\n" + plan.CommandLine +
+            "\n\nWorking directory: " + plan.WorkingDirectory, "Launch game", MessageBoxButton.YesNo) != MessageBoxResult.Yes) return;
+        using var process = Process.Start(plan.ToStartInfo());
         if (process is null) throw new IOException("Windows did not start the game.");
         Commit(); selected!.Played = true; selected.LastLaunched = DateTimeOffset.UtcNow;
         PlayedBox.IsChecked = true; store.Save(library);

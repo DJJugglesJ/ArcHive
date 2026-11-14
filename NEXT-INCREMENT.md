@@ -1,3 +1,3 @@
 # Next ArcHive increment
 
-Follow ROADMAP.md V1: persistent release identity, progress states and launch profiles with migration tests, then provider contracts and metadata reconciliation. The approved branding and Windows installer icons are integrated; keep packaging smoke checks green. Keep existing extraction and SQLite regression checks green.
+The 0.2.0 version/status/profile milestone is implemented. Next: metadata-provider contracts, confidence matching and field-level reconciliation; then optional provider lookup. Keep schema-2 migration/rollback and real argument-delivery tests green. Full UI testing remains optional unless specifically requested.

@@ -1,6 +1,12 @@
 using System.IO.Compression;
 using ArcHive.Core;
 
+if (args.Length >= 2 && args[0] == "--launch-probe")
+{
+    File.WriteAllText(args[1], System.Text.Json.JsonSerializer.Serialize(new { Arguments = args.Skip(2).ToArray(), WorkingDirectory = Environment.CurrentDirectory }));
+    return;
+}
+
 var root = Path.Combine(Path.GetTempPath(), "archive-test-" + Guid.NewGuid());
 Directory.CreateDirectory(root);
 var passed = 0;
@@ -73,6 +79,7 @@ try
     catch (System.Text.Json.JsonException) { Check(File.ReadAllText(Path.Combine(root, "library.json")) == "invalid json", "Corrupt library is not overwritten"); }
     await ArchiveTests.Run(root, Check);
     SqliteTests.Run(root, Check);
+    MilestoneTests.Run(root, Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }

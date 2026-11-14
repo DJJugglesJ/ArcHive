@@ -12,6 +12,14 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 - ArcHive palette, navigation, responsive artwork grid with recycled rows, asynchronous bounded thumbnail decoding/cache, optional details panel and separate archive table.
 - Conservative CamelCase/acronym/snake_case cleanup for new discoveries; explicit version/platform hints. Original paths stay unchanged. Hints are not authoritative release records.
 
+## Version, status and launch milestone — delivered in 0.2.0
+
+- Schema-2 migration with permanent schema-1 backup and transactional rollback; legacy played flags become Playing only when no explicit progress exists.
+- Backlog / Playing / Completed / Abandoned, independent played history and availability; progress filtering and card/detail status.
+- Per-archive and per-installation original name, version, platform and channel; filename hints initialize new locations without overwriting rescans. Latest-known release, source note, observation time and release history are persisted. Extraction carries the source archive release into the installation.
+- Conservative numeric release comparisons and local/manual update indicators. Ambiguous suffixes or mismatched platforms/channels remain Unknown. Side-by-side newest installations prevent false update flags.
+- Multiple named launch profiles per installation, persisted default, executable, argument list, working directory and reserved adapter ID. UI supports creation, editing, removal, default selection and executable browsing. Exact command/working-directory confirmation precedes every launch; arguments are passed without a shell.
+
 ## V1 — complete the core workflow
 
 | Work | Acceptance |
@@ -19,8 +27,8 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 | Archive manager | Preview contents, expose per-archive sizes and source paths, extraction queue with cancellation and recovery after crashes. Existing manager filters games with archive associations and uses their detail actions. |
 | Identification | Suggest launch candidates and engine with evidence; require selection, exclude uninstallers and tools; preserve manual choices. |
 | Naming | Persist original name, canonical title, display title, version, platform, release channel and parser confidence separately. Preview suggested corrections; never rename files automatically. Support dates and ambiguous tokens through explicit review. |
-| Progress/status | Backlog, Playing, Completed, Abandoned independent of Archived, Ready, Missing and Update Available installation states. Migrate existing played flags without losing history. |
-| Launch profiles | Multiple profiles per installation with executable, argument list, working directory and optional adapter ID; validate paths and show the exact command before first use. |
+| Progress/status | Delivered in 0.2.0; update availability is a separate release indicator. |
+| Launch profiles | Delivered in 0.2.0. Native profiles work now; external adapters remain optional future integrations. |
 | Metadata lookup | Implement optional Steam, IGDB, itch.io, VNDB and RAWG adapters using supported endpoints and configured credentials. Manual/offline mode requires no account. |
 | Matching | Return candidates with stable provider IDs, title/alias/year/engine evidence and confidence. Ambiguous matches require review; never merge by title alone. |
 | Reconciliation | Store provenance and retrieval time per field. Preview conflicts, retain manual overrides, allow per-field source choice and undo. |
@@ -29,7 +37,7 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 
 ## V1.1 — organization and preservation
 
-- Version history: separate installed release, locally archived releases and newest provider-reported release. Treat unknown/incomparable versions as unknown, never an automatic upgrade.
+- Version history: local/manual tracking delivered in 0.2.0. Provider-supplied release lookup and polling remain planned; no automatic downloads or upgrades.
 - Duplicate detection: candidate grouping by size and optional background hashes; distinguish exact copies from versions. Preview choices; never auto-delete.
 - Batch operations: multi-select tagging/identification/extraction and previewed rename/relocate; cancellation, per-item results and recovery journal.
 - Playtime: record sessions and totals; handle child processes, abnormal exits and user correction. Last-launched time is already present; elapsed playtime is not.

@@ -56,3 +56,12 @@ Remaining coverage: this is a primary-workflow GUI pass, not an exhaustive UI au
 - Tests exposed equal-version DLL retention and custom-path uninstall tracking. App/core/installer versions now align at 0.1.1; packaging rejects version mismatches and stores/reuses the installation directory. Increment versions for every distributed build. Future-version upgrade coverage and code signing remain release-hardening work.
 - The existing local library was separately copied to the renamed data folder, its record count and SQLite integrity verified, and the original retained as a backup. No user data is committed.
 - MSI SHA256: 14E3D49CC1DC95B35A059804F0FF48F6CE8176B9AA626C20C499FF1C6F0766C8. Installer is unsigned. The .msi file itself uses Windows' standard package icon; application, Installed Apps and Start Menu use the approved icon.
+
+
+## Version/status/profile milestone — 0.2.0
+
+- Release build passes with zero warnings/errors; 137 automated checks pass (99 existing + 38 milestone checks).
+- Tests cover genuine schema-1 upgrades, permanent backup, schema/version preservation after forced migration failure, future-schema rejection, played/status separation, version provenance/history, separate local/installed releases, conservative comparison and side-by-side versions.
+- Profile tests cover exact persistence, default ownership and rollback, profile deletion without legacy recreation, path containment, missing files/directories, unavailable adapters and null characters. A controlled child instance of the test executable verifies exact Unicode, empty, spaced, quoted and trailing-backslash arguments and working directory through ProcessStartInfo.ArgumentList. No downloaded game is launched.
+- Original extraction/hash/SQLite regression tests remain green. New arguments use explicit editable rows rather than command-line parsing; empty rows represent empty arguments and literal whitespace is retained.
+- Full end-to-end UI automation and installer install/uninstall tests were intentionally skipped for this milestone at the user's request to avoid unnecessary UI-test cost. No live user database was opened or migrated. Online version polling and external launch adapters remain unimplemented; latest-release metadata is manual/local.

@@ -1,4 +1,16 @@
-# SQLite and multiple locations
+# SQLite schema 2 migration
+
+ArcHive 0.2.0 supports schemas 0 (new), 1 and 2. Before upgrading schema 1 it creates a separate online SQLite backup named `library.db.pre-v2-<unique-id>.db`. New columns and the launch_profiles table, transformed metadata, and the schema version are committed in one transaction. A migration failure rolls all schema/data changes back. Unsupported future schemas fail closed.
+
+Archives and installations store independent release metadata. Launch profiles are owned by installation, with a persisted default validated against that owner. Progress, latest-release provenance and release observations live in game metadata. Existing titles, IDs, favorites, notes, tags, images, played flags, last-launch time, roots and location links survive migration. Existing executable choices become Default profiles. Legacy played games become Playing and unplayed games Backlog, unless an explicit status already exists.
+
+Schema-2 loads never recreate deleted profiles from legacy executable fields. Rescans preserve user edits. The usual `library.db.bak` remains an online snapshot before each save; the permanent pre-v2 backup is not overwritten by later saves. Save failures roll back the complete transaction.
+
+To roll back to a pre-0.2 binary, close ArcHive, preserve the current data folder, and restore the pre-v2 database as `library.db`. Do not use a schema-2 `.bak` with an older binary. Artwork and game files are not modified by migration. No user library was migrated during this milestone's verification; tests use disposable databases.
+
+## Earlier JSON import and recovery notes
+
+## SQLite and multiple locations
 
 On first launch the app creates `%LOCALAPPDATA%\ArcHive\library.db`. Before import it parses the old library.json and writes a unique `library.json.pre-sqlite-*.bak` copy. The original JSON and screenshot assets remain untouched. Schema creation and import commit in one SQLite transaction. Existing SQLite databases are authoritative: subsequent starts do not reimport JSON. Unsupported schema versions fail closed.
 
