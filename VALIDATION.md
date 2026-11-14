@@ -145,3 +145,12 @@ Live fixture verification confirmed opening details did not change the launch ma
 ## Workflow and source settings — 0.11.0
 
 595 checks pass (551 previous + 44 new). Coverage includes F95 canonical URL restrictions, query removal, redirect containment, page identity/challenge/size rejection, cancellation, credential-free requests, conservative parsing, field-level manual preservation; Steam/GOG normalization, import preview/apply isolation, deduplication, credential-field exclusion, Steam visibility failures; contextual game actions and SQLite/settings persistence. Source HTTP tests use synthetic responses, not live accounts. Release build has zero warnings/errors. Focused desktop layout checks covered the collection, details and expanded Settings in an isolated fixture. No full end-to-end or physical-controller test run was performed.
+
+
+## 0.11.0 controller and release checks (2026-11-14)
+
+- 621 automated checks passed. New coverage includes distinct Cross/Circle/Triangle/Options/Square mappings, neutral rearming across focus changes, keyboard editing/masking/cancellation, popup selector ownership and rejection of foreign native input targets.
+- Release self-contained win-x64 publish and MSI build succeeded. All nine executable icon resources match the approved ICO; the MSI icon, Bellum Labs publisher and 0.11.0 version were verified.
+- Isolated desktop checks used diagnostic input through the same controller route: collection to details, Triangle context menu, skip disabled actions, archive dialog, Options menu to Settings, shoulder focus traversal, dropdown cancel without closing Settings, text entry and discard, and nested About/back. About displayed 0.11.0 and the approved icon.
+- MSI installed successfully into a dedicated test folder (exit 0). The installed executable launched, its application DLL matched the publish output, and the final controller keyboard theme was verified. Uninstall succeeded (exit 0), removed the installed executable and preserved the test library byte-for-byte. No user library or credentials were used for these checks.
+- Physical controller hardware, firmware compatibility and controller-driven native file dialogs were not exercised live. Native file dialogs use guarded standard Windows keyboard input. External browsers and launched games retain their own input handling.

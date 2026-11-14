@@ -85,6 +85,7 @@ try
     await ArtworkGamepadTests.Run(root, Check);
     PreferenceTests.Run(root, Check);
     NativeControllerTests.Run(Check);
+    ControllerWorkflowTests.Run(Check);
     await OrganizationTests.Run(root, Check);
     await ExtractionQueueTests.Run(root, Check);
     await DetectionTests.Run(root, Check);

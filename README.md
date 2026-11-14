@@ -6,7 +6,7 @@
 
 Turn a folder of downloads into an artwork-rich collection. Find your games, keep multiple versions together, choose how they launch, and organize your backlog without moving the original files.
 
-Built with **C# / .NET 10 / WPF**, backed by **SQLite**. Current source version: **0.11.0**.
+Built with **C# / .NET 10 / WPF**, backed by **SQLite**. Current version: **0.11.0**. [Download the Windows release](https://github.com/DJJugglesJ/ArcHive/releases/tag/v0.11.0).
 
 ## Your collection, in one place
 
@@ -17,7 +17,7 @@ Built with **C# / .NET 10 / WPF**, backed by **SQLite**. Current source version:
 - **Keep versions straight.** Store multiple archives and installations per entry, release/platform/channel details, latest-known releases and observation history. Numeric comparisons help identify local update gaps.
 - **Enrich with confidence.** Review metadata candidates from VNDB, Steam, IGDB, itch.io and RAWG. Matching uses title/alias, year and engine evidence; choose fields individually and preserve source attribution. Protected undo is available for text metadata.
 - **Bring the artwork.** Select provider covers, backdrops and screenshots, or use local images. Background downloads and bounded disk/memory caches keep the library responsive and reuse cached artwork offline.
-- **Play from the couch.** Navigate and launch with native DualSense/DS4 USB or Bluetooth input, or Xbox through XInput. Select DualSense, DS4 or Xbox button jewels. Cards display controller support when marked Partial or Full.
+- **Play from the couch.** Navigate and launch with native DualSense/DS4 USB or Bluetooth input, or Xbox through XInput. Select DualSense, DS4 or Xbox button jewels. Cards display controller support when marked Partial or Full. Controller navigation includes Settings, dialogs, file pickers and an on-screen keyboard; [button mappings](NATIVE-CONTROLLERS.md).
 - **Organize in batches.** Multi-select entries, preview changes, then update favorites, progress, tags or NSFW classification. Remove unwanted library records while keeping original archives and game folders.
 - **Protect your saves.** Link game-specific save folders, create timestamped snapshots, preview restores, and retain protected pre-restore copies. Regular snapshot retention is configurable. [Backup and recovery details](SAVE-BACKUPS.md).
 - **Review duplicates.** Find shared paths and possible title/version matches. Optional background SHA-256 comparison identifies byte-identical archives, with cancellation and per-file warnings.
@@ -113,7 +113,7 @@ Run the automated suite:
 dotnet run --project ArcHive.Tests/ArcHive.Tests.csproj -c Release
 ```
 
-**595 checks pass**, including launch/engine suggestions, manual-choice preservation, Triangle input, archive recovery, duplicates and transactional batch edits. The Release build passes with zero warnings/errors. A live end-to-end desktop test exercised detection/apply/launch, organizer batches, archive preview, selection, options and restart using an isolated fixture library. Real controller hardware and authenticated live provider behavior remain unverified. See [VALIDATION.md](VALIDATION.md) for the evidence and limits.
+**621 checks pass**, including launch/engine suggestions, manual-choice preservation, Triangle input, archive recovery, duplicates and transactional batch edits. The Release build passes with zero warnings/errors. A live end-to-end desktop test exercised detection/apply/launch, organizer batches, archive preview, selection, options and restart using an isolated fixture library. Real controller hardware and authenticated live provider behavior remain unverified. See [VALIDATION.md](VALIDATION.md) for the evidence and limits.
 
 Extraction stages files without overwriting existing games and checks paths, entry counts and declared/actual output sizes. Encrypted/incomplete archives are unsupported. Extraction is not a malware sandbox; use trusted downloads and user-controlled destinations. Decoder CPU/memory limits, hardware power-loss testing, orphan cleanup and broader corruption/link-metadata testing remain hardening work. Artwork currently supports the documented PNG/JPEG provider paths. Version tracking is local/manual, not automatic online updating.
 

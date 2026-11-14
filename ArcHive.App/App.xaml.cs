@@ -7,6 +7,7 @@ public partial class App : Application
     {
         instance = new Mutex(true, "Local\\ArcHive-" + Environment.UserName, out var created);
         if (!created) { MessageBox.Show("ArcHive is already open."); Shutdown(); return; }
+        ControllerFocusRing.Install();
         base.OnStartup(e);
     }
     protected override void OnExit(ExitEventArgs e) { instance?.Dispose(); base.OnExit(e); }

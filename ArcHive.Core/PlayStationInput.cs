@@ -52,6 +52,8 @@ public static class PlayStationInput
         if ((face & 0x20) != 0) held |= PadButtons.A; // Cross / south
         if ((face & 0x80) != 0) held |= PadButtons.Options; // Triangle / north
         if ((face & 0x40) != 0) held |= PadButtons.B; // Circle / east
+        if ((face & 0x10) != 0) held |= PadButtons.Keyboard; // Square
+        if ((shoulders & 0x20) != 0) held |= PadButtons.Menu; // Options / Start
         if ((shoulders & 1) != 0) held |= PadButtons.Previous;
         if ((shoulders & 2) != 0) held |= PadButtons.Next;
         state = new(held, Axis(report[axes]), Axis(report[axes + 1], invert: true)); return true;

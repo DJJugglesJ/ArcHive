@@ -33,13 +33,13 @@ The goal is to make the next useful action obvious, keep secondary tools nearby,
 
 - The collection toolbar concentrates on adding games and rescanning. Activity and Organize live in navigation.
 - Details keep the contextual primary action, archive preview and Options near the title. Overview, Artwork, Versions, Files & launch, Sources and Saves separate tasks without a wall of forms.
-- Opening details focuses the primary action after tab layout completes. L1/R1 (LB/RB) switches details tabs; in the collection it switches views. Physical controller verification is still outstanding.
+- Opening details focuses the primary action after tab layout completes. L1/R1 (LB/RB) traverses controls across screens and dialogs. Options/Start opens app navigation; D-pad navigates focused lists and tabs. Physical controller verification is still outstanding.
 - Selected toggle buttons keep accessible checked state. Settings tabs, password inputs and disclosures use the dark ArcHive palette.
 - Website login and API credential setup are separate operations. An API key is labeled configured, not verified; saving it makes no request.
 - Sources save explicitly inside their section; Save preferences applies library/control/optional-source preferences. Browser sessions belong to the browser, not ArcHive.
 
 ## Deliberate boundaries
 
-This is a workflow refactor of the existing desktop app, not a claim that every roadmap item is complete. Full controller operation of every modal, automatic save discovery, storefront downloading/installing, cloud synchronization, GOG authenticated owned-library fetching and bulk metadata matching are not implemented. Existing completed features remain available through their mapped routes.
+This is a workflow refactor of the existing desktop app, not a claim that every roadmap item is complete. Automatic save discovery, storefront downloading/installing, cloud synchronization, GOG authenticated owned-library fetching and bulk metadata matching are not implemented. Existing completed features remain available through their mapped routes.
 
 A focused layout review covered the collection, details and expanded Settings. Automated tests cover the changed logic; this was not a new full end-to-end or physical-controller test run.

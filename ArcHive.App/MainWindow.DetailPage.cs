@@ -19,7 +19,7 @@ public partial class MainWindow
         PageTitle.Text = "Game details"; PageSubtitle.Text = DisplayPaths.Compact(selected.SourceLocation);
         DetailsScroller.ScrollToTop(); PlayButton.Focus();
         Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() => { if (detailsPage && IsActive) PlayButton.Focus(); }));
-        if (preferences.GamepadEnabled) { var prompts = ControllerPrompts.For(preferences.ControllerProfile); ControllerNavigationHint.Text = $"{prompts.Accept}: select · {prompts.Menu}: options · {prompts.Previous}/{prompts.Next}: detail tabs"; }
+        if (preferences.GamepadEnabled) { var prompts = ControllerPrompts.For(preferences.ControllerProfile); ControllerNavigationHint.Text = $"{prompts.Accept}: select · {prompts.Cancel}: back · {prompts.Menu}: context · Options / Start: menu · {prompts.Previous}/{prompts.Next}: focus"; }
     }
     private void BackToCollection(object sender, RoutedEventArgs e)
     {

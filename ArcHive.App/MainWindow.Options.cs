@@ -38,9 +38,10 @@ public partial class MainWindow
         void Add(string title, RoutedEventHandler action) { var item = new MenuItem { Header = title }; item.Click += action; menu.Items.Add(item); }
         Add("Scan a folder of games or archives", AddRoot);
         Add("Import owned Steam / GOG titles", OpenOwnedLibrary);
-        menu.IsOpen = true;
+        menu.Opened += (_, _) => FocusMenu(menu); menu.IsOpen = true;
     }
     private void OpenOptions(object sender, RoutedEventArgs e) => ShowOptions();
+    private void FocusCard(object sender, KeyboardFocusChangedEventArgs e) { if (((Button)sender).Tag is Game game) Games.SelectedItem = game; }
     private void CardRightClick(object sender, MouseButtonEventArgs e)
     {
         if (operation is not null) return;
@@ -88,7 +89,7 @@ public partial class MainWindow
         }
         if (action == PadAction.Options) { ShowOptions(); return; }
         if (detailsPage) { HandleDetailNavigation(action); return; }
-        if (action == PadAction.Accept && LibraryInteraction.Accept(detailsPage) == LibraryAcceptAction.OpenDetails) { ShowDetailsPage(); return; }
+        if (action == PadAction.Accept && LibraryInteraction.Accept(detailsPage) == LibraryAcceptAction.OpenDetails) { if (Games.SelectedIndex < 0 && Games.Items.Count > 0) Games.SelectedIndex = 0; ShowDetailsPage(); return; }
         if (action == PadAction.Cancel) { (archivesView ? (Control)ArchiveList : Gallery).Focus(); return; }
         if (action is PadAction.Next or PadAction.Previous)
         {
@@ -99,16 +100,11 @@ public partial class MainWindow
         if (index < 0) return;
         Games.SelectedIndex = index;
         if (archivesView) { ArchiveList.SelectedItem = Games.SelectedItem; ArchiveList.ScrollIntoView(Games.SelectedItem); }
-        else if (index / galleryColumns < Gallery.Items.Count) Gallery.ScrollIntoView(Gallery.Items[index / galleryColumns]);
+        else if (index / galleryColumns < Gallery.Items.Count) { Gallery.Focus(); Gallery.ScrollIntoView(Gallery.Items[index / galleryColumns]); }
     }
     private void WindowOptionsKey(object sender, KeyEventArgs e)
     {
         var key = e.Key == Key.System ? e.SystemKey : e.Key;
-        if (detailsPage && optionsMenu?.IsOpen != true && Keyboard.FocusedElement is not (System.Windows.Controls.Primitives.TextBoxBase { IsReadOnly: false } or ComboBox or ComboBoxItem))
-        {
-            var action = key switch { Key.Escape => PadAction.Cancel, Key.Left => PadAction.Left, Key.Right => PadAction.Right, _ => PadAction.None };
-            if (action != PadAction.None) { HandleDetailNavigation(action); e.Handled = true; return; }
-        }
         if ((key == Key.Apps || key == Key.F10 && Keyboard.Modifiers.HasFlag(ModifierKeys.Shift)) && selected is not null && operation is null)
         { HandleNavigation(PadAction.Options); e.Handled = true; }
     }
