@@ -108,3 +108,10 @@ Remaining coverage: this is a primary-workflow GUI pass, not an exhaustive UI au
 - Synthetic USB, basic Bluetooth and extended Bluetooth report fixtures cover Sony IDs, layouts, axes, hats, buttons, CRC failures, truncation, batch bounds and atomic rejection. Routing tests cover short taps, duplicate reports, mapper suppression, neutral arming, focus suspension, stale input, queue overflow, multiple devices, reconnect/handoff and one launch action per press.
 - A real hidden message-only Windows HWND verifies Raw Input registration, enumeration and disposal/re-registration. This is an automated interop check, not a full end-to-end UI test.
 - Physical USB/Bluetooth controllers were unavailable for verification. Hardware/firmware compatibility and real controller navigation/launching remain unverified. The 0.5.1 mapper requirement above is historical and superseded by this backend.
+
+## Duplicate detection and batch operations - 0.7.0
+
+- All 430 automated checks pass (381 existing plus 49 organization checks); Release WPF build has zero warnings/errors.
+- Tests distinguish shared references, title/version candidates and SHA-256 archive equality, including equal-size differing bytes, cancellation, empty scopes, unreadable/locked/changed paths and visible-scope isolation.
+- All batch actions, whole-tag matching, manual provenance, stale/invalid requests, deep-copy immutability, launch-profile preservation, SQLite round trips, failure rollback, file retention and readable pre-change backup are covered.
+- Eight tests instantiate the actual organizer without displaying it: multi-selection previews, selection/action/status/tag invalidation, empty selection and failed-save feedback. Full end-to-end UI tests were skipped as requested. Large-library timing and hostile filesystem races were not tested.

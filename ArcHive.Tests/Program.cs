@@ -85,6 +85,7 @@ try
     await ArtworkGamepadTests.Run(root, Check);
     PreferenceTests.Run(root, Check);
     NativeControllerTests.Run(Check);
+    await OrganizationTests.Run(root, Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }

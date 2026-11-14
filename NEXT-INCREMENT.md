@@ -1,3 +1,5 @@
 # Next ArcHive increment
 
-0.6.0 adds native DualSense/DS4 USB/Bluetooth input alongside direct launching, persistent controller jewel profiles (DualSense default, DS4, Xbox), and discreet NSFW visibility filtering to the artwork/XInput milestone. Next core-workflow gaps: archive content preview/queue and crash recovery, launch-candidate identification, duplicate detection and batch organization. Physical-controller validation, broader image-format support and full UI accessibility remain verification/polish work. F95Zone stays a separate opt-in integration.
+0.7.0 delivers duplicate evidence review and transactional batch organization for favorites, progress, tags, NSFW classification and library-entry removal. Optional background SHA-256 compares archive bytes; title candidates are explicitly non-exact. See ORGANIZATION.md.
+
+Next core-workflow gaps: archive content preview/queue and crash recovery, launch-candidate identification, duplicate reconciliation/merge, batch identification/extraction and previewed relocation with a recovery journal. Playtime and game-save backups remain planned. Physical-controller validation, broader image-format support, large-library benchmarks and full UI accessibility remain verification/polish work. F95Zone stays a separate opt-in integration.

@@ -1,64 +1,117 @@
-# ArcHive — standalone game library
+# ArcHive
 
-![Approved ArcHive logo and icon](ArcHive.App/Assets/ArcHive-brand-approved.png)
+**From archive to adventure.** A local-first Windows library for standalone games downloaded as ZIP, RAR and 7z archives.
 
-RAR/7z extraction is enabled by default alongside ZIP. Build with the .NET 10 SDK:
+![ArcHive approved branding](ArcHive.App/Assets/ArcHive-brand-approved.png)
+
+Turn a folder of downloads into an artwork-rich collection. Find your games, keep multiple versions together, choose how they launch, and organize your backlog without moving the original files.
+
+Built with **C# / .NET 10 / WPF**, backed by **SQLite**. Current source version: **0.7.0**.
+
+## Your collection, in one place
+
+- **Discover and launch.** Recursively scan folders for archives and executables. Extract ZIP/RAR/7z into a new game folder, link existing installations, and create named launch profiles with individual arguments and working directories.
+- **Make it yours.** Browse a responsive artwork grid, favorites and a separate archive view. Search titles/tags, edit notes, track Backlog / Playing / Completed / Abandoned, and use the optional details panel.
+- **Keep versions straight.** Store multiple archives and installations per entry, release/platform/channel details, latest-known releases and observation history. Numeric comparisons help identify local update gaps.
+- **Enrich with confidence.** Review metadata candidates from VNDB, Steam, IGDB, itch.io and RAWG. Matching uses title/alias, year and engine evidence; choose fields individually and preserve source attribution. Protected undo is available for text metadata.
+- **Bring the artwork.** Select provider covers, backdrops and screenshots, or use local images. Background downloads and bounded disk/memory caches keep the library responsive and reuse cached artwork offline.
+- **Play from the couch.** Navigate and launch with native DualSense/DS4 USB or Bluetooth input, or Xbox through XInput. Select DualSense, DS4 or Xbox button jewels. Cards display controller support when marked Partial or Full.
+- **Organize in batches.** Multi-select entries, preview changes, then update favorites, progress, tags or NSFW classification. Remove unwanted library records while keeping original archives and game folders.
+- **Review duplicates.** Find shared paths and possible title/version matches. Optional background SHA-256 comparison identifies byte-identical archives, with cancellation and per-file warnings.
+- **Keep visibility discreet.** A small crossed-out 18 / 18+ toggle hides or shows manually marked NSFW entries. Hidden is the default; unclassified games remain visible.
+
+## Run ArcHive
+
+### From source
+
+Use Windows and the **.NET 10 SDK**. Run these commands from the repository root; the first build restores dependencies from NuGet:
 
 ```powershell
 dotnet build ArcHive.App/ArcHive.App.csproj -c Release
-dotnet run --project ArcHive.App/ArcHive.App.csproj
-dotnet run --project ArcHive.Tests/ArcHive.Tests.csproj
+dotnet run --project ArcHive.App/ArcHive.App.csproj -c Release
 ```
 
-Add a library folder, select a game, and use Extract archive. Choose a new destination parent; the app creates a unique game directory. Select the executable explicitly before launching. Tags, favorites, played status, notes and cover images are stored in %LOCALAPPDATA%\ArcHive. Scanning never launches games.
+### Build a Windows installer
 
-Extraction uses pinned SharpCompress 0.50.9 for RAR/7z and the existing ZIP adapter. Solid archives are read sequentially; 7z entry order is reconciled with the preflight plan. Paths, duplicate names, declared and actual output size are checked before publication. Files are created in staging without overwriting existing games. Ordinary failures and cancellation clean staging. Encrypted and incomplete archives are unsupported. Original archives are retained.
+```powershell
+powershell -NoProfile -File packaging/Build-Installer.ps1
+```
 
-This is not a malware sandbox. Extract into a user-controlled local directory without hostile concurrent filesystem changes. Limits bound output size and entry count, not decoder memory or CPU; cancellation cannot interrupt a decoder until its read returns. Crash recovery, full format-specific link metadata coverage, checksum-corruption corpus testing and GUI validation remain release-hardening work. No archive metadata is used to create filesystem links or restore special attributes.
+This produces a self-contained Windows x64 executable and per-user MSI:
 
-See VALIDATION.md for exact tests. ARCHITECTURE.md retains the original roadmap; its first-increment status descriptions are historical.
+- `artifacts/publish/win-x64/ArcHive.exe`
+- `artifacts/installer/ArcHive-0.7.0-win-x64.msi`
 
+The installed app needs no separate .NET runtime. The executable, Start Menu shortcut and Installed Apps entry carry the approved ArcHive icon. Packages are currently unsigned; these are build outputs, not a claim that downloadable releases are published. See [packaging prerequisites and details](packaging/README.md).
 
-## ArcHive continuation
+## Your first game
 
-The project, namespaces and build output now use ArcHive throughout. See [ROADMAP.md](ROADMAP.md) for implemented/planned features, [design/DESIGN.md](design/DESIGN.md) for the approved branding, and [CONTINUATION.md](CONTINUATION.md) for library preservation.
+1. Choose **Add library folder** and select a folder containing your downloads or installed games. Rescans preserve edited metadata and do not launch anything.
+2. Select an entry. For an archive, choose **Extract archive** and a destination parent; ArcHive creates a unique folder and retains the original archive. For an existing installation, use **Add folder** if needed.
+3. In **Files and launch setup**, select the installation and **Choose executable**. Add a named profile, arguments and an optional working directory. Save your changes.
+4. Choose **Find metadata** to review a provider match and artwork, or edit the details manually.
+5. Click **Launch game** or press Cross/A. The selected profile launches directly after validation. Played history and last launch time are recorded independently of progress status.
 
-The adaptive artwork grid, background thumbnails, optional details and archive view are implemented. New scans clean CamelCase/snake_case and explicit version/platform labels without renaming originals or overwriting edited titles. Online providers and advanced roadmap features remain planned.
+Controller input pauses while ArcHive is inactive, busy or editing a field. Release the controls after connecting or returning to the app. Native Sony input takes priority over XInput mirrors; profiles change the displayed symbols independently of the detected device. ArcHive does not map input into games. See [supported controllers](NATIVE-CONTROLLERS.md).
 
-## Windows packaging
+## Clean up a growing library
 
-Run `powershell -NoProfile -File packaging/Build-Installer.ps1` to publish the self-contained Windows x64 app and build the per-user MSI. Output: `artifacts/publish/win-x64/ArcHive.exe` and `artifacts/installer/ArcHive-0.6.0-win-x64.msi`. No separate .NET runtime is required by the installed application. Build prerequisites and verification commands are in [packaging/README.md](packaging/README.md).
+Use search, status, favorites, archive view and visibility controls to narrow the library, then choose **Organize**. Only entries in that current view appear in the organizer.
 
-The approved icon is embedded in ArcHive.exe, the Start Menu shortcut and the Installed Apps entry. The sidebar blends the original logo into its surface without a black image rectangle. Windows uses its standard file-type icon for the .msi file itself. The package is currently unsigned.
+- Select rows with Ctrl/Shift, or **Select all shown**.
+- Choose **Find duplicates**. Enable **Compare archive contents (SHA-256)** for byte comparisons; this reads same-size archive candidates and can take time for large downloads.
+- Select an evidence group to review its titles and paths. **PossibleTitle** means a review candidate, often different releases; **SharedPath** means multiple references to one location; **ExactArchive** means matching size and SHA-256 at scan time.
+- Select the entries you want to change, choose an action, and **Preview changes**. Review each before/after value, then **Apply preview**. Changing selection or arguments invalidates the preview.
 
-## Versions, progress and launch profiles (0.2.0)
+Removal requires an additional confirmation and removes library records and their metadata only. Files remain on disk and rescans may rediscover them. There is no automatic merge, file deletion or folder-content comparison. See [duplicate and batch behavior](ORGANIZATION.md).
 
-Choose a progress state in game details and filter it beside Search. Progress and the Played flag are independent: launching records Played and last launch time without changing Completed or Abandoned.
+## Metadata, privacy and storage
 
-Expand **Versions and release history** to record a latest-known version and source note. In **Files and launch setup**, select an archive or installation to edit its version, platform and channel. Numeric versions are compared within matching platform/channel values; unsupported version formats show Unknown. These are local/manual observations, not live online update checks.
+Manual organization and launching require no provider account. Metadata searches and artwork choices are explicit; there is no automatic game downloading or release polling.
 
-Each installation can have multiple launch profiles. Create a profile, choose its executable, add one editable row per argument and optionally a working directory (relative to the installation or an absolute path inside it). A blank working directory uses the executable's folder. Blank argument rows represent empty arguments; arguments are literal, with no shell expansion. **Make default** selects the profile restored for that installation. **Save details and profiles** persists edits. Launch starts the selected profile directly after path/profile validation, without a confirmation dialog.
+| Provider | Current lookup scope |
+| --- | --- |
+| VNDB | Title search, metadata and available covers/screenshots |
+| Steam | Supported app-ID/title catalog; no guessed artwork URLs |
+| IGDB | Title search and available cover/artwork/screenshots; your app credentials |
+| itch.io | Your owned games or editable projects and available covers; not public catalog search |
+| RAWG | Title search, available background/screenshots and explicit controller hints; your API key |
 
-Existing SQLite libraries upgrade automatically with a retained pre-v2 backup. Older binaries cannot read schema 2; see [SQLITE-MIGRATION.md](SQLITE-MIGRATION.md) for rollback. This milestone was verified with automated tests and a Release build; full UI automation was intentionally skipped.
+Matching scores are review aids, not guarantees. Configure your own credentials in **Provider settings**, optionally stored in Windows Credential Manager. They are not saved in library records. Consult [METADATA.md](METADATA.md) for provider scopes, attribution, import format and reconciliation rules.
 
-## Metadata lookup and review (0.4.0)
+The default data folder is `%LOCALAPPDATA%\ArcHive`, separate from installed program files. SQLite stores the library; settings, cached artwork and local images stay alongside it. Saves retain a rolling database backup. Existing libraries migrate with dedicated migration backups; see [migration and recovery](SQLITE-MIGRATION.md). Database backups are not game-save backups. For an isolated development library, set `ARCHIVE_DATA_DIRECTORY` before starting the app.
 
-Select a game and choose **Find metadata**. Select VNDB, Steam, IGDB, itch.io or RAWG, then explicitly search or import a local JSON candidate array. Use **Provider settings** for your own API keys (and IGDB client ID/secret); optionally remember them in Windows Credential Manager. Nothing goes online merely by opening the dialog. Paths and notes stay local. Steam matches against its downloaded ID/title catalog; itch.io matches your owned games or editable projects, not a public search catalog. IGDB, RAWG and VNDB use title searches. See [METADATA.md](METADATA.md) for the import format, matching rules, provider scope and attribution.
+## Roadmap
 
-Select a candidate to compare current/proposed values. Existing values are unchecked by default; check only the fields you want to replace. Apply saves those fields with source identity and retrieval time. **Undo metadata** restores the last applied batch, unless a later manual edit would be overwritten. Title, description, tags, release year and engine edits are recorded as manual. Cancel leaves the lookup unapplied. The four additional adapters are included in 0.4.0. Artwork selection and caching are available in 0.5.0; F95Zone integration remains future work.
+| Delivered | Next / planned |
+| --- | --- |
+| Discovery, staged extraction, SQLite, favorites, tags and search | Archive content preview, extraction queues and crash recovery |
+| Versions, progress status and launch profiles | Launch-candidate/engine suggestions and richer filename review |
+| Five metadata providers, confidence matching and reconciliation | Provider release polling and optional F95Zone thread associations |
+| Artwork selection, asynchronous caching and controller navigation | Broader image formats, accessibility and large-library benchmarks |
+| Duplicate review and transactional batch organization | Duplicate reconciliation/merge, batch identification/extraction and previewed relocation |
+| Last-launched history | Session playtime, game-save backups and restore |
+| Native launch profiles | Optional Locale Emulator adapter and versioned plugins |
 
+[ROADMAP.md](ROADMAP.md) tracks delivered milestones and acceptance criteria. Windows WPF remains the current implementation; cross-platform Avalonia is a future consideration.
 
-## Artwork and gamepad controls (0.5.0)
+## Verification and current limits
 
-In **Find metadata**, select a candidate, scroll to its artwork and press **Preview** to download an image. Choose **Use as Cover**, **Backdrop**, or **Screenshot**, then **Apply selected changes** to save your choices (text fields are optional). Roles are independent, and an image can be used in more than one role. Existing images are preserved until explicitly replaced; screenshots append without duplicates, up to 24. In **Selected artwork**, clear a cover/backdrop or remove screenshots. The existing local-image action remains a fallback. Artwork choices do not use the text-metadata Undo stack.
+Run the automated suite:
 
-IGDB supplies covers, artwork and screenshots; RAWG supplies backgrounds and available search-result screenshots; VNDB supplies covers/screenshots; itch.io supplies covers. Steam's supported catalog supplies no image URLs, so ArcHive does not guess or scrape them. PNG/JPEG images load asynchronously into a bounded disk cache and remain available offline while cached. See [ARTWORK-GAMEPAD.md](ARTWORK-GAMEPAD.md) for limits and behavior.
+```powershell
+dotnet run --project ArcHive.Tests/ArcHive.Tests.csproj -c Release
+```
 
-Controller-support icons appear on game cards marked **Full** or **Partial** in the **Controller input support** selector. Unknown and None show no icon. Set this manually, or explicitly accept a provider's controller-support field; no support is inferred from the game's platform. Save details after editing.
+**430 checks pass**, including duplicate comparisons, cancellation, batch persistence/rollback and organization-dialog component tests. The Release build passes with zero warnings/errors. Full end-to-end UI tests were intentionally skipped; real controller hardware and authenticated live provider behavior remain unverified. See [VALIDATION.md](VALIDATION.md) for the evidence and limits.
 
-In **Settings**, choose DualSense (default), DualShock 4 or Xbox button jewels and enable gamepad navigation. Standard Sony DualSense and DS4 controllers work directly over USB or Bluetooth without an XInput mapper; Xbox controllers retain XInput support. Use the D-pad/left stick to select games, shoulders to switch All/Favorites/Archives, and Cross/A to launch directly. ArcHive must be active and not editing or running another operation. Native Sony input takes priority while connected to suppress mapper duplicates. Release controls after connecting or returning to ArcHive. Profiles select visual prompts independently of the input device. See [native controller support](NATIVE-CONTROLLERS.md) for supported devices and verification limits.
+Extraction stages files without overwriting existing games and checks paths, entry counts and declared/actual output sizes. Encrypted/incomplete archives are unsupported. Extraction is not a malware sandbox; use trusted downloads and user-controlled destinations. Decoder CPU/memory limits, crash recovery and broader corruption/link-metadata testing remain hardening work. Artwork currently supports the documented PNG/JPEG provider paths. Version tracking is local/manual, not automatic online updating.
 
+## Project guide
 
-## Discreet visibility control (0.6.0)
-
-The small crossed-out **18** beside Search hides games marked **NSFW**. Click it to show **18+** and include them; click again to hide them. The tooltip and accessible label identify the current state. The choice persists and defaults to hidden. Mark/unmark games with **NSFW** in details and save. This filters the grid, favorites, archive list, search results, details selection and gamepad navigation; it does not delete anything. Existing unmarked games remain visible—classification is manual, not guessed from titles, tags or ratings.
+- [Organization](ORGANIZATION.md) · [Metadata](METADATA.md) · [Artwork and gamepads](ARTWORK-GAMEPAD.md)
+- [Native controllers](NATIVE-CONTROLLERS.md) · [Design and branding](design/DESIGN.md)
+- [Roadmap](ROADMAP.md) · [Validation](VALIDATION.md) · [Windows packaging](packaging/README.md)
+- `ArcHive.App` — WPF interface, artwork presentation and Windows input
+- `ArcHive.Core` — scanning, extraction, storage, providers, launch plans and organization
+- `ArcHive.Tests` — automated regression suite and provider fixtures

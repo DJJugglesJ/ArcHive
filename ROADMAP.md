@@ -65,8 +65,8 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 ## V1.1 — organization and preservation
 
 - Version history: local/manual tracking delivered in 0.2.0. Provider-supplied release lookup and polling remain planned; no automatic downloads or upgrades.
-- Duplicate detection: candidate grouping by size and optional background hashes; distinguish exact copies from versions. Preview choices; never auto-delete.
-- Batch operations: multi-select tagging/identification/extraction and previewed rename/relocate; cancellation, per-item results and recovery journal.
+- Duplicate review delivered in 0.7.0: shared paths, possible title/version matches, optional size-prefiltered SHA-256 archive comparison, cancellable background work and per-file warnings. No automatic deletion. Merge/reconciliation and per-association cleanup remain planned.
+- Batch organization delivered in 0.7.0: multi-select favorites/status/tags/NSFW and library-record removal with per-entry before/after preview and transactional save. Batch identification/extraction, previewed rename/relocate and recovery journal remain planned.
 - Playtime: record sessions and totals; handle child processes, abnormal exits and user correction. Last-launched time is already present; elapsed playtime is not.
 - Save backups: user-approved save locations, timestamped snapshots, retention, restore preview and pre-restore backup. Database backups are not game-save backups.
 - Statistics, richer filters and collections; large-library performance benchmarks (10,000+ entries).
@@ -87,3 +87,10 @@ The exact second approved logo has been supplied and integrated into the running
 - Windows Raw Input for standard DualSense and DS4 v1/v2 over USB/Bluetooth, with no XInput mapper required for ArcHive navigation and direct launch.
 - Bounded report parsing, Bluetooth CRC validation, queued short taps, native priority over XInput mirrors, device arrival/removal, and neutral rearming after focus loss, handoff or stale input.
 - 381 automated checks and a clean Release build; physical-controller testing remains outstanding. No game input injection or advanced haptics.
+
+## Duplicate review and batch organization - delivered in 0.7.0
+
+- Organize dialog scoped to the current filtered view; extended multi-selection and evidence-driven duplicate review. Title candidates remain separate from shared-path and exact-archive evidence.
+- Optional cancellable background archive hashing, unchanged original files, bounded streaming and warnings for unavailable/changed locations.
+- Explicit per-item batch previews, invalidation when selection/arguments change, manual tag provenance, whole-transaction persistence and pre-save database backup. Library removal has an additional confirmation and preserves disk files.
+- 430 automated checks including dialog component tests; clean Release build. Full end-to-end UI tests skipped. See [ORGANIZATION.md](ORGANIZATION.md) for scope and limits.
