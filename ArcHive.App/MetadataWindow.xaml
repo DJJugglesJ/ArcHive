@@ -1,4 +1,4 @@
-<Window x:Class="ArcHive.App.MetadataWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Review game metadata" Width="850" Height="760" MinWidth="650" MinHeight="550" WindowStartupLocation="CenterOwner">
+<Window Background="#080D0B" Foreground="#E1F0E6" FontFamily="Segoe UI" x:Class="ArcHive.App.MetadataWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Review game metadata" Width="850" Height="760" MinWidth="650" MinHeight="550" WindowStartupLocation="CenterOwner">
  <DockPanel Margin="22">
   <StackPanel DockPanel.Dock="Top">
    <TextBlock Text="Find the right game" FontSize="24"/>

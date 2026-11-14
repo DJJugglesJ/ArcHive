@@ -17,6 +17,10 @@ public partial class MainWindow
             selected = null;
             library = updated;
         }) { Owner = this };
-        if (dialog.ShowDialog() == true) Refresh();
+        if (dialog.ShowDialog() == true)
+        {
+            if (detailsPage && selected is null) BackToCollection(this, new());
+            else Refresh();
+        }
     });
 }

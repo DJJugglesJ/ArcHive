@@ -41,6 +41,7 @@ public partial class OrganizationWindow : Window
     private void SelectionChanged(object sender, SelectionChangedEventArgs e)
     {
         if (!initialized) return;
+        Evidence.Text = string.Join("\n\n", Entries.SelectedItems.Cast<Game>().Select(g => g.Title + "\n" + g.CompactSourceSummary));
         InvalidatePreview(sender, e); Summary.Text = $"{Entries.SelectedItems.Count} of {Entries.Items.Count} shown entries selected.";
     }
     private void SelectAll(object sender, RoutedEventArgs e) => Entries.SelectAll();
@@ -48,9 +49,9 @@ public partial class OrganizationWindow : Window
     private void GroupSelected(object sender, SelectionChangedEventArgs e)
     {
         if (Groups.SelectedItem is not DuplicateGroup group) return;
-        Evidence.Text = group.Evidence + "\n\n" + string.Join("\n\n", group.Members.Select(m => m.Title + "\n" + m.Path));
         var ids = group.Members.Select(m => m.GameId).ToHashSet();
         Entries.UnselectAll(); foreach (Game game in Entries.Items) if (ids.Contains(game.Id)) Entries.SelectedItems.Add(game);
+        Evidence.Text = group.Evidence + "\n\n" + string.Join("\n\n", group.Members.Select(m => m.Title + "\n" + DisplayPaths.Compact(m.Path)));
         Summary.Text += " Review each entry; title matches may be different versions.";
     }
     private async void FindDuplicates(object sender, RoutedEventArgs e)

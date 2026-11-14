@@ -52,7 +52,7 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 | Work | Acceptance |
 | --- | --- |
 | Archive manager | Delivered in 0.8.0: content/size preview, persistent sequential queue, cancellation and explicit restart recovery. Partial/uncertain output is retained; automated cleanup and decoder resource hardening remain planned. |
-| Identification | Suggest launch candidates and engine with evidence; require selection, exclude uninstallers and tools; preserve manual choices. |
+| Identification | Delivered in 0.9.0: bounded local candidate/engine review, observed evidence, common-helper exclusion and opt-in profile/engine/title application preserving defaults. Broader signatures remain planned. |
 | Naming | Persist original name, canonical title, display title, version, platform, release channel and parser confidence separately. Preview suggested corrections; never rename files automatically. Support dates and ambiguous tokens through explicit review. |
 | Progress/status | Delivered in 0.2.0; update availability is a separate release indicator. |
 | Launch profiles | Delivered in 0.2.0. Native profiles work now; external adapters remain optional future integrations. |
@@ -101,3 +101,16 @@ The exact second approved logo has been supplied and integrated into the running
 - Durable sequential extraction jobs, source-change checks, exclusive queue ownership, cancellable runs and explicit retry in new attempt folders.
 - Running-to-Interrupted startup recovery, retained uncertain output, durable Extracted receipts and idempotent installation linking after library-save interruptions. No automatic filesystem deletion or decoder resume.
 - 469 automated checks; journal snapshots exercise interruption boundaries. Hardware power-loss and full UI automation are not claimed. See ARCHIVE-QUEUE.md.
+
+## Launch detection and selection polish - delivered in 0.9.0
+
+- Local executable/engine suggestions with evidence and explicit application; no automatic launching, default replacement or metadata overwrite. Accepted evidence persists.
+- Numeric-only new discoveries include immediate-parent context without removing the identifier; existing titles remain unchanged. Full sources and source-folder access are exposed.
+- Right-click / Triangle / Y options, shared keyboard/controller navigation, synchronized archive-row highlight, stronger card/table selection, explicit dark secondary windows and themed menus/dropdowns/tooltips.
+- 511 automated checks, clean Release build, and live desktop fixture test covering suggestions, preserved-default launch, batches, archive preview and selection. Physical controller hardware remains unverified. See LAUNCH-DETECTION.md.
+
+### Details-first release polish
+
+Left-click or Cross/A opens a dedicated details page; Play is a separate action. Right-click or Triangle/Y opens options. Boolean controls use selected buttons with accessible checked state. Display paths retain the drive and final two components, with full paths available through tooltips and Copy full paths. Stored paths remain unchanged.
+
+Live fixture verification confirmed opening details did not change the launch marker, explicit Play did, and the details layout fit a 1014-pixel-wide window. Automated checks cover compact drive/UNC paths, unchanged stored paths, and held-accept suppression.

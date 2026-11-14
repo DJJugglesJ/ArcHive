@@ -13,7 +13,8 @@ public partial class ArchiveQueueWindow : Window
     public ArchiveQueueWindow(ExtractionQueue queue, Game? game, GameArchive? archive, Func<ExtractionJob, Task> link)
     {
         InitializeComponent(); this.queue = queue; this.game = game; this.archive = archive; this.link = link;
-        SourcePath.Text = archive?.Path ?? "Select a game's archive and choose Preview / queue to add an extraction.";
+        SourcePath.ToolTip = archive?.Path;
+        SourcePath.Text = archive is not null ? DisplayPaths.Compact(archive.Path) : "Select a game's archive and choose Preview / queue to add an extraction.";
         PreviewButton.IsEnabled = archive is not null;
         RefreshJobs();
         Closing += (_, e) => { if (operation is not null) { operation.Cancel(); e.Cancel = true; Status.Text = "Stopping; close again when the current read finishes."; } };
@@ -70,7 +71,7 @@ public partial class ArchiveQueueWindow : Window
     private void SelectedJob(object sender, SelectionChangedEventArgs e)
     {
         if (JobDetails is null) return;
-        JobDetails.Text = Jobs.SelectedItem is ExtractionJob job ? $"Archive: {job.Archive}\nOutput: {job.Output ?? "Not recorded"}\n{job.Error}\nAttempt folders (retained):\n{string.Join("\n", job.Attempts)}" : "";
+        JobDetails.Text = Jobs.SelectedItem is ExtractionJob job ? $"Archive: {DisplayPaths.Compact(job.Archive)}\nOutput: {(job.Output is null ? "Not recorded" : DisplayPaths.Compact(job.Output))}\n{job.Error}\nAttempt folders (retained):\n{string.Join("\n", job.Attempts.Select(DisplayPaths.Compact))}" : "";
     }
     private void Stop(object sender, RoutedEventArgs e) => operation?.Cancel();
     private void CloseWindow(object sender, RoutedEventArgs e) => Close();

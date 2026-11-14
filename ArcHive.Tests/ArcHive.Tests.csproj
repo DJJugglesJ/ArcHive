@@ -2,6 +2,6 @@
   <PropertyGroup><OutputType>Exe</OutputType><UseWPF>true</UseWPF></PropertyGroup>
   <ItemGroup><None Include="Fixtures/**" CopyToOutputDirectory="PreserveNewest" /></ItemGroup>
   <ItemGroup><ProjectReference Include="../ArcHive.Core/ArcHive.Core.csproj" /></ItemGroup>
-  <ItemGroup><Compile Include="../ArcHive.App/ArtworkImages.cs" Link="ArtworkImages.cs"/><Compile Include="../ArcHive.App/XInputPad.cs" Link="XInputPad.cs"/><Compile Include="../ArcHive.App/NativePlayStationInput.cs" Link="NativePlayStationInput.cs"/></ItemGroup>
+  <ItemGroup><Compile Include="../ArcHive.App/CompactPathConverter.cs" Link="CompactPathConverter.cs"/><Compile Include="../ArcHive.App/ArtworkImages.cs" Link="ArtworkImages.cs"/><Compile Include="../ArcHive.App/XInputPad.cs" Link="XInputPad.cs"/><Compile Include="../ArcHive.App/NativePlayStationInput.cs" Link="NativePlayStationInput.cs"/></ItemGroup>
   <ItemGroup><Page Include="../ArcHive.App/OrganizationWindow.xaml" Link="OrganizationWindow.xaml"/><Compile Include="../ArcHive.App/OrganizationWindow.xaml.cs" Link="OrganizationWindow.xaml.cs"/></ItemGroup>
 </Project>

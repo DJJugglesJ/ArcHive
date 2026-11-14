@@ -23,9 +23,9 @@ public static class Scanner
                     if ((File.GetAttributes(file) & FileAttributes.ReparsePoint) != 0) continue;
                     var extension = Path.GetExtension(file).ToLowerInvariant();
                     if (extension is ".zip" or ".rar" or ".7z")
-                        games.Add(new Game { Title = FilenameParser.Parse(Path.GetFileName(file)).Title, ArchivePath = file });
+                        games.Add(new Game { Title = FilenameParser.FromLocation(file, false).Title, ArchivePath = file });
                     if (extension == ".exe" && seenFolders.Add(directory))
-                        games.Add(new Game { Title = FilenameParser.Parse(Path.GetFileName(directory)).Title, DirectoryPath = directory });
+                        games.Add(new Game { Title = FilenameParser.FromLocation(directory, true).Title, DirectoryPath = directory });
                 }
                 foreach (var child in Directory.EnumerateDirectories(directory))
                     if ((File.GetAttributes(child) & FileAttributes.ReparsePoint) == 0) Walk(child);

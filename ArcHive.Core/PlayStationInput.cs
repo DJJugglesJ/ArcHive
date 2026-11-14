@@ -50,6 +50,7 @@ public static class PlayStationInput
             6 => PadButtons.Left, 7 => PadButtons.Left | PadButtons.Up, _ => PadButtons.None
         };
         if ((face & 0x20) != 0) held |= PadButtons.A; // Cross / south
+        if ((face & 0x80) != 0) held |= PadButtons.Options; // Triangle / north
         if ((face & 0x40) != 0) held |= PadButtons.B; // Circle / east
         if ((shoulders & 1) != 0) held |= PadButtons.Previous;
         if ((shoulders & 2) != 0) held |= PadButtons.Next;

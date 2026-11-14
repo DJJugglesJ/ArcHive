@@ -8,6 +8,15 @@ public sealed class Game : System.ComponentModel.INotifyPropertyChanged
     private bool isSelected;
     [System.Text.Json.Serialization.JsonIgnore]
     public bool IsSelected { get => isSelected; set { if (isSelected == value) return; isSelected = value; PropertyChanged?.Invoke(this, new(nameof(IsSelected))); } }
+    public List<DetectionDecision> DetectionHistory { get; set; } = [];
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string SourceLocation => Installations.FirstOrDefault()?.Path ?? Archives.FirstOrDefault()?.Path ?? DirectoryPath ?? ArchivePath ?? "No source linked";
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string CompactSource => DisplayPaths.Compact(SourceLocation);
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string CompactSourceSummary => string.Join("\n", Installations.Select(i => "Folder: " + DisplayPaths.Compact(i.Path)).Concat(Archives.Select(a => "Archive: " + DisplayPaths.Compact(a.Path))));
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string SourceSummary => string.Join("\n", Installations.Select(i => "Folder: " + i.Path).Concat(Archives.Select(a => "Archive: " + a.Path)));
     public GameArtwork Artwork { get; set; } = new();
     public ControllerSupport ControllerSupport { get; set; } = ControllerSupport.Unknown;
     [System.Text.Json.Serialization.JsonIgnore]
@@ -61,7 +70,7 @@ public sealed class GameArchive
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Path { get; set; } = "";
     public ReleaseInfo Release { get; set; } = new();
-    public override string ToString() => Path;
+    public override string ToString() => DisplayPaths.Compact(Path);
 }
 public sealed class GameInstallation
 {
@@ -72,7 +81,7 @@ public sealed class GameInstallation
     public List<LaunchProfile> Profiles { get; set; } = [];
     public Guid? DefaultProfileId { get; set; }
     public ReleaseInfo Release { get; set; } = new();
-    public override string ToString() => Path;
+    public override string ToString() => DisplayPaths.Compact(Path);
 }
 
 public sealed class Library

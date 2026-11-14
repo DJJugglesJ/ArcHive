@@ -122,3 +122,15 @@ Remaining coverage: this is a primary-workflow GUI pass, not an exhaustive UI au
 - Previews cover ZIP and RAR/7z fixtures, sizes, unsupported paths, duplicate/file-parent conflicts, entry/byte limits and cancellation.
 - Queue tests cover pending reload, exclusive leases, duplicate jobs, write-failure atomicity, source locking/changes, sequential continuation, stop/retry, partial staging retention and fresh attempt paths. Durable journal snapshots reproduce interruption before output receipt and after library save; installation replay is idempotent. Link failures retain output, removed games are not recreated, and corrupt/future/mislocated journals fail closed.
 - A stream-lifetime error discovered by the preview tests was corrected. Tests do not simulate hardware power failure or abrupt OS termination; full end-to-end UI tests were skipped. No live archive downloads or games were launched.
+
+## Launch/engine suggestions and live UI - 0.9.0
+
+- All 511 checks pass (469 existing + 42 detection/input/display checks); Release build has zero warnings/errors. Signatures, helper exclusions, conflict notes, traversal limits/cancellation, explicit application, default/argument/manual-metadata preservation, numeric-title context, stale files and accepted-evidence SQLite persistence are covered. Sony Triangle decoding and held-button suppression are verified with synthetic reports.
+- Live desktop testing was performed this time using a separate fixture library. Card/archive right-click, shared navigation/selection, suggestion scan/apply, harmless child launch, organizer preview/apply and archive content preview passed. Database inspection confirmed the manual engine/default remained and a second profile/evidence were saved. Restart and small-window checks followed.
+- The live test found missing dark backgrounds in secondary windows, a tooltip contrast problem and cramped evidence/source display; fixes were applied. Archive selection now updates the visible list rather than only its hidden selection model. See LAUNCH-DETECTION.md for the test flow and remaining hardware limits.
+
+### Details-first release polish
+
+Left-click or Cross/A opens a dedicated details page; Play is a separate action. Right-click or Triangle/Y opens options. Boolean controls use selected buttons with accessible checked state. Display paths retain the drive and final two components, with full paths available through tooltips and Copy full paths. Stored paths remain unchanged.
+
+Live fixture verification confirmed opening details did not change the launch marker, explicit Play did, and the details layout fit a 1014-pixel-wide window. Automated checks cover compact drive/UNC paths, unchanged stored paths, and held-accept suppression.

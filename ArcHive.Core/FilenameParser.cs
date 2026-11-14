@@ -5,6 +5,16 @@ namespace ArcHive.Core;
 public sealed record ParsedGameName(string Original, string Title, string? Version, string? Platform);
 public static class FilenameParser
 {
+    // Keep numeric identifiers, but include immediate parent context on new discoveries.
+    public static ParsedGameName FromLocation(string path, bool directory)
+    {
+        var name = Path.GetFileName(Path.TrimEndingDirectorySeparator(path));
+        var parsed = Parse(name);
+        if (parsed.Title.Any(char.IsLetter)) return parsed;
+        var parent = Path.GetFileName(Path.GetDirectoryName(Path.TrimEndingDirectorySeparator(path)));
+        var context = Parse(parent ?? "").Title;
+        return context.Any(char.IsLetter) ? parsed with { Title = context + " · " + parsed.Title } : parsed;
+    }
     public static ParsedGameName Parse(string name)
     {
         var original = name;

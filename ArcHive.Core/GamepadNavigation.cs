@@ -1,8 +1,8 @@
 namespace ArcHive.Core;
 
 [Flags]
-public enum PadButtons { None = 0, Up = 1, Down = 2, Left = 4, Right = 8, A = 16, B = 32, Previous = 64, Next = 128 }
-public enum PadAction { None, Up, Down, Left, Right, Accept, Cancel, Previous, Next }
+public enum PadButtons { None = 0, Up = 1, Down = 2, Left = 4, Right = 8, A = 16, B = 32, Previous = 64, Next = 128, Options = 256 }
+public enum PadAction { None, Up, Down, Left, Right, Accept, Cancel, Previous, Next, Options }
 public sealed class GamepadNavigation
 {
     private bool armed;
@@ -16,6 +16,7 @@ public sealed class GamepadNavigation
         if (!armed) { if (buttons == PadButtons.None) armed = true; previous = buttons; return PadAction.None; }
         var pressed = buttons & ~previous; previous = buttons;
         if ((pressed & PadButtons.B) != 0) return PadAction.Cancel;
+        if ((pressed & PadButtons.Options) != 0) return PadAction.Options;
         if ((pressed & PadButtons.A) != 0) return PadAction.Accept;
         if ((pressed & PadButtons.Previous) != 0) return PadAction.Previous;
         if ((pressed & PadButtons.Next) != 0) return PadAction.Next;

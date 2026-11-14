@@ -22,7 +22,7 @@ public partial class MainWindow
     {
         ActiveControllerProfile = preferences.ControllerProfile;
         var prompts = ControllerPrompts.For(preferences.ControllerProfile);
-        ControllerNavigationHint.Text = preferences.GamepadEnabled ? $"{prompts.Accept}: launch · {prompts.Previous}/{prompts.Next}: views" : "Gamepad navigation off";
+        ControllerNavigationHint.Text = preferences.GamepadEnabled ? $"{prompts.Accept}: open / select · {prompts.Menu}: options · {prompts.Previous}/{prompts.Next}: views" : "Gamepad navigation off";
         NsfwLabel.Text = preferences.ShowNsfw ? "18+" : "18";
         NsfwCircle.Visibility = NsfwSlash.Visibility = preferences.ShowNsfw ? Visibility.Collapsed : Visibility.Visible;
         var state = preferences.ShowNsfw ? "NSFW games shown — click to hide" : "NSFW games hidden — click to show";

@@ -34,7 +34,7 @@ public partial class MainWindow : Window
         galleryColumns = columns; RebuildGallery();
     }
     private void SelectCard(object sender, RoutedEventArgs e)
-    { Games.SelectedItem = ((Button)sender).Tag; }
+    { Games.SelectedItem = ((Button)sender).Tag; ShowDetailsPage(); }
     private void SelectArchiveRow(object sender, SelectionChangedEventArgs e)
     { if (ArchiveList.SelectedItem is Game game) Games.SelectedItem = game; }
     private void NavigateLibrary(object sender, RoutedEventArgs e) => Navigate(false, false);
@@ -43,21 +43,17 @@ public partial class MainWindow : Window
     private void Navigate(bool archives, bool favorites)
     {
         if (operation is not null) return;
+        if (detailsPage) BackToCollection(this, new());
         Commit(); archivesView = archives;
         FavoritesOnly.IsChecked = favorites;
         PageTitle.Text = archives ? "Archive manager" : favorites ? "Your favorites" : "Your library";
         PageSubtitle.Text = archives ? "Inspect your downloads. Extract when you are ready." : "A home for every game you discover.";
         Gallery.Visibility = archives ? Visibility.Collapsed : Visibility.Visible;
         ArchiveList.Visibility = archives ? Visibility.Visible : Visibility.Collapsed;
-        Refresh();
+        Refresh(); (archives ? (Control)ArchiveList : Gallery).Focus();
     }
     private void ToggleInspector(object sender, RoutedEventArgs e)
-    {
-        var show = InspectorBorder.Visibility != Visibility.Visible;
-        InspectorBorder.Visibility = show ? Visibility.Visible : Visibility.Collapsed;
-        InspectorColumn.Width = new GridLength(show ? 360 : 0);
-        InspectorToggle.Content = show ? "Hide details" : "Show details";
-    }
+    { if (selected is null) Status.Text = "Select an entry to open its details."; else ShowDetailsPage(); }
 
     public MainWindow()
     {
@@ -81,6 +77,7 @@ public partial class MainWindow : Window
         StatusFilter.SelectedIndex = 0;
         ready = true;
         Refresh();
+        Loaded += (_, _) => Gallery.Focus();
         Closing += OnClosing;
         Closed += (_, _) => extractionQueue?.Dispose();
         if (extractionQueue.Jobs.Any(j => j.State != ExtractionState.Completed && j.State != ExtractionState.Cancelled))
@@ -127,6 +124,9 @@ public partial class MainWindow : Window
         selected = Games.SelectedItem as Game;
         foreach (var game in library.Games) game.IsSelected = game == selected;
         editorArchive = null; editorInstallation = null; editorProfile = null;
+        ArchiveList.SelectedItem = selected;
+        SelectedSource.Text = selected?.CompactSourceSummary ?? "Select a game to see its source locations.";
+        SelectedSource.ToolTip = selected?.SourceSummary;
         Details.IsEnabled = selected is not null;
         if (selected is null)
         {
@@ -173,7 +173,7 @@ public partial class MainWindow : Window
     {
         if (Paths is null) return;
         var parsed = FilenameParser.Parse(Path.GetFileName(ActiveArchive?.Path ?? ActiveInstallation?.Path ?? ""));
-        Paths.Text = $"Filename hints: version {parsed.Version ?? "unknown"} / {parsed.Platform ?? "unknown"}\nArchive: {ActiveArchive?.Path ?? "—"}\nFolder: {ActiveInstallation?.Path ?? "—"}\nLaunch: {editorProfile?.ExecutablePath ?? "Choose an executable"}";
+        Paths.Text = $"Filename hints: version {parsed.Version ?? "unknown"} / {parsed.Platform ?? "unknown"}\nArchive: {(ActiveArchive is null ? "—" : DisplayPaths.Compact(ActiveArchive.Path))}\nFolder: {(ActiveInstallation is null ? "—" : DisplayPaths.Compact(ActiveInstallation.Path))}\nLaunch: {(editorProfile is null ? "Choose an executable" : DisplayPaths.Compact(editorProfile.ExecutablePath))}";
     }
     private void AddArchive(object sender, RoutedEventArgs e) => Guard(() =>
     {

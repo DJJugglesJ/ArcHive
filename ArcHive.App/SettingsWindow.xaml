@@ -1,11 +1,11 @@
-<Window x:Class="ArcHive.App.SettingsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ArcHive.App" Title="ArcHive settings" Width="520" Height="520" MinWidth="460" MinHeight="360" WindowStartupLocation="CenterOwner">
+<Window Background="#080D0B" Foreground="#E1F0E6" FontFamily="Segoe UI" x:Class="ArcHive.App.SettingsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" xmlns:local="clr-namespace:ArcHive.App" Title="ArcHive settings" Width="520" Height="520" MinWidth="460" MinHeight="360" WindowStartupLocation="CenterOwner">
  <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="26">
   <TextBlock Text="Controller" FontSize="24" Margin="0,0,0,14"/>
   <ComboBox x:Name="Profiles" SelectionChanged="ProfileChanged" Margin="0,0,0,14" AutomationProperties.Name="Controller button profile"/>
   <StackPanel Orientation="Horizontal" Margin="0,0,0,16"><local:ControllerJewel x:Name="Accept"/><local:ControllerJewel x:Name="CancelJewel" Position="1" Margin="8,0"/><local:ControllerJewel x:Name="Alternate" Position="2"/><local:ControllerJewel x:Name="Menu" Position="3" Margin="8,0"/></StackPanel>
   <TextBlock Text="Choose the button symbols you use. DualSense uses neutral jewels; DualShock 4 uses PlayStation colors; Xbox uses A/B/X/Y. DualSense and DS4 connect natively over USB or Bluetooth; Xbox uses XInput. Profiles choose button visuals independently of the connected device." TextWrapping="Wrap" Foreground="#8FAA99" Margin="0,0,0,16"/>
   <CheckBox x:Name="Gamepad" Content="Enable gamepad navigation"/>
-  <TextBlock Text="Launch starts the selected profile immediately." Foreground="#8FAA99" Margin="0,0,0,14"/>
+  <TextBlock Text="Cross / A opens game details. Choose Play there to start the selected profile." Foreground="#8FAA99" Margin="0,0,0,14"/>
   <WrapPanel><Button Content="Save" Click="Save"/><Button Content="Cancel" IsCancel="True"/></WrapPanel>
  </StackPanel></ScrollViewer>
 </Window>

@@ -17,6 +17,7 @@ public partial class MainWindow
             Games.SelectedItem = null; selected = null; library = updated;
             return Task.CompletedTask;
         }) { Owner = this }.ShowDialog();
-        Refresh();
+        if (detailsPage && selected is null) BackToCollection(this, new());
+        else Refresh();
     });
 }
