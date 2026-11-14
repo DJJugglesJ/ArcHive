@@ -3,7 +3,7 @@
   <TextBlock Text="Controller" FontSize="24" Margin="0,0,0,14"/>
   <ComboBox x:Name="Profiles" SelectionChanged="ProfileChanged" Margin="0,0,0,14" AutomationProperties.Name="Controller button profile"/>
   <StackPanel Orientation="Horizontal" Margin="0,0,0,16"><local:ControllerJewel x:Name="Accept"/><local:ControllerJewel x:Name="CancelJewel" Position="1" Margin="8,0"/><local:ControllerJewel x:Name="Alternate" Position="2"/><local:ControllerJewel x:Name="Menu" Position="3" Margin="8,0"/></StackPanel>
-  <TextBlock Text="Choose the button symbols you use. DualSense uses neutral jewels; DualShock 4 uses PlayStation colors; Xbox uses A/B/X/Y. Input currently requires an XInput-compatible connection or mapping." TextWrapping="Wrap" Foreground="#8FAA99" Margin="0,0,0,16"/>
+  <TextBlock Text="Choose the button symbols you use. DualSense uses neutral jewels; DualShock 4 uses PlayStation colors; Xbox uses A/B/X/Y. DualSense and DS4 connect natively over USB or Bluetooth; Xbox uses XInput. Profiles choose button visuals independently of the connected device." TextWrapping="Wrap" Foreground="#8FAA99" Margin="0,0,0,16"/>
   <CheckBox x:Name="Gamepad" Content="Enable gamepad navigation"/>
   <TextBlock Text="Launch starts the selected profile immediately." Foreground="#8FAA99" Margin="0,0,0,14"/>
   <WrapPanel><Button Content="Save" Click="Save"/><Button Content="Cancel" IsCancel="True"/></WrapPanel>

@@ -12,8 +12,7 @@ public sealed class GamepadNavigation
     public PadAction Update(PadButtons buttons, short x, short y, bool enabled, TimeSpan now)
     {
         if (!enabled) { armed = false; previous = PadButtons.None; held = PadAction.None; return PadAction.None; }
-        if (Math.Abs((int)x) > 12000 || Math.Abs((int)y) > 12000)
-            buttons |= Math.Abs((int)x) > Math.Abs((int)y) ? x < 0 ? PadButtons.Left : PadButtons.Right : y < 0 ? PadButtons.Down : PadButtons.Up;
+        buttons = EffectiveButtons(buttons, x, y);
         if (!armed) { if (buttons == PadButtons.None) armed = true; previous = buttons; return PadAction.None; }
         var pressed = buttons & ~previous; previous = buttons;
         if ((pressed & PadButtons.B) != 0) return PadAction.Cancel;
@@ -26,6 +25,12 @@ public sealed class GamepadNavigation
         if (direction != held) { held = direction; repeatAt = now + TimeSpan.FromMilliseconds(450); return direction; }
         if (now < repeatAt) return PadAction.None;
         repeatAt = now + TimeSpan.FromMilliseconds(120); return direction;
+    }
+    public static PadButtons EffectiveButtons(PadButtons buttons, short x, short y)
+    {
+        if (Math.Abs((int)x) > 12000 || Math.Abs((int)y) > 12000)
+            buttons |= Math.Abs((int)x) > Math.Abs((int)y) ? x < 0 ? PadButtons.Left : PadButtons.Right : y < 0 ? PadButtons.Down : PadButtons.Up;
+        return buttons;
     }
     public static int Move(int index, int count, int columns, PadAction action)
     {

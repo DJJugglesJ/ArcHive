@@ -27,7 +27,7 @@ The adaptive artwork grid, background thumbnails, optional details and archive v
 
 ## Windows packaging
 
-Run `powershell -NoProfile -File packaging/Build-Installer.ps1` to publish the self-contained Windows x64 app and build the per-user MSI. Output: `artifacts/publish/win-x64/ArcHive.exe` and `artifacts/installer/ArcHive-0.5.1-win-x64.msi`. No separate .NET runtime is required by the installed application. Build prerequisites and verification commands are in [packaging/README.md](packaging/README.md).
+Run `powershell -NoProfile -File packaging/Build-Installer.ps1` to publish the self-contained Windows x64 app and build the per-user MSI. Output: `artifacts/publish/win-x64/ArcHive.exe` and `artifacts/installer/ArcHive-0.6.0-win-x64.msi`. No separate .NET runtime is required by the installed application. Build prerequisites and verification commands are in [packaging/README.md](packaging/README.md).
 
 The approved icon is embedded in ArcHive.exe, the Start Menu shortcut and the Installed Apps entry. The sidebar blends the original logo into its surface without a black image rectangle. Windows uses its standard file-type icon for the .msi file itself. The package is currently unsigned.
 
@@ -56,9 +56,9 @@ IGDB supplies covers, artwork and screenshots; RAWG supplies backgrounds and ava
 
 Controller-support icons appear on game cards marked **Full** or **Partial** in the **Controller input support** selector. Unknown and None show no icon. Set this manually, or explicitly accept a provider's controller-support field; no support is inferred from the game's platform. Save details after editing.
 
-In **Settings**, choose DualSense (default), DualShock 4 or Xbox button jewels and enable gamepad navigation. An XInput-compatible controller uses the D-pad/left stick to select games, shoulders to switch All/Favorites/Archives, and Cross/A to launch directly. ArcHive must be active and not editing a text box/selector or running another operation. Clicking the game grid leaves editing mode. Input pauses when a game takes focus. Settings persist across restarts; PlayStation button profiles change prompts, not input drivers. DirectInput-only controllers need an XInput-compatible mapping. Automated input simulation passed; physical-controller/end-to-end UI testing was not performed.
+In **Settings**, choose DualSense (default), DualShock 4 or Xbox button jewels and enable gamepad navigation. Standard Sony DualSense and DS4 controllers work directly over USB or Bluetooth without an XInput mapper; Xbox controllers retain XInput support. Use the D-pad/left stick to select games, shoulders to switch All/Favorites/Archives, and Cross/A to launch directly. ArcHive must be active and not editing or running another operation. Native Sony input takes priority while connected to suppress mapper duplicates. Release controls after connecting or returning to ArcHive. Profiles select visual prompts independently of the input device. See [native controller support](NATIVE-CONTROLLERS.md) for supported devices and verification limits.
 
 
-## Discreet visibility control (0.5.1)
+## Discreet visibility control (0.6.0)
 
 The small crossed-out **18** beside Search hides games marked **NSFW**. Click it to show **18+** and include them; click again to hide them. The tooltip and accessible label identify the current state. The choice persists and defaults to hidden. Mark/unmark games with **NSFW** in details and save. This filters the grid, favorites, archive list, search results, details selection and gamepad navigation; it does not delete anything. Existing unmarked games remain visible—classification is manual, not guessed from titles, tags or ratings.

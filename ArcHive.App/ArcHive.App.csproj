@@ -1,5 +1,5 @@
 <Project Sdk="Microsoft.NET.Sdk">
-  <PropertyGroup><OutputType>WinExe</OutputType><UseWPF>true</UseWPF><AssemblyName>ArcHive</AssemblyName><ApplicationIcon>Assets/ArcHive.ico</ApplicationIcon><Version>0.5.1</Version><Product>ArcHive</Product><Description>Standalone game library and launcher</Description></PropertyGroup>
+  <PropertyGroup><OutputType>WinExe</OutputType><UseWPF>true</UseWPF><AssemblyName>ArcHive</AssemblyName><ApplicationIcon>Assets/ArcHive.ico</ApplicationIcon><Version>0.6.0</Version><Product>ArcHive</Product><Description>Standalone game library and launcher</Description></PropertyGroup>
   <ItemGroup><Resource Include="Assets/ArcHive-brand-approved.png" /><Resource Include="Assets/ArcHive.ico" /></ItemGroup>
   <ItemGroup><ProjectReference Include="../ArcHive.Core/ArcHive.Core.csproj" /></ItemGroup>
 </Project>

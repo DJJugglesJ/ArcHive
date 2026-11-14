@@ -101,3 +101,10 @@ Remaining coverage: this is a primary-workflow GUI pass, not an exhaustive UI au
 - 324 automated checks pass (307 previous + 17 preference/filter checks). Release build passes with zero warnings/errors. Direct launching retains the existing executable validation, exact argument-delivery regression and edge-triggered input tests; the confirmation window was removed.
 - New checks cover DualSense/hidden defaults, profile mappings, persisted settings and backups, invalid/corrupt settings preservation, per-game NSFW SQLite round trips, unclassified legacy records and nonrepeating direct-launch input.
 - Hiding is applied to the shared visible game list used by grid, archives, favorites, search and controller navigation; filtered-out selections are explicitly cleared. Physical controller behavior and full end-to-end UI tests were not run. PlayStation profiles change jewels/prompts and still require an XInput-compatible mapping for input.
+
+## Native DualSense and DS4 — 0.6.0
+
+- All 381 automated checks pass (324 existing plus 57 native controller checks). Release WPF build succeeds with zero warnings and errors.
+- Synthetic USB, basic Bluetooth and extended Bluetooth report fixtures cover Sony IDs, layouts, axes, hats, buttons, CRC failures, truncation, batch bounds and atomic rejection. Routing tests cover short taps, duplicate reports, mapper suppression, neutral arming, focus suspension, stale input, queue overflow, multiple devices, reconnect/handoff and one launch action per press.
+- A real hidden message-only Windows HWND verifies Raw Input registration, enumeration and disposal/re-registration. This is an automated interop check, not a full end-to-end UI test.
+- Physical USB/Bluetooth controllers were unavailable for verification. Hardware/firmware compatibility and real controller navigation/launching remain unverified. The 0.5.1 mapper requirement above is historical and superseded by this backend.

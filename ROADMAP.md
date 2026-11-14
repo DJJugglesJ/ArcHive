@@ -44,7 +44,7 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 ## Controller profiles and discreet visibility — delivered in 0.5.1
 
 - Direct mouse/gamepad launching without confirmation; executable/profile checks and held-button suppression remain.
-- Persistent DualSense (default), DualShock 4 and Xbox visual prompt profiles, vector button jewels in settings/launch/cards, and persistent gamepad navigation preference. Native PlayStation HID input remains outside the existing XInput backend.
+- Persistent DualSense (default), DualShock 4 and Xbox visual prompt profiles, vector button jewels in settings/launch/cards, and persistent gamepad navigation preference. Native PlayStation input was subsequently added in 0.6.0.
 - Small crossed-out 18 / 18+ control for hiding/showing manually classified NSFW games. Persisted setting defaults to hidden; filters all library views and clears filtered selections without deleting records.
 
 ## V1 — complete the core workflow
@@ -81,3 +81,9 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 ## Release gates
 
 The exact second approved logo has been supplied and integrated into the running app. The approved ICO is now packaged in the executable and Windows MSI. Regress scanning/extraction/database migration and edited metadata preservation. Exercise empty/missing/broken-art states, search, selection, resizing and cancellation. Document actual performance measurements separately from intended targets. VNDB, Steam, IGDB, itch.io and RAWG connect only on explicit lookup with their documented scopes. F95Zone remains planned.
+
+## Native PlayStation input — delivered in 0.6.0
+
+- Windows Raw Input for standard DualSense and DS4 v1/v2 over USB/Bluetooth, with no XInput mapper required for ArcHive navigation and direct launch.
+- Bounded report parsing, Bluetooth CRC validation, queued short taps, native priority over XInput mirrors, device arrival/removal, and neutral rearming after focus loss, handoff or stale input.
+- 381 automated checks and a clean Release build; physical-controller testing remains outstanding. No game input injection or advanced haptics.
