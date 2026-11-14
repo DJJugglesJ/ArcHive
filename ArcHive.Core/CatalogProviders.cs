@@ -18,7 +18,13 @@ public sealed class RawgMetadataProvider(ProviderTransport transport, string api
             var fields = new Dictionary<MetadataField, string>(); Year(fields, Text(row, "released"));
             var tags = Names(row, "genres").Concat(Names(row, "tags")).Distinct().ToArray();
             if (tags.Length > 0) fields[MetadataField.Tags] = string.Join(", ", tags);
-            return new MetadataCandidate(Id, NumericId(row), Text(row, "name"), [], fields, now);
+            if (row.TryGetProperty("tags", out var tagRows) && tagRows.ValueKind == JsonValueKind.Array)
+            {
+                var slugs = tagRows.EnumerateArray().Select(t => Text(t, "slug")).ToArray();
+                if (slugs.Contains("full-controller-support")) fields[MetadataField.ControllerSupport] = "Full";
+                else if (slugs.Contains("partial-controller-support")) fields[MetadataField.ControllerSupport] = "Partial";
+            }
+            return new MetadataCandidate(Id, NumericId(row), Text(row, "name"), [], fields, now) { Artwork = ProviderArtwork.Parse(Id, NumericId(row), row, now) };
         }).ToArray();
     }
 }
@@ -45,7 +51,7 @@ public sealed class IgdbMetadataProvider(ProviderTransport transport, string cli
         {
             var escaped = title.Replace("\\", "\\\\").Replace("\"", "\\\"");
             var request = new HttpRequestMessage(HttpMethod.Post, "https://api.igdb.com/v4/games")
-            { Content = new StringContent($"search \"{escaped}\"; fields name,alternative_names.name,summary,first_release_date,game_engines.name,genres.name; limit 20;", Encoding.UTF8, "text/plain") };
+            { Content = new StringContent($"search \"{escaped}\"; fields name,alternative_names.name,summary,first_release_date,game_engines.name,genres.name,cover.image_id,artworks.image_id,screenshots.image_id; limit 20;", Encoding.UTF8, "text/plain") };
             request.Headers.Add("Client-ID", Required(clientId)); request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             try
             {
@@ -60,7 +66,7 @@ public sealed class IgdbMetadataProvider(ProviderTransport transport, string cli
                         fields[MetadataField.ReleaseYear] = DateTimeOffset.FromUnixTimeSeconds(release.GetInt64()).Year.ToString();
                     var engines = Names(row, "game_engines"); if (engines.Length > 0) fields[MetadataField.Engine] = string.Join(", ", engines);
                     var genres = Names(row, "genres"); if (genres.Length > 0) fields[MetadataField.Tags] = string.Join(", ", genres);
-                    return new MetadataCandidate(Id, NumericId(row), Text(row, "name"), Names(row, "alternative_names"), fields, now);
+                    return new MetadataCandidate(Id, NumericId(row), Text(row, "name"), Names(row, "alternative_names"), fields, now) { Artwork = ProviderArtwork.Parse(Id, NumericId(row), row, now) };
                 }).ToArray();
             }
             catch (ProviderException ex) when (ex.Status == HttpStatusCode.Unauthorized && attempt == 0)
@@ -124,7 +130,7 @@ public sealed class ItchMetadataProvider(ProviderTransport transport, string api
                 var id = NumericId(row); var fields = new Dictionary<MetadataField, string>();
                 if (Text(row, "short_text") is { Length: > 0 } description) fields[MetadataField.Description] = description;
                 // published_at is the itch page publication date, not a game release date.
-                items[id] = new(Id, id, Text(row, "title"), [], fields, now);
+                items[id] = new(Id, id, Text(row, "title"), [], fields, now) { Artwork = ProviderArtwork.Parse(Id, id, row, now) };
             }
             // Owned-key pages may be short before the end. Only an empty page terminates.
             if (projects || rows.GetArrayLength() == 0)

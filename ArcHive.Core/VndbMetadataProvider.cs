@@ -27,9 +27,9 @@ public sealed class VndbMetadataProvider(HttpClient client) : IMetadataProvider
             using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.vndb.org/kana/vn")
             {
                 Content = JsonContent.Create(new { filters = new[] { "search", "=", title },
-                    fields = "title,alttitle,aliases,description,released", sort = "searchrank", results = 20 })
+                    fields = "title,alttitle,aliases,description,released,image.url,screenshots.url", sort = "searchrank", results = 20 })
             };
-            request.Headers.UserAgent.ParseAdd("ArcHive/0.4.0");
+            request.Headers.UserAgent.ParseAdd("ArcHive/0.5.0");
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, deadline.Token);
             if (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
@@ -59,7 +59,7 @@ public sealed class VndbMetadataProvider(HttpClient client) : IMetadataProvider
                 if (released.Length >= 4 && int.TryParse(released[..4], out var year) && year is >= 1000 and <= 9999) fields[MetadataField.ReleaseYear] = year.ToString();
                 var aliases = row.TryGetProperty("aliases", out var a) && a.ValueKind == JsonValueKind.Array ? a.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [];
                 if (Text("alttitle").Length > 0) aliases.Add(Text("alttitle"));
-                var candidate = new MetadataCandidate(Id, id, Text("title"), aliases.ToArray(), fields, now);
+                var candidate = new MetadataCandidate(Id, id, Text("title"), aliases.ToArray(), fields, now) { Artwork = ProviderArtwork.Parse(Id, id, row, now) };
                 MetadataValidation.Validate(candidate); return candidate;
             }).ToArray();
             if (cache.Count >= 100) cache.Clear();
@@ -68,5 +68,5 @@ public sealed class VndbMetadataProvider(HttpClient client) : IMetadataProvider
         }
         finally { gate.Release(); }
     }
-    private static MetadataCandidate[] Clone(MetadataCandidate[] items) => items.Select(c => c with { Aliases = c.Aliases.ToArray(), Fields = new(c.Fields) }).ToArray();
+    private static MetadataCandidate[] Clone(MetadataCandidate[] items) => items.Select(c => c with { Aliases = c.Aliases.ToArray(), Fields = new(c.Fields), Artwork = c.Artwork.ToArray() }).ToArray();
 }

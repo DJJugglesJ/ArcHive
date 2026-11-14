@@ -30,3 +30,8 @@ Validation: 94 checks passed on .NET 10, including migration backup/source reten
 ## 0.3.0 metadata compatibility
 
 Schema remains 2. Provider field provenance, retrieval timestamps and undo history are additive properties in each game's JSON metadata, alongside release year and engine. Absent fields in older records initialize empty. Normal transaction and database-backup behavior is unchanged. Older builds will discard new properties on save; preserve a backup before downgrading.
+
+
+## 0.5.0 artwork/controller compatibility
+
+Schema remains 2. Independent artwork references and controller-support state are additive game JSON properties. Old games retain their local ScreenshotPath fallback and default to Unknown controller support. Artwork cache files are expendable and separate from library backups; source references remain in the database. Older builds can discard these properties when saving, so retain a backup before downgrading.

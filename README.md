@@ -27,7 +27,7 @@ The adaptive artwork grid, background thumbnails, optional details and archive v
 
 ## Windows packaging
 
-Run `powershell -NoProfile -File packaging/Build-Installer.ps1` to publish the self-contained Windows x64 app and build the per-user MSI. Output: `artifacts/publish/win-x64/ArcHive.exe` and `artifacts/installer/ArcHive-0.4.0-win-x64.msi`. No separate .NET runtime is required by the installed application. Build prerequisites and verification commands are in [packaging/README.md](packaging/README.md).
+Run `powershell -NoProfile -File packaging/Build-Installer.ps1` to publish the self-contained Windows x64 app and build the per-user MSI. Output: `artifacts/publish/win-x64/ArcHive.exe` and `artifacts/installer/ArcHive-0.5.0-win-x64.msi`. No separate .NET runtime is required by the installed application. Build prerequisites and verification commands are in [packaging/README.md](packaging/README.md).
 
 The approved icon is embedded in ArcHive.exe, the Start Menu shortcut and the Installed Apps entry. The sidebar blends the original logo into its surface without a black image rectangle. Windows uses its standard file-type icon for the .msi file itself. The package is currently unsigned.
 
@@ -45,4 +45,15 @@ Existing SQLite libraries upgrade automatically with a retained pre-v2 backup. O
 
 Select a game and choose **Find metadata**. Select VNDB, Steam, IGDB, itch.io or RAWG, then explicitly search or import a local JSON candidate array. Use **Provider settings** for your own API keys (and IGDB client ID/secret); optionally remember them in Windows Credential Manager. Nothing goes online merely by opening the dialog. Paths and notes stay local. Steam matches against its downloaded ID/title catalog; itch.io matches your owned games or editable projects, not a public search catalog. IGDB, RAWG and VNDB use title searches. See [METADATA.md](METADATA.md) for the import format, matching rules, provider scope and attribution.
 
-Select a candidate to compare current/proposed values. Existing values are unchecked by default; check only the fields you want to replace. Apply saves those fields with source identity and retrieval time. **Undo metadata** restores the last applied batch, unless a later manual edit would be overwritten. Title, description, tags, release year and engine edits are recorded as manual. Cancel leaves the lookup unapplied. The four additional adapters are included in 0.4.0. Artwork downloads and F95Zone integration remain future work.
+Select a candidate to compare current/proposed values. Existing values are unchecked by default; check only the fields you want to replace. Apply saves those fields with source identity and retrieval time. **Undo metadata** restores the last applied batch, unless a later manual edit would be overwritten. Title, description, tags, release year and engine edits are recorded as manual. Cancel leaves the lookup unapplied. The four additional adapters are included in 0.4.0. Artwork selection and caching are available in 0.5.0; F95Zone integration remains future work.
+
+
+## Artwork and gamepad controls (0.5.0)
+
+In **Find metadata**, select a candidate, scroll to its artwork and press **Preview** to download an image. Choose **Use as Cover**, **Backdrop**, or **Screenshot**, then **Apply selected changes** to save your choices (text fields are optional). Roles are independent, and an image can be used in more than one role. Existing images are preserved until explicitly replaced; screenshots append without duplicates, up to 24. In **Selected artwork**, clear a cover/backdrop or remove screenshots. The existing local-image action remains a fallback. Artwork choices do not use the text-metadata Undo stack.
+
+IGDB supplies covers, artwork and screenshots; RAWG supplies backgrounds and available search-result screenshots; VNDB supplies covers/screenshots; itch.io supplies covers. Steam's supported catalog supplies no image URLs, so ArcHive does not guess or scrape them. PNG/JPEG images load asynchronously into a bounded disk cache and remain available offline while cached. See [ARTWORK-GAMEPAD.md](ARTWORK-GAMEPAD.md) for limits and behavior.
+
+Controller-support icons appear on game cards marked **Full** or **Partial** in the **Controller input support** selector. Unknown and None show no icon. Set this manually, or explicitly accept a provider's controller-support field; no support is inferred from the game's platform. Save details after editing.
+
+With **Gamepad navigation** enabled, an XInput-compatible controller can use the D-pad/left stick to select games, shoulder buttons to switch All/Favorites/Archives, and A to open launch confirmation. Release A and press it again to confirm; B cancels. ArcHive must be active and not editing a text box/selector or running another operation. Clicking the game grid leaves editing mode. Input pauses when a game takes focus. The setting is session-only; unsupported DirectInput-only controllers need an XInput-compatible mapping. Automated input simulation passed; physical-controller/end-to-end UI testing was not performed.

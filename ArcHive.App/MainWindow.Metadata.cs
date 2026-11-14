@@ -7,6 +7,15 @@ namespace ArcHive.App;
 public partial class MainWindow
 {
     private void OpenMetadataSource(object sender, System.Windows.Navigation.RequestNavigateEventArgs e) => MetadataSourceLinks.Open(e);
+    private void ClearCover(object sender, RoutedEventArgs e) => EditArtwork(a => a.Cover = null);
+    private void ClearBackdrop(object sender, RoutedEventArgs e) => EditArtwork(a => a.Backdrop = null);
+    private void RemoveScreenshot(object sender, RoutedEventArgs e) => EditArtwork(a => a.Screenshots.Remove((ArtworkReference)((System.Windows.Controls.Button)sender).Tag));
+    private void EditArtwork(Action<GameArtwork> action) => Guard(() =>
+    {
+        Commit(); if (selected is null) return;
+        var copy = JsonSerializer.Deserialize<Game>(JsonSerializer.Serialize(selected))!;
+        action(copy.Artwork); SaveMetadata(copy);
+    });
     private void FindMetadata(object sender, RoutedEventArgs e) => Guard(() =>
     {
         Commit(); if (selected is null) return;

@@ -82,6 +82,7 @@ try
     MilestoneTests.Run(root, Check);
     await MetadataTests.Run(root, Check);
     await ProviderTests.Run(Check);
+    await ArtworkGamepadTests.Run(root, Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }

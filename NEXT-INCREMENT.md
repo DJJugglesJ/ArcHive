@@ -1,3 +1,3 @@
 # Next ArcHive increment
 
-0.4.0 adds Steam, IGDB, itch.io and RAWG adapters to the existing VNDB/offline review workflow, with optional Windows credential storage. Next: provider-attributed cover/backdrop/screenshot acquisition, bounded asynchronous artwork caching and independent artwork selection. Preserve offline use, provider scope labels and explicit field review. F95Zone associations remain a separate opt-in integration. Full end-to-end UI tests remain optional unless requested.
+0.5.0 delivers independent provider artwork selection, bounded asynchronous caching, controller-support badges and XInput library navigation/launch confirmation. Next core-workflow gaps: archive content preview/queue and crash recovery, launch-candidate identification, duplicate detection and batch organization. Physical-controller validation, broader image-format support and full UI accessibility remain verification/polish work. F95Zone stays a separate opt-in integration.

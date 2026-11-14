@@ -34,6 +34,13 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 - Bounded/cancellable HTTP, per-provider request pacing and rate-limit backoff, session caches, complete catalog pagination with progress checks, source backlinks and unchanged field-by-field reconciliation. Steam/itch catalog ranking runs off the UI thread.
 - Fixture-based automated provider tests and real isolated Windows credential-store tests. Live authenticated API availability and full UI behavior are not claimed by these checks.
 
+## Artwork and gamepad milestone — delivered in 0.5.0
+
+- Provider-sourced cover/backdrop/screenshot candidates, explicit preview and per-role selection, independent persisted choices with attribution, screenshot removal and legacy local-image fallback.
+- Asynchronous credential-free PNG/JPEG downloads, validated dimensions and actual decoding, atomic publication, disk/memory bounds, offline cache reuse, failure backoff, cancellation and recycled-container protection.
+- Editable Unknown/None/Partial/Full controller support; badges for Partial/Full and reviewable RAWG controller hints when explicitly present.
+- Active-window XInput navigation with dead zones, directional repeat, selection highlight, shoulder view switching and controller-operable launch confirmation. No input injection into games. Real hardware/full UI verification remains outstanding.
+
 ## V1 — complete the core workflow
 
 | Work | Acceptance |
@@ -46,7 +53,7 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 | Metadata lookup | Delivered in 0.4.0 with supported scopes documented in METADATA.md. Manual/offline mode requires no account. |
 | Matching | Delivered in 0.3.0: stable IDs, title/alias/year/engine evidence and heuristic confidence, explicit review. |
 | Reconciliation | Delivered in 0.3.0 for title, description, tags, release year and engine; per-field selection, provenance and protected undo. |
-| Artwork | Independent cover, backdrop and screenshot collections, async downloads, bounded disk cache, provider attribution and fallback artwork. Current local image is shared by card/detail. |
+| Artwork | Delivered in 0.5.0 for supported PNG/JPEG provider assets; independent roles, async bounded cache, attribution and local fallback. Steam catalog artwork is unavailable through the chosen supported endpoint. |
 | UX polish | Full cinematic detail page, selected-card indicator, keyboard grid navigation, active navigation state, reduced-motion-aware transitions and high-DPI/accessibility validation. |
 
 ## V1.1 — organization and preservation

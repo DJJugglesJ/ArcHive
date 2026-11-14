@@ -12,6 +12,7 @@ public partial class MetadataWindow : Window
     private readonly Game game;
     private readonly CancellationTokenSource cancellation = new();
     private readonly List<(CheckBox Choice, MetadataProposal Proposal)> rows = [];
+    private readonly List<(ArtworkReference Art, ArtworkKind Role)> artworkChoices = [];
     public MetadataWindow(Game game)
     {
         InitializeComponent(); this.game = game; QueryBox.Text = game.Title;
@@ -55,7 +56,7 @@ public partial class MetadataWindow : Window
     }
     private void SelectCandidate(object sender, SelectionChangedEventArgs e)
     {
-        FieldRows.Children.Clear(); rows.Clear(); ApplyButton.IsEnabled = false;
+        FieldRows.Children.Clear(); rows.Clear(); artworkChoices.Clear(); ApplyButton.IsEnabled = false;
         if (Candidates.SelectedItem is not MetadataMatch match) return;
         foreach (var p in MetadataReconciliation.Preview(game, match.Candidate))
         {
@@ -65,6 +66,37 @@ public partial class MetadataWindow : Window
             FieldRows.Children.Add(new TextBlock { Text = $"Current ({origin}): {p.Current}\nProposed ({match.Candidate.RetrievedAt:g}): {p.Proposed}", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 18) });
             rows.Add((choice, p));
         }
+        if (match.Candidate.Artwork.Length > 0)
+        {
+            var choiceButtons = new List<(Button Button, ArtworkReference Art, ArtworkKind Role)>();
+            FieldRows.Children.Add(new TextBlock { Text = "Artwork — preview downloads an image; choose roles before Apply.", TextWrapping = TextWrapping.Wrap, FontSize = 16 });
+            foreach (var art in match.Candidate.Artwork)
+            {
+                var image = new Artwork { Width = 240, Height = 130, Stretch = System.Windows.Media.Stretch.Uniform };
+                FieldRows.Children.Add(new TextBlock { Text = $"{art.Kind} · {art.Provider}/{art.ProviderId} · {art.RetrievedAt:g}", TextWrapping = TextWrapping.Wrap });
+                FieldRows.Children.Add(image);
+                var actions = new WrapPanel(); var preview = new Button { Content = "Preview" };
+                preview.Click += (_, _) => image.Reference = art; actions.Children.Add(preview);
+                foreach (var role in Enum.GetValues<ArtworkKind>())
+                {
+                    var choose = new Button { Content = "Use as " + role };
+                    choose.Click += (_, _) =>
+                    {
+                        if (artworkChoices.Contains((art, role))) artworkChoices.Remove((art, role));
+                        else
+                        {
+                            if (role != ArtworkKind.Screenshot) artworkChoices.RemoveAll(c => c.Role == role);
+                            artworkChoices.Add((art, role));
+                        }
+                        foreach (var button in choiceButtons) button.Button.Content = (artworkChoices.Contains((button.Art, button.Role)) ? "Selected: " : "Use as ") + button.Role;
+                        Message.Text = $"Selected {artworkChoices.Count} artwork choices. Apply to save; Cancel discards them.";
+                    };
+                    choiceButtons.Add((choose, art, role)); actions.Children.Add(choose);
+                }
+                FieldRows.Children.Add(actions);
+            }
+        }
+        else FieldRows.Children.Add(new TextBlock { Text = "This source returned no supported artwork. Existing images will remain.", TextWrapping = TextWrapping.Wrap });
         ApplyButton.IsEnabled = true;
     }
     private void Apply(object sender, RoutedEventArgs e)
@@ -73,8 +105,11 @@ public partial class MetadataWindow : Window
         try
         {
             var chosen = rows.Where(r => r.Choice.IsChecked == true).Select(r => r.Proposal).ToArray();
-            if (chosen.Length == 0) { Message.Text = "Choose at least one field, or cancel to keep everything."; return; }
-            MetadataReconciliation.Apply(game, match.Candidate, chosen); DialogResult = true;
+            if (chosen.Length == 0 && artworkChoices.Count == 0) { Message.Text = "Choose a field or artwork, or cancel to keep everything."; return; }
+            var artCopy = System.Text.Json.JsonSerializer.Deserialize<GameArtwork>(System.Text.Json.JsonSerializer.Serialize(game.Artwork))!;
+            var staging = new Game { Artwork = artCopy };
+            foreach (var choice in artworkChoices) ProviderArtwork.Select(staging, choice.Art, choice.Role);
+            MetadataReconciliation.Apply(game, match.Candidate, chosen); game.Artwork = artCopy; DialogResult = true;
         }
         catch (Exception ex) { Message.Text = ex.Message; }
     }

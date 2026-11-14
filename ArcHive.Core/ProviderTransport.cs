@@ -28,7 +28,7 @@ public sealed class ProviderTransport(HttpClient client, string[] hosts, TimeSpa
                 nextRequest = DateTimeOffset.UtcNow + (interval ?? TimeSpan.FromMilliseconds(350));
                 using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
                 deadline.CancelAfter(TimeSpan.FromSeconds(20));
-                request.Headers.UserAgent.ParseAdd("ArcHive/0.4.0");
+                request.Headers.UserAgent.ParseAdd("ArcHive/0.5.0");
                 using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, deadline.Token);
                 if (response.StatusCode == HttpStatusCode.TooManyRequests)
                 {
@@ -87,7 +87,7 @@ public abstract class CachedMetadataProvider : IMetadataProvider
         finally { gate.Release(); }
     }
     protected abstract Task<MetadataCandidate[]> FetchAsync(string title, CancellationToken token);
-    protected static MetadataCandidate[] Clone(MetadataCandidate[] items) => items.Select(c => c with { Aliases = c.Aliases.ToArray(), Fields = new(c.Fields) }).ToArray();
+    protected static MetadataCandidate[] Clone(MetadataCandidate[] items) => items.Select(c => c with { Aliases = c.Aliases.ToArray(), Fields = new(c.Fields), Artwork = c.Artwork.ToArray() }).ToArray();
     protected static string Required(string value)
     {
         if (string.IsNullOrWhiteSpace(value) || value.Length > 1024 || value.Any(char.IsControl)) throw new ProviderException("Configure valid credentials for this provider first.");

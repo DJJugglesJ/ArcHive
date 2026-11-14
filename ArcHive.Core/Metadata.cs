@@ -5,9 +5,12 @@ using System.Text.RegularExpressions;
 
 namespace ArcHive.Core;
 
-public enum MetadataField { Title, Description, Tags, ReleaseYear, Engine }
+public enum MetadataField { Title, Description, Tags, ReleaseYear, Engine, ControllerSupport }
 public sealed record MetadataCandidate(string Provider, string Id, string Title, string[] Aliases,
-    Dictionary<MetadataField, string> Fields, DateTimeOffset RetrievedAt);
+    Dictionary<MetadataField, string> Fields, DateTimeOffset RetrievedAt)
+{
+    public ArtworkReference[] Artwork { get; init; } = [];
+}
 public sealed record MetadataQuery(string Title, string? Year = null, string? Engine = null);
 public interface IMetadataProvider
 {
@@ -61,6 +64,14 @@ public static class MetadataValidation
             c.Aliases.Any(a => a is null || a.Length > 500) || c.Fields is null || c.RetrievedAt == default ||
             c.Fields.Any(f => !Enum.IsDefined(f.Key) || f.Value is null || f.Value.Length > 50000))
             throw new InvalidDataException("Invalid or oversized metadata candidate.");
+        if (c.Artwork is null || c.Artwork.Length > 32) throw new InvalidDataException("Too many artwork candidates.");
+        foreach (var art in c.Artwork)
+        {
+            if (art.Provider != c.Provider || art.ProviderId != c.Id) throw new InvalidDataException("Artwork identity does not match metadata.");
+            ProviderArtwork.Validate(art);
+        }
+        if (c.Fields.TryGetValue(MetadataField.ControllerSupport, out var support) && (!Enum.TryParse<ControllerSupport>(support, out var parsed) || !Enum.IsDefined(parsed)))
+            throw new InvalidDataException("Invalid controller support value.");
     }
 }
 public sealed class OfflineMetadataProvider(IReadOnlyList<MetadataCandidate> candidates) : IMetadataProvider
@@ -94,7 +105,7 @@ public static class MetadataReconciliation
 {
     public static string Get(Game game, MetadataField field) => field switch
     { MetadataField.Title => game.Title, MetadataField.Description => game.Description, MetadataField.Tags => game.Tags,
-      MetadataField.ReleaseYear => game.ReleaseYear, MetadataField.Engine => game.Engine, _ => throw new ArgumentOutOfRangeException(nameof(field)) };
+      MetadataField.ReleaseYear => game.ReleaseYear, MetadataField.Engine => game.Engine, MetadataField.ControllerSupport => game.ControllerSupport.ToString(), _ => throw new ArgumentOutOfRangeException(nameof(field)) };
     private static void Set(Game game, MetadataField field, string value)
     {
         switch (field)
@@ -104,6 +115,7 @@ public static class MetadataReconciliation
             case MetadataField.Tags: game.Tags = value; break;
             case MetadataField.ReleaseYear: game.ReleaseYear = value; break;
             case MetadataField.Engine: game.Engine = value; break;
+            case MetadataField.ControllerSupport: game.ControllerSupport = Enum.Parse<ControllerSupport>(value); break;
             default: throw new ArgumentOutOfRangeException(nameof(field));
         }
     }

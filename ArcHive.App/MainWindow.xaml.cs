@@ -63,6 +63,8 @@ public partial class MainWindow : Window
     {
         InitializeComponent();
         ProfileArgumentRows.ItemsSource = argumentRows;
+        ControllerSupportBox.ItemsSource = Enum.GetValues<ControllerSupport>();
+        StartGamepad();
 #if MULTI_ARCHIVE
         ExtractButton.Content = "Extract archive";
 #endif
@@ -89,6 +91,7 @@ public partial class MainWindow : Window
         MetadataReconciliation.SetManual(selected, MetadataField.Description, DescriptionBox.Text);
         MetadataReconciliation.SetManual(selected, MetadataField.ReleaseYear, ReleaseYearBox.Text.Trim());
         MetadataReconciliation.SetManual(selected, MetadataField.Engine, EngineBox.Text.Trim());
+        if (ControllerSupportBox.SelectedItem is ControllerSupport support) MetadataReconciliation.SetManual(selected, MetadataField.ControllerSupport, support.ToString());
         selected.Favorite = FavoriteBox.IsChecked == true;
         selected.Played = PlayedBox.IsChecked == true;
         CommitMilestone();
@@ -117,6 +120,7 @@ public partial class MainWindow : Window
     {
         Commit();
         selected = Games.SelectedItem as Game;
+        foreach (var game in library.Games) game.IsSelected = game == selected;
         editorArchive = null; editorInstallation = null; editorProfile = null;
         Details.IsEnabled = selected is not null;
         if (selected is null)
@@ -124,13 +128,13 @@ public partial class MainWindow : Window
             TitleBox.Clear(); TagsBox.Clear(); DescriptionBox.Clear(); ReleaseYearBox.Clear(); EngineBox.Clear();
             FavoriteBox.IsChecked = PlayedBox.IsChecked = false;
             ArchiveChoices.ItemsSource = null; FolderChoices.ItemsSource = null;
-            Screenshot.ImagePath = null; DetailTitle.Text = "Select a game"; DetailState.Text = ""; Paths.Text = "Select a game to see its details.";
+            Screenshot.ImagePath = null; Screenshot.Reference = null; ScreenshotStrip.ItemsSource = null; ArtworkSources.Text = ""; ControllerSupportBox.SelectedItem = null; DetailTitle.Text = "Select a game"; DetailState.Text = ""; Paths.Text = "Select a game to see its details.";
             ClearMilestone();
             return;
         }
         DetailTitle.Text = selected.Title; DetailState.Text = $"{selected.State} · {selected.Progress} · {selected.UpdateState}";
         TitleBox.Text = selected.Title;
-        ReleaseYearBox.Text = selected.ReleaseYear; EngineBox.Text = selected.Engine;
+        ReleaseYearBox.Text = selected.ReleaseYear; EngineBox.Text = selected.Engine; ControllerSupportBox.SelectedItem = selected.ControllerSupport;
         TagsBox.Text = selected.Tags;
         DescriptionBox.Text = selected.Description;
         FavoriteBox.IsChecked = selected.Favorite;
@@ -179,7 +183,14 @@ public partial class MainWindow : Window
         }
         store.Save(library); ShowPaths();
     });
-    private void ShowImage() => Screenshot.ImagePath = selected?.ScreenshotPath;
+    private void ShowImage()
+    {
+        Screenshot.ImagePath = selected?.ScreenshotPath;
+        Screenshot.Reference = selected?.Artwork.Backdrop ?? selected?.Artwork.Cover;
+        ScreenshotStrip.ItemsSource = selected?.Artwork.Screenshots.ToList();
+        string Source(ArtworkReference? a) => a is null ? "Local artwork / placeholder" : $"{a.Provider}/{a.ProviderId} · {a.RetrievedAt:g}";
+        ArtworkSources.Text = "Cover: " + Source(selected?.Artwork.Cover) + "\nBackdrop: " + Source(selected?.Artwork.Backdrop);
+    }
     private void Guard(Action action)
     { try { action(); } catch (Exception ex) { MessageBox.Show(this, ex.Message, "ArcHive"); } }
     private async Task Busy(Func<CancellationToken, Task> action)
@@ -287,8 +298,7 @@ public partial class MainWindow : Window
         if (ActiveInstallation is not GameInstallation installation || editorProfile is null)
             throw new InvalidOperationException("Select an installation and configure a launch profile first.");
         var plan = LaunchService.Prepare(installation, editorProfile);
-        if (MessageBox.Show(this, "Run this program? Only launch games you trust.\n\n" + plan.CommandLine +
-            "\n\nWorking directory: " + plan.WorkingDirectory, "Launch game", MessageBoxButton.YesNo) != MessageBoxResult.Yes) return;
+        if (new LaunchConfirmation(plan, GamepadEnabled.IsChecked == true) { Owner = this }.ShowDialog() != true) return;
         using var process = Process.Start(plan.ToStartInfo());
         if (process is null) throw new IOException("Windows did not start the game.");
         Commit(); selected!.Played = true; selected.LastLaunched = DateTimeOffset.UtcNow;

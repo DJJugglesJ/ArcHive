@@ -2,8 +2,16 @@ using System.Text.Json;
 
 namespace ArcHive.Core;
 
-public sealed class Game
+public sealed class Game : System.ComponentModel.INotifyPropertyChanged
 {
+    public event System.ComponentModel.PropertyChangedEventHandler? PropertyChanged;
+    private bool isSelected;
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool IsSelected { get => isSelected; set { if (isSelected == value) return; isSelected = value; PropertyChanged?.Invoke(this, new(nameof(IsSelected))); } }
+    public GameArtwork Artwork { get; set; } = new();
+    public ControllerSupport ControllerSupport { get; set; } = ControllerSupport.Unknown;
+    [System.Text.Json.Serialization.JsonIgnore]
+    public bool HasControllerSupport => ControllerSupport is ControllerSupport.Full or ControllerSupport.Partial;
     public MetadataState Metadata { get; set; } = new();
     public string ReleaseYear { get; set; } = "";
     public string Engine { get; set; } = "";
