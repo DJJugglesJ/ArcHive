@@ -1,0 +1,9 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <ItemGroup><PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.14" /></ItemGroup>
+  <ItemGroup Condition="'$(EnableMultiArchive)' == 'true'">
+    <PackageReference Include="SharpCompress" Version="0.50.9" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(EnableMultiArchive)' != 'true'">
+    <Compile Remove="MultiArchiveExtractor.cs" />
+  </ItemGroup>
+</Project>

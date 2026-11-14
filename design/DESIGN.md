@@ -2,13 +2,13 @@
 
 ## Approved identity and source
 
-The user supplied the selected SECOND black-and-green retro hacker variant on 2026-11-14. The arcade cabinet, honeycomb geometry, terminal-style ArcHive lettering and rounded-square icon are preserved exactly in `GameShelf.App/Assets/ArcHive-brand-approved.png`.
+The user supplied the selected SECOND black-and-green retro hacker variant on 2026-11-14. The arcade cabinet, honeycomb geometry, terminal-style ArcHive lettering and rounded-square icon are preserved exactly in `ArcHive.App/Assets/ArcHive-brand-approved.png`.
 
 SHA256: `0AF19F0406E8390F73C0C442B063DB8F1210197F67ADEAF8F446E44400CEAC1C`.
 
-The original board is embedded without modification. WPF displays source regions using CroppedBitmap resources: logo `(134,150,680,710)` and icon `(963,309,400,400)`, in original-image pixels. The logo appears in navigation; the icon is assigned to the application window/taskbar. No generated replacement or different variant is used. The black background is retained, not represented as transparent.
+The original board is embedded without modification. BrandArtwork renders the logo region `(134,150,680,710)` using a screen-composite alpha conversion: RGB values are retained in premultiplied space and alpha is max(R,G,B). Black becomes transparent with smooth edges while the approved design remains intact. The trial generated cutout was rejected and is not shipped.
 
-The missing-reference blocker is resolved. A standalone multi-resolution ICO for the executable/installer and transparent/vector exports remain packaging work; the running app uses the approved icon through WPF. The original reference is not a vector master.
+packaging/Export-Icon.ps1 packages the approved icon region `(963,309,400,400)` as PNG-backed ICO frames at 16, 20, 24, 32, 40, 48, 64, 128 and 256 pixels. ArcHive.ico is shared by the executable resource, WPF window, MSI Installed Apps entry and Start Menu shortcut. The original icon's dark interior is retained. The executable/installer icon blocker is resolved; vector masters remain optional future work.
 
 ## Tokens
 
@@ -20,7 +20,7 @@ The missing-reference blocker is resolved. A standalone multi-resolution ICO for
 | Phosphor / actions | #46E879 |
 | Highlight / emphasis | #B3FFD0 |
 
-See tokens.json and GameShelf.App/App.xaml. Segoe UI carries content; Consolas is reserved for branding text and small system labels. Green is an accent; body text remains pale neutral. Corners 7–12px, control padding 9–14px, shell spacing 24–28px. No scanline overlay.
+See tokens.json and ArcHive.App/App.xaml. Segoe UI carries content; Consolas is reserved for branding text and small system labels. Green is an accent; body text remains pale neutral. Corners 7–12px, control padding 9–14px, shell spacing 24–28px. No scanline overlay.
 
 ## Layout and behavior
 

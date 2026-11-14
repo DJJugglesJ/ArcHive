@@ -8,7 +8,7 @@ Tests never execute archived programs. Tests run with approved filesystem access
 
 Manual GUI interaction and actual game launching were not verified. RAR-specific malicious links/traversal, multipart archives, checksum corruption, hostile filesystem races, crash recovery and decoder resource exhaustion require further fixtures and hardening. Passing checks do not constitute an exhaustive archive-security audit.
 
-Run: dotnet run --project GameShelf.Tests/GameShelf.Tests.csproj
+Run: dotnet run --project ArcHive.Tests/ArcHive.Tests.csproj
 
 ## Live GUI verification — November 14, 2026
 
@@ -36,7 +36,7 @@ Remaining coverage: this is a primary-workflow GUI pass, not an exhaustive UI au
 - Initial suite attempt could not publish a staged directory inside the restricted system temporary folder. Rerunning with TEMP/TMP under workspace work/test-temp passed; no extraction checks were removed.
 - Live WPF verification used ARCHIVE_DATA_DIRECTORY=work/archive-ui and 120 synthetic records. This did not touch the default user library. Existing fixture JPEGs are test artwork, not branding or game covers.
 - Observed: 120-item library renders with artwork/fallbacks and recycled rows (16 card controls exposed in the initial accessibility tree), selection populates matching details, archive manager shows 60 matching records, search for 001 yields one record, inspector toggle hides detail controls. Visual inspection caught and corrected an implicit Window background style issue; rebuilt and verified the obsidian surface.
-- Launched the verified UI using `dotnet GameShelf.App/bin/Release/net10.0-windows/GameShelf.App.dll`. Direct apphost launch did not produce a window in this execution environment; deployment/apphost launch remains to be checked on the target machine.
+- Launched the verified UI using `dotnet ArcHive.App/bin/Release/net10.0-windows/ArcHive.App.dll`. Direct apphost launch did not produce a window in this execution environment; deployment/apphost launch remains to be checked on the target machine.
 - Not tested here: 10k-entry performance, full keyboard navigation, high-DPI/minimum-size behavior, live extraction/launch via the redesigned controls, online providers (not implemented), and original branded icon (asset unavailable).
 
 ## Approved branding integration — 2026-11-14
@@ -44,3 +44,15 @@ Remaining coverage: this is a primary-workflow GUI pass, not an exhaustive UI au
 - User-supplied original board is embedded unchanged, SHA256 recorded in design/DESIGN.md. Logo and icon use source-region resources rather than regenerated assets.
 - Release build succeeded with zero warnings/errors. Live isolated 120-record preview showed the approved logo in navigation and approved arcade icon in the window title bar. Existing library data was not used or changed.
 - Branding-only changes do not modify scanner, extraction or persistence behavior; the prior 99-check regression result remains applicable. Executable/installer ICO packaging is still pending.
+
+## ArcHive 0.1.1 packaging and rename — 2026-11-14
+
+- Renamed all current project folders, project files, namespaces, source references and documentation to ArcHive. Current staged tree contains no former-name matches (case-insensitive); historical Git commits remain intact.
+- Clean self-contained Windows x64 publish succeeds. All 99 core regression checks pass after the rename.
+- Original brand board retained. Logo is screen-composited from source pixels; no generated replacement ships. Live installed-app inspection verified the blended sidebar and correct window icon.
+- Nine ICO frames (16/20/24/32/40/48/64/128/256) were compared byte-for-byte with all nine PE icon resources. MSI icon property/stream checked, and the installed shortcut's cached icon matched the source ICO hash.
+- Final MSI clean-installed successfully into a custom test folder; all 406 installed payload files matched the published files by SHA256. The installed app launched and closed with exit code 0 using an isolated 120-entry test library.
+- Uninstall exited 0, removed the complete custom installation folder and Start Menu shortcut, and left the saved library database hash unchanged.
+- Tests exposed equal-version DLL retention and custom-path uninstall tracking. App/core/installer versions now align at 0.1.1; packaging rejects version mismatches and stores/reuses the installation directory. Increment versions for every distributed build. Future-version upgrade coverage and code signing remain release-hardening work.
+- The existing local library was separately copied to the renamed data folder, its record count and SQLite integrity verified, and the original retained as a backup. No user data is committed.
+- MSI SHA256: 14E3D49CC1DC95B35A059804F0FF48F6CE8176B9AA626C20C499FF1C6F0766C8. Installer is unsigned. The .msi file itself uses Windows' standard package icon; application, Installed Apps and Start Menu use the approved icon.

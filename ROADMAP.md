@@ -1,6 +1,6 @@
 # ArcHive roadmap
 
-Approved direction recovered from “Check GameShelf uniqueness” on 2026-11-14. This is the current plan; ARCHITECTURE.md remains a historical record. A roadmap entry is not a claim that its feature exists.
+Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. This is the current plan; ARCHITECTURE.md remains a historical record. A roadmap entry is not a claim that its feature exists.
 
 ## Foundation — delivered
 
@@ -45,4 +45,4 @@ Approved direction recovered from “Check GameShelf uniqueness” on 2026-11-14
 
 ## Release gates
 
-The exact second approved logo has been supplied and integrated into the running app. Prepare executable/installer ICO assets from an approved production export before packaging. Regress scanning/extraction/database migration and edited metadata preservation. Exercise empty/missing/broken-art states, search, selection, resizing and cancellation. Document actual performance measurements separately from intended targets. All online adapters above are planned, not connected in this build.
+The exact second approved logo has been supplied and integrated into the running app. The approved ICO is now packaged in the executable and Windows MSI. Regress scanning/extraction/database migration and edited metadata preservation. Exercise empty/missing/broken-art states, search, selection, resizing and cancellation. Document actual performance measurements separately from intended targets. All online adapters above are planned, not connected in this build.

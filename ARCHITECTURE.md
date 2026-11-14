@@ -18,7 +18,7 @@ WPF view / current controller -> library model and application operations
 Next: view models + commands -> application services -> repository and adapters
 ```
 
-`GameShelf.Core` contains storage, scan merge policy, filesystem path checks and ZIP extraction. `GameShelf.App` owns the Windows dialogs, UI thread, operation cancellation, cover import and explicit launch. `GameShelf.Tests` exercises the core with disposable synthetic files; it never launches a downloaded program.
+`ArcHive.Core` contains storage, scan merge policy, filesystem path checks and ZIP extraction. `ArcHive.App` owns the Windows dialogs, UI thread, operation cancellation, cover import and explicit launch. `ArcHive.Tests` exercises the core with disposable synthetic files; it never launches a downloaded program.
 
 Stable game IDs identify user metadata. Paths identify discovered files, not game identity across moves. Extraction only records a folder after successful promotion; failure does not set an extracted flag. State is derived from file/folder presence, so manually deleted content is not silently considered available. The current “Extracted / folder” label describes availability, not verified completeness or archive provenance.
 

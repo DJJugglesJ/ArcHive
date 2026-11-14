@@ -15,3 +15,6 @@ library.json
 library.json.bak
 # Developer scratch data
 work/
+
+# Reproducible release output
+artifacts/

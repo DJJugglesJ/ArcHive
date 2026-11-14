@@ -1,16 +1,16 @@
 # ArcHive — standalone game library
 
-![Approved ArcHive logo and icon](GameShelf.App/Assets/ArcHive-brand-approved.png)
+![Approved ArcHive logo and icon](ArcHive.App/Assets/ArcHive-brand-approved.png)
 
 RAR/7z extraction is enabled by default alongside ZIP. Build with the .NET 10 SDK:
 
 ```powershell
-dotnet build GameShelf.App/GameShelf.App.csproj -c Release
-dotnet run --project GameShelf.App/GameShelf.App.csproj
-dotnet run --project GameShelf.Tests/GameShelf.Tests.csproj
+dotnet build ArcHive.App/ArcHive.App.csproj -c Release
+dotnet run --project ArcHive.App/ArcHive.App.csproj
+dotnet run --project ArcHive.Tests/ArcHive.Tests.csproj
 ```
 
-Add a library folder, select a game, and use Extract archive. Choose a new destination parent; the app creates a unique game directory. Select the executable explicitly before launching. Tags, favorites, played status, notes and cover images are stored in %LOCALAPPDATA%\GameShelf. Scanning never launches games.
+Add a library folder, select a game, and use Extract archive. Choose a new destination parent; the app creates a unique game directory. Select the executable explicitly before launching. Tags, favorites, played status, notes and cover images are stored in %LOCALAPPDATA%\ArcHive. Scanning never launches games.
 
 Extraction uses pinned SharpCompress 0.50.9 for RAR/7z and the existing ZIP adapter. Solid archives are read sequentially; 7z entry order is reconciled with the preflight plan. Paths, duplicate names, declared and actual output size are checked before publication. Files are created in staging without overwriting existing games. Ordinary failures and cancellation clean staging. Encrypted and incomplete archives are unsupported. Original archives are retained.
 
@@ -21,10 +21,12 @@ See VALIDATION.md for exact tests. ARCHITECTURE.md retains the original roadmap;
 
 ## ArcHive continuation
 
-See [ROADMAP.md](ROADMAP.md) for the approved roadmap and implemented/planned status, [design/DESIGN.md](design/DESIGN.md) for the UI and approved original branding, and [CONTINUATION.md](CONTINUATION.md) for preservation and architecture decisions. The existing WPF implementation and GameShelf storage location are retained. The Release executable is `GameShelf.App/bin/Release/net10.0-windows/GameShelf.App.exe` and its window is titled ArcHive.
+The project, namespaces and build output now use ArcHive throughout. See [ROADMAP.md](ROADMAP.md) for implemented/planned features, [design/DESIGN.md](design/DESIGN.md) for the approved branding, and [CONTINUATION.md](CONTINUATION.md) for library preservation.
 
-The library now has an adaptive artwork grid, background thumbnails, optional details and an archive-only view. New scans clean CamelCase/snake_case and explicit version/platform labels without renaming original files or replacing existing edited titles. Online providers and advanced roadmap features are not yet implemented.
+The adaptive artwork grid, background thumbnails, optional details and archive view are implemented. New scans clean CamelCase/snake_case and explicit version/platform labels without renaming originals or overwriting edited titles. Online providers and advanced roadmap features remain planned.
 
-Verified launch fallback (from GameShelf): `dotnet GameShelf.App/bin/Release/net10.0-windows/GameShelf.App.dll`. See VALIDATION.md for this increment's live checks and deployment limitations.
+## Windows packaging
 
-The original approved branding is embedded unchanged; the app displays its logo and icon regions. See design/DESIGN.md for provenance and packaging status.
+Run `powershell -NoProfile -File packaging/Build-Installer.ps1` to publish the self-contained Windows x64 app and build the per-user MSI. Output: `artifacts/publish/win-x64/ArcHive.exe` and `artifacts/installer/ArcHive-0.1.1-win-x64.msi`. No separate .NET runtime is required by the installed application. Build prerequisites and verification commands are in [packaging/README.md](packaging/README.md).
+
+The approved icon is embedded in ArcHive.exe, the Start Menu shortcut and the Installed Apps entry. The sidebar blends the original logo into its surface without a black image rectangle. Windows uses its standard file-type icon for the .msi file itself. The package is currently unsigned.

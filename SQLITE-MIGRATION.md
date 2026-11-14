@@ -1,8 +1,8 @@
 # SQLite and multiple locations
 
-On first launch the app creates `%LOCALAPPDATA%\GameShelf\library.db`. Before import it parses the old library.json and writes a unique `library.json.pre-sqlite-*.bak` copy. The original JSON and screenshot assets remain untouched. Schema creation and import commit in one SQLite transaction. Existing SQLite databases are authoritative: subsequent starts do not reimport JSON. Unsupported schema versions fail closed.
+On first launch the app creates `%LOCALAPPDATA%\ArcHive\library.db`. Before import it parses the old library.json and writes a unique `library.json.pre-sqlite-*.bak` copy. The original JSON and screenshot assets remain untouched. Schema creation and import commit in one SQLite transaction. Existing SQLite databases are authoritative: subsequent starts do not reimport JSON. Unsupported schema versions fail closed.
 
-Every save is transactional. `library.db.bak` is an SQLite online backup of the previous committed state. Close the app before manually restoring that file. Retain the entire GameShelf data folder, including screenshots and legacy JSON. Do not run the old JSON-based app to edit the same library after migration.
+Every save is transactional. `library.db.bak` is an SQLite online backup of the previous committed state. Close the app before manually restoring that file. Retain the entire ArcHive data folder, including screenshots and legacy JSON. Do not run the old JSON-based app to edit the same library after migration.
 
 Each game now has archive and installation collections with stable IDs. Installations keep their own executable and optional source-archive ID. Game-level IDs, titles, notes, tag text, favorite/played flags, launch timestamp, cover paths and library roots migrate unchanged. Missing paths are retained rather than dropped.
 
