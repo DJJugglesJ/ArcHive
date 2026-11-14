@@ -59,6 +59,7 @@ public partial class MainWindow
         Add("Launch / engine suggestions", () => DetectLaunch(this, new()), selected.Installations.Count > 0);
         Add("Preview archive / queue", () => Extract(this, new()), selected.Archives.Count > 0);
         Add("Open source folder", () => OpenSource(this, new()));
+        Add("Save backups and restore", () => OpenSaveBackups(this, new()));
         Add("Find metadata", () => FindMetadata(this, new()));
         Add("Organize current view", () => OrganizeLibrary(this, new()));
         optionsMenu.Opened += (_, _) => Dispatcher.BeginInvoke(() => optionActions.FirstOrDefault().Item?.Focus());

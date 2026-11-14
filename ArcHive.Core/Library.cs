@@ -8,6 +8,7 @@ public sealed class Game : System.ComponentModel.INotifyPropertyChanged
     private bool isSelected;
     [System.Text.Json.Serialization.JsonIgnore]
     public bool IsSelected { get => isSelected; set { if (isSelected == value) return; isSelected = value; PropertyChanged?.Invoke(this, new(nameof(IsSelected))); } }
+    public List<SaveLocation> SaveLocations { get; set; } = [];
     public List<DetectionDecision> DetectionHistory { get; set; } = [];
     [System.Text.Json.Serialization.JsonIgnore]
     public string SourceLocation => Installations.FirstOrDefault()?.Path ?? Archives.FirstOrDefault()?.Path ?? DirectoryPath ?? ArchivePath ?? "No source linked";

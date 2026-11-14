@@ -68,7 +68,7 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 - Duplicate review delivered in 0.7.0: shared paths, possible title/version matches, optional size-prefiltered SHA-256 archive comparison, cancellable background work and per-file warnings. No automatic deletion. Merge/reconciliation and per-association cleanup remain planned.
 - Batch organization delivered in 0.7.0: multi-select favorites/status/tags/NSFW and library-record removal with per-entry before/after preview and transactional save. Batch identification/extraction, previewed rename/relocate and recovery journal remain planned.
 - Playtime: record sessions and totals; handle child processes, abnormal exits and user correction. Last-launched time is already present; elapsed playtime is not.
-- Save backups: user-approved save locations, timestamped snapshots, retention, restore preview and pre-restore backup. Database backups are not game-save backups.
+- Save backups delivered in 0.10.0: explicit save folders, timestamped snapshots, configurable regular retention, restore preview, protected pre-restore backup and interrupted-swap recovery. Automatic discovery/scheduling and cloud backups remain future work. Database backups are not game-save backups.
 - Statistics, richer filters and collections; large-library performance benchmarks (10,000+ entries).
 
 ## V1.2 — optional integrations
@@ -114,3 +114,7 @@ The exact second approved logo has been supplied and integrated into the running
 Left-click or Cross/A opens a dedicated details page; Play is a separate action. Right-click or Triangle/Y opens options. Boolean controls use selected buttons with accessible checked state. Display paths retain the drive and final two components, with full paths available through tooltips and Copy full paths. Stored paths remain unchanged.
 
 Live fixture verification confirmed opening details did not change the launch marker, explicit Play did, and the details layout fit a 1014-pixel-wide window. Automated checks cover compact drive/UNC paths, unchanged stored paths, and held-accept suppression.
+
+## Save backups and restore — delivered in 0.10.0
+
+Per-game save-folder configuration persists in SQLite. Background snapshot/restore work validates content hashes and rejects links, overlapping backup locations, stale previews and corrupted snapshots. Folder replacement is journaled; pre-restore snapshots and displaced folders remain available. 551 automated checks pass; Release build has zero warnings/errors. Full end-to-end UI tests were skipped as requested. See [SAVE-BACKUPS.md](SAVE-BACKUPS.md).

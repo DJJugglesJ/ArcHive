@@ -134,3 +134,10 @@ Remaining coverage: this is a primary-workflow GUI pass, not an exhaustive UI au
 Left-click or Cross/A opens a dedicated details page; Play is a separate action. Right-click or Triangle/Y opens options. Boolean controls use selected buttons with accessible checked state. Display paths retain the drive and final two components, with full paths available through tooltips and Copy full paths. Stored paths remain unchanged.
 
 Live fixture verification confirmed opening details did not change the launch marker, explicit Play did, and the details layout fit a 1014-pixel-wide window. Automated checks cover compact drive/UNC paths, unchanged stored paths, and held-accept suppression.
+
+## Save backups and restore — 0.10.0
+
+- 551 automated checks pass (511 previous + 40 save-backup checks); Release application builds with zero warnings/errors.
+- Coverage: nested files and empty directories, additions/replacements/removals, stale preview and post-preview snapshot tampering, protected undo snapshots, regular retention, invalid/overlapping/relative/root locations, size and entry limits, cancellation, missing/locked saves, missing payloads, directory symlinks, traversal manifests, concurrent operation locks, SQLite round-trip and legacy defaults.
+- Interrupted-restore journals were simulated before and after displacing the original folder; recovery preserved the original data and was idempotent. These are deterministic filesystem tests, not physical power-loss or concurrent cloud-sync tests.
+- Full end-to-end UI testing was deliberately skipped for this milestone. The 0.9.0 published release remains unchanged.

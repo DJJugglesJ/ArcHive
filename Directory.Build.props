@@ -3,7 +3,7 @@
     <EnableMultiArchive Condition="'$(EnableMultiArchive)' == ''">true</EnableMultiArchive>
     <TargetFramework>net10.0-windows</TargetFramework>
     <TargetFramework Condition="'$(CompatibilityCheck)' == 'true'">net8.0-windows</TargetFramework>
-    <Version>0.9.0</Version>
+    <Version>0.10.0</Version>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <DefineConstants Condition="'$(EnableMultiArchive)' == 'true'">$(DefineConstants);MULTI_ARCHIVE</DefineConstants>

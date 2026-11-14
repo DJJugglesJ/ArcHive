@@ -6,19 +6,20 @@
 
 Turn a folder of downloads into an artwork-rich collection. Find your games, keep multiple versions together, choose how they launch, and organize your backlog without moving the original files.
 
-Built with **C# / .NET 10 / WPF**, backed by **SQLite**. Current source version: **0.9.0**.
+Built with **C# / .NET 10 / WPF**, backed by **SQLite**. Current source version: **0.10.0**.
 
 ## Your collection, in one place
 
 - **Preview and queue archives.** Inspect ZIP/RAR/7z contents, sizes and entry issues. Queue sequential extractions, stop safely, and recover interrupted jobs with fresh retries and idempotent library linking.
 - **Choose with evidence.** Review launch candidates and engine hints from local files, exclude common helpers, and apply only checked suggestions. Existing launch defaults and manual metadata stay intact unless explicitly changed.
 - **Discover and launch.** Recursively scan folders for archives and executables. Extract ZIP/RAR/7z into a new game folder, link existing installations, and create named launch profiles with individual arguments and working directories.
-- **Make it yours.** Browse a responsive artwork grid, favorites and a separate archive view. Search titles/tags, edit notes, track Backlog / Playing / Completed / Abandoned, and use the optional details panel.
+- **Make it yours.** Browse a responsive artwork grid, favorites and a separate archive view. Search titles/tags, edit notes, track Backlog / Playing / Completed / Abandoned, and open a dedicated details page.
 - **Keep versions straight.** Store multiple archives and installations per entry, release/platform/channel details, latest-known releases and observation history. Numeric comparisons help identify local update gaps.
 - **Enrich with confidence.** Review metadata candidates from VNDB, Steam, IGDB, itch.io and RAWG. Matching uses title/alias, year and engine evidence; choose fields individually and preserve source attribution. Protected undo is available for text metadata.
 - **Bring the artwork.** Select provider covers, backdrops and screenshots, or use local images. Background downloads and bounded disk/memory caches keep the library responsive and reuse cached artwork offline.
 - **Play from the couch.** Navigate and launch with native DualSense/DS4 USB or Bluetooth input, or Xbox through XInput. Select DualSense, DS4 or Xbox button jewels. Cards display controller support when marked Partial or Full.
 - **Organize in batches.** Multi-select entries, preview changes, then update favorites, progress, tags or NSFW classification. Remove unwanted library records while keeping original archives and game folders.
+- **Protect your saves.** Link game-specific save folders, create timestamped snapshots, preview restores, and retain protected pre-restore copies. Regular snapshot retention is configurable. [Backup and recovery details](SAVE-BACKUPS.md).
 - **Review duplicates.** Find shared paths and possible title/version matches. Optional background SHA-256 comparison identifies byte-identical archives, with cancellation and per-file warnings.
 - **Keep visibility discreet.** A small crossed-out 18 / 18+ toggle hides or shows manually marked NSFW entries. Hidden is the default; unclassified games remain visible.
 
@@ -42,7 +43,7 @@ powershell -NoProfile -File packaging/Build-Installer.ps1
 This produces a self-contained Windows x64 executable and per-user MSI:
 
 - `artifacts/publish/win-x64/ArcHive.exe`
-- `artifacts/installer/ArcHive-0.9.0-win-x64.msi`
+- `artifacts/installer/ArcHive-0.10.0-win-x64.msi`
 
 The installed app needs no separate .NET runtime. The executable, Start Menu shortcut and Installed Apps entry carry the approved ArcHive icon. Packages are currently unsigned; these are build outputs, not a claim that downloadable releases are published. See [packaging prerequisites and details](packaging/README.md).
 
@@ -99,7 +100,7 @@ The default data folder is `%LOCALAPPDATA%\ArcHive`, separate from installed pro
 | Five metadata providers, confidence matching and reconciliation | Provider release polling and optional F95Zone thread associations |
 | Artwork selection, asynchronous caching and controller navigation | Broader image formats, accessibility and large-library benchmarks |
 | Duplicate review and transactional batch organization | Duplicate reconciliation/merge, batch identification/extraction and previewed relocation |
-| Last-launched history | Session playtime, game-save backups and restore |
+| Last-launched history, save-folder backups and previewed restore | Session playtime, automatic save discovery and scheduled backups |
 | Native launch profiles | Optional Locale Emulator adapter and versioned plugins |
 
 [ROADMAP.md](ROADMAP.md) tracks delivered milestones and acceptance criteria. Windows WPF remains the current implementation; cross-platform Avalonia is a future consideration.
@@ -112,7 +113,7 @@ Run the automated suite:
 dotnet run --project ArcHive.Tests/ArcHive.Tests.csproj -c Release
 ```
 
-**511 checks pass**, including launch/engine suggestions, manual-choice preservation, Triangle input, archive recovery, duplicates and transactional batch edits. The Release build passes with zero warnings/errors. A live end-to-end desktop test exercised detection/apply/launch, organizer batches, archive preview, selection, options and restart using an isolated fixture library. Real controller hardware and authenticated live provider behavior remain unverified. See [VALIDATION.md](VALIDATION.md) for the evidence and limits.
+**551 checks pass**, including launch/engine suggestions, manual-choice preservation, Triangle input, archive recovery, duplicates and transactional batch edits. The Release build passes with zero warnings/errors. A live end-to-end desktop test exercised detection/apply/launch, organizer batches, archive preview, selection, options and restart using an isolated fixture library. Real controller hardware and authenticated live provider behavior remain unverified. See [VALIDATION.md](VALIDATION.md) for the evidence and limits.
 
 Extraction stages files without overwriting existing games and checks paths, entry counts and declared/actual output sizes. Encrypted/incomplete archives are unsupported. Extraction is not a malware sandbox; use trusted downloads and user-controlled destinations. Decoder CPU/memory limits, hardware power-loss testing, orphan cleanup and broader corruption/link-metadata testing remain hardening work. Artwork currently supports the documented PNG/JPEG provider paths. Version tracking is local/manual, not automatic online updating.
 
@@ -128,3 +129,7 @@ Extraction stages files without overwriting existing games and checks paths, ent
 ### About ArcHive
 
 Settings → About ArcHive displays the version from build metadata, Bellum Labs credit, and © 2026 Nicholas Gartin. All rights reserved.
+
+### Save backups and restore
+
+Open a game, choose **Save backups**, and add its save folder. Close the game and pause cloud-save syncing, then choose **Back up now**. To restore, select a snapshot, choose **Preview restore**, review the changes, then confirm **Restore snapshot**. The current folder is backed up before replacement. **Recover interrupted restore** handles an interrupted folder swap. These are local snapshots, not cloud backups.
