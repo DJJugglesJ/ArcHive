@@ -1,5 +1,5 @@
 # Next ArcHive increment
 
-0.7.0 delivers duplicate evidence review and transactional batch organization for favorites, progress, tags, NSFW classification and library-entry removal. Optional background SHA-256 compares archive bytes; title candidates are explicitly non-exact. See ORGANIZATION.md.
+0.8.0 delivers archive contents/size previews, a durable sequential extraction queue, cancellation, explicit interrupted-job retries and idempotent linking of completed output after restarts. See ARCHIVE-QUEUE.md for recovery states and retained files.
 
-Next core-workflow gaps: archive content preview/queue and crash recovery, launch-candidate identification, duplicate reconciliation/merge, batch identification/extraction and previewed relocation with a recovery journal. Playtime and game-save backups remain planned. Physical-controller validation, broader image-format support, large-library benchmarks and full UI accessibility remain verification/polish work. F95Zone stays a separate opt-in integration.
+Next core-workflow gaps: launch-candidate/engine suggestions, duplicate reconciliation/merge, batch identification and previewed relocation. Archive hardening still includes decoder resource limits, broader corruption/link-metadata tests, hardware power-loss validation and controlled orphan cleanup. Playtime and game-save backups remain planned. Physical-controller verification, broader image formats, accessibility and large-library benchmarks remain polish work. F95Zone stays a separate opt-in integration.

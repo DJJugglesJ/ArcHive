@@ -51,7 +51,7 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 
 | Work | Acceptance |
 | --- | --- |
-| Archive manager | Preview contents, expose per-archive sizes and source paths, extraction queue with cancellation and recovery after crashes. Existing manager filters games with archive associations and uses their detail actions. |
+| Archive manager | Delivered in 0.8.0: content/size preview, persistent sequential queue, cancellation and explicit restart recovery. Partial/uncertain output is retained; automated cleanup and decoder resource hardening remain planned. |
 | Identification | Suggest launch candidates and engine with evidence; require selection, exclude uninstallers and tools; preserve manual choices. |
 | Naming | Persist original name, canonical title, display title, version, platform, release channel and parser confidence separately. Preview suggested corrections; never rename files automatically. Support dates and ambiguous tokens through explicit review. |
 | Progress/status | Delivered in 0.2.0; update availability is a separate release indicator. |
@@ -94,3 +94,10 @@ The exact second approved logo has been supplied and integrated into the running
 - Optional cancellable background archive hashing, unchanged original files, bounded streaming and warnings for unavailable/changed locations.
 - Explicit per-item batch previews, invalidation when selection/arguments change, manual tag provenance, whole-transaction persistence and pre-save database backup. Library removal has an additional confirmation and preserves disk files.
 - 430 automated checks including dialog component tests; clean Release build. Full end-to-end UI tests skipped. See [ORGANIZATION.md](ORGANIZATION.md) for scope and limits.
+
+## Archive previews, queue and recovery - delivered in 0.8.0
+
+- Background ZIP/RAR/7z directory previews with paths, declared sizes, entry issues and policy limits.
+- Durable sequential extraction jobs, source-change checks, exclusive queue ownership, cancellable runs and explicit retry in new attempt folders.
+- Running-to-Interrupted startup recovery, retained uncertain output, durable Extracted receipts and idempotent installation linking after library-save interruptions. No automatic filesystem deletion or decoder resume.
+- 469 automated checks; journal snapshots exercise interruption boundaries. Hardware power-loss and full UI automation are not claimed. See ARCHIVE-QUEUE.md.

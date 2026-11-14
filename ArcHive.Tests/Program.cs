@@ -86,6 +86,7 @@ try
     PreferenceTests.Run(root, Check);
     NativeControllerTests.Run(Check);
     await OrganizationTests.Run(root, Check);
+    await ExtractionQueueTests.Run(root, Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }

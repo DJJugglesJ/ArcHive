@@ -6,10 +6,11 @@
 
 Turn a folder of downloads into an artwork-rich collection. Find your games, keep multiple versions together, choose how they launch, and organize your backlog without moving the original files.
 
-Built with **C# / .NET 10 / WPF**, backed by **SQLite**. Current source version: **0.7.0**.
+Built with **C# / .NET 10 / WPF**, backed by **SQLite**. Current source version: **0.8.0**.
 
 ## Your collection, in one place
 
+- **Preview and queue archives.** Inspect ZIP/RAR/7z contents, sizes and entry issues. Queue sequential extractions, stop safely, and recover interrupted jobs with fresh retries and idempotent library linking.
 - **Discover and launch.** Recursively scan folders for archives and executables. Extract ZIP/RAR/7z into a new game folder, link existing installations, and create named launch profiles with individual arguments and working directories.
 - **Make it yours.** Browse a responsive artwork grid, favorites and a separate archive view. Search titles/tags, edit notes, track Backlog / Playing / Completed / Abandoned, and use the optional details panel.
 - **Keep versions straight.** Store multiple archives and installations per entry, release/platform/channel details, latest-known releases and observation history. Numeric comparisons help identify local update gaps.
@@ -40,19 +41,23 @@ powershell -NoProfile -File packaging/Build-Installer.ps1
 This produces a self-contained Windows x64 executable and per-user MSI:
 
 - `artifacts/publish/win-x64/ArcHive.exe`
-- `artifacts/installer/ArcHive-0.7.0-win-x64.msi`
+- `artifacts/installer/ArcHive-0.8.0-win-x64.msi`
 
 The installed app needs no separate .NET runtime. The executable, Start Menu shortcut and Installed Apps entry carry the approved ArcHive icon. Packages are currently unsigned; these are build outputs, not a claim that downloadable releases are published. See [packaging prerequisites and details](packaging/README.md).
 
 ## Your first game
 
 1. Choose **Add library folder** and select a folder containing your downloads or installed games. Rescans preserve edited metadata and do not launch anything.
-2. Select an entry. For an archive, choose **Extract archive** and a destination parent; ArcHive creates a unique folder and retains the original archive. For an existing installation, use **Add folder** if needed.
+2. Select an entry. For an archive, choose **Preview / queue**, inspect the contents, and **Add to queue** with a destination parent. **Run pending / finish linking** extracts to a unique folder and retains the original archive. For an existing installation, use **Add folder** if needed.
 3. In **Files and launch setup**, select the installation and **Choose executable**. Add a named profile, arguments and an optional working directory. Save your changes.
 4. Choose **Find metadata** to review a provider match and artwork, or edit the details manually.
 5. Click **Launch game** or press Cross/A. The selected profile launches directly after validation. Played history and last launch time are recorded independently of progress status.
 
 Controller input pauses while ArcHive is inactive, busy or editing a field. Release the controls after connecting or returning to the app. Native Sony input takes priority over XInput mirrors; profiles change the displayed symbols independently of the detected device. ArcHive does not map input into games. See [supported controllers](NATIVE-CONTROLLERS.md).
+
+## Archive queue and recovery
+
+Use **Extraction queue** to review jobs across restarts. Jobs run only when requested. Stop leaves later jobs pending; interrupted jobs need an explicit Retry and use fresh folders. Completed output awaiting library linking can finish without extracting again. Select a job to inspect its output and retained attempt paths. Uncertain files from crashes are retained for review. See [archive workflow and recovery](ARCHIVE-QUEUE.md).
 
 ## Clean up a growing library
 
@@ -85,7 +90,8 @@ The default data folder is `%LOCALAPPDATA%\ArcHive`, separate from installed pro
 
 | Delivered | Next / planned |
 | --- | --- |
-| Discovery, staged extraction, SQLite, favorites, tags and search | Archive content preview, extraction queues and crash recovery |
+| Discovery, archive previews, persistent extraction queue and restart recovery | Broader corruption testing, decoder resource limits and orphan cleanup |
+| SQLite, favorites, tags and search | Richer collections and filtering |
 | Versions, progress status and launch profiles | Launch-candidate/engine suggestions and richer filename review |
 | Five metadata providers, confidence matching and reconciliation | Provider release polling and optional F95Zone thread associations |
 | Artwork selection, asynchronous caching and controller navigation | Broader image formats, accessibility and large-library benchmarks |
@@ -103,13 +109,13 @@ Run the automated suite:
 dotnet run --project ArcHive.Tests/ArcHive.Tests.csproj -c Release
 ```
 
-**430 checks pass**, including duplicate comparisons, cancellation, batch persistence/rollback and organization-dialog component tests. The Release build passes with zero warnings/errors. Full end-to-end UI tests were intentionally skipped; real controller hardware and authenticated live provider behavior remain unverified. See [VALIDATION.md](VALIDATION.md) for the evidence and limits.
+**469 checks pass**, including archive previews, queue restart/recovery boundaries, duplicate comparisons, cancellation, batch persistence/rollback and organization-dialog component tests. The Release build passes with zero warnings/errors. Full end-to-end UI tests were intentionally skipped; real controller hardware and authenticated live provider behavior remain unverified. See [VALIDATION.md](VALIDATION.md) for the evidence and limits.
 
-Extraction stages files without overwriting existing games and checks paths, entry counts and declared/actual output sizes. Encrypted/incomplete archives are unsupported. Extraction is not a malware sandbox; use trusted downloads and user-controlled destinations. Decoder CPU/memory limits, crash recovery and broader corruption/link-metadata testing remain hardening work. Artwork currently supports the documented PNG/JPEG provider paths. Version tracking is local/manual, not automatic online updating.
+Extraction stages files without overwriting existing games and checks paths, entry counts and declared/actual output sizes. Encrypted/incomplete archives are unsupported. Extraction is not a malware sandbox; use trusted downloads and user-controlled destinations. Decoder CPU/memory limits, hardware power-loss testing, orphan cleanup and broader corruption/link-metadata testing remain hardening work. Artwork currently supports the documented PNG/JPEG provider paths. Version tracking is local/manual, not automatic online updating.
 
 ## Project guide
 
-- [Organization](ORGANIZATION.md) · [Metadata](METADATA.md) · [Artwork and gamepads](ARTWORK-GAMEPAD.md)
+- [Archive queue and recovery](ARCHIVE-QUEUE.md) · [Organization](ORGANIZATION.md) · [Metadata](METADATA.md) · [Artwork and gamepads](ARTWORK-GAMEPAD.md)
 - [Native controllers](NATIVE-CONTROLLERS.md) · [Design and branding](design/DESIGN.md)
 - [Roadmap](ROADMAP.md) · [Validation](VALIDATION.md) · [Windows packaging](packaging/README.md)
 - `ArcHive.App` — WPF interface, artwork presentation and Windows input

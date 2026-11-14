@@ -115,3 +115,10 @@ Remaining coverage: this is a primary-workflow GUI pass, not an exhaustive UI au
 - Tests distinguish shared references, title/version candidates and SHA-256 archive equality, including equal-size differing bytes, cancellation, empty scopes, unreadable/locked/changed paths and visible-scope isolation.
 - All batch actions, whole-tag matching, manual provenance, stale/invalid requests, deep-copy immutability, launch-profile preservation, SQLite round trips, failure rollback, file retention and readable pre-change backup are covered.
 - Eight tests instantiate the actual organizer without displaying it: multi-selection previews, selection/action/status/tag invalidation, empty selection and failed-save feedback. Full end-to-end UI tests were skipped as requested. Large-library timing and hostile filesystem races were not tested.
+
+## Archive workflow and restart recovery - 0.8.0
+
+- All 469 checks pass (430 existing + 39 archive/queue checks). Release WPF build succeeds with zero warnings/errors.
+- Previews cover ZIP and RAR/7z fixtures, sizes, unsupported paths, duplicate/file-parent conflicts, entry/byte limits and cancellation.
+- Queue tests cover pending reload, exclusive leases, duplicate jobs, write-failure atomicity, source locking/changes, sequential continuation, stop/retry, partial staging retention and fresh attempt paths. Durable journal snapshots reproduce interruption before output receipt and after library save; installation replay is idempotent. Link failures retain output, removed games are not recreated, and corrupt/future/mislocated journals fail closed.
+- A stream-lifetime error discovered by the preview tests was corrected. Tests do not simulate hardware power failure or abrupt OS termination; full end-to-end UI tests were skipped. No live archive downloads or games were launched.

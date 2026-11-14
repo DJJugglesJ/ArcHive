@@ -67,13 +67,13 @@ public partial class MainWindow : Window
         ControllerSupportBox.ItemsSource = Enum.GetValues<ControllerSupport>();
         StartGamepad();
 #if MULTI_ARCHIVE
-        ExtractButton.Content = "Extract archive";
+        ExtractButton.Content = "Preview / queue";
 #endif
         store = new SqliteLibraryStore(Path.Combine(data, "library.db"), Path.Combine(data, "library.json"));
-        try { library = store.Load(); }
+        try { library = store.Load(); extractionQueue = new ExtractionQueue(Path.Combine(data, "extraction-queue.json")); }
         catch (Exception ex)
         {
-            MessageBox.Show("Library could not be loaded. Existing files have been retained. See the migration and recovery guide.\n\n" + ex.Message);
+            MessageBox.Show("Library or extraction queue could not be loaded. Existing files have been retained. Check the migration and archive recovery guides; another ArcHive instance may own this data folder.\n\n" + ex.Message);
             Application.Current.Shutdown(); return;
         }
         ProgressBox.ItemsSource = Enum.GetValues<GameProgress>();
@@ -82,6 +82,9 @@ public partial class MainWindow : Window
         ready = true;
         Refresh();
         Closing += OnClosing;
+        Closed += (_, _) => extractionQueue?.Dispose();
+        if (extractionQueue.Jobs.Any(j => j.State != ExtractionState.Completed && j.State != ExtractionState.Cancelled))
+            Status.Text = "Extraction jobs await review. Open Extraction queue to run pending jobs or recover interrupted work.";
     }
 
     private void Commit()
@@ -243,29 +246,6 @@ public partial class MainWindow : Window
     { if (warnings.Count > 0) MessageBox.Show(this, string.Join("\n", warnings.Take(12)), "Some folders were skipped"); }
     private void SaveDetails(object sender, RoutedEventArgs e) => Guard(() => { Commit(); store.Save(library); Refresh(); });
     private void Cancel(object sender, RoutedEventArgs e) => operation?.Cancel();
-    private async void Extract(object sender, RoutedEventArgs e)
-    {
-        if (selected is null || ActiveArchive is not GameArchive source) return;
-        var archive = source.Path;
-        var game = selected;
-        var dialog = new OpenFolderDialog { Title = "Choose extraction parent folder (a new game folder will be created)" };
-        if (dialog.ShowDialog(this) != true) return;
-        await Busy(async token =>
-        {
-            IArchiveExtractor extractor =
-#if MULTI_ARCHIVE
-                new MultiArchiveExtractor();
-#else
-                new ZipExtractor();
-#endif
-            var folder = await extractor.ExtractAsync(archive, dialog.FolderName,
-                new Progress<string>(s => Status.Text = s), token);
-            var installation = new GameInstallation { Path = folder, SourceArchiveId = source.Id, Release = source.Release with { } };
-            game.Installations.Add(installation);
-            ShowPaths(); FolderChoices.SelectedItem = installation;
-            ShowPaths();
-        });
-    }
     private void LinkFolder(object sender, RoutedEventArgs e) => Guard(() =>
     {
         if (selected is null) return;
