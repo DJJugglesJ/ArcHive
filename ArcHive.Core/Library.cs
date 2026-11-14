@@ -24,6 +24,7 @@ public sealed class Game : System.ComponentModel.INotifyPropertyChanged
     public string? ExecutablePath { get; set; }
     public string Tags { get; set; } = "";
     public string Description { get; set; } = "";
+    public bool IsNsfw { get; set; }
     public bool Favorite { get; set; }
     public bool Played { get; set; }
     private GameProgress progress = GameProgress.Backlog;

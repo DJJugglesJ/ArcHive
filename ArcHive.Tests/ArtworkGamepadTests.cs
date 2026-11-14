@@ -117,8 +117,8 @@ internal static class ArtworkGamepadTests
         Step(); check(Step(x: 8000) == PadAction.None && Step(x: short.MinValue) == PadAction.Left, "Analog dead zone and signed extremes handled");
         check(Step(PadButtons.A, enabled: false) == PadAction.None && Step(PadButtons.A) == PadAction.None, "Focus loss editing disconnect or busy gate requires neutral rearming");
         Step(); check(Step(PadButtons.A) == PadAction.Accept, "Gamepad accepts fresh press after rearming");
-        var confirmation = new GamepadNavigation();
-        check(confirmation.Update(PadButtons.A, 0, 0, true, time) == PadAction.None && confirmation.Update(0, 0, 0, true, time) == PadAction.None && confirmation.Update(PadButtons.A, 0, 0, true, time) == PadAction.Accept, "Launch confirmation cannot consume the held opener press");
+        var reconnected = new GamepadNavigation();
+        check(reconnected.Update(PadButtons.A, 0, 0, true, time) == PadAction.None && reconnected.Update(0, 0, 0, true, time) == PadAction.None && reconnected.Update(PadButtons.A, 0, 0, true, time) == PadAction.Accept, "New input session cannot consume a held launch press");
         check(GamepadNavigation.Move(-1, 0, 4, PadAction.Down) == -1 && GamepadNavigation.Move(-1, 10, 4, PadAction.Right) == 0, "Gamepad handles empty and unselected libraries");
         check(GamepadNavigation.Move(3, 10, 4, PadAction.Right) == 3 && GamepadNavigation.Move(4, 10, 4, PadAction.Left) == 4 && GamepadNavigation.Move(8, 10, 4, PadAction.Down) == 9, "Gamepad grid navigation clamps row and final-page edges");
         check(GamepadNavigation.Move(2, 10, 4, PadAction.Down) == 6 && GamepadNavigation.Move(6, 10, 4, PadAction.Up) == 2, "Gamepad follows responsive column count");

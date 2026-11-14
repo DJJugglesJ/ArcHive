@@ -19,7 +19,7 @@ public partial class MainWindow
             var pad = XInputPad.Read();
             if (controller != pad?.Index) { reducer.Update(0, 0, 0, false, clock.Elapsed); controller = pad?.Index; }
             var editing = Keyboard.FocusedElement is TextBoxBase or PasswordBox or ComboBox or ComboBoxItem;
-            var enabled = GamepadEnabled.IsChecked == true && IsActive && IsEnabled && operation is null && !editing && pad is not null;
+            var enabled = preferences.GamepadEnabled && IsActive && IsEnabled && operation is null && !editing && pad is not null;
             var action = reducer.Update(pad?.Buttons ?? 0, pad?.X ?? 0, pad?.Y ?? 0, enabled, clock.Elapsed);
             if (action == PadAction.None) return;
             if (action == PadAction.Accept) { Launch(this, new RoutedEventArgs()); return; }

@@ -27,7 +27,7 @@ The adaptive artwork grid, background thumbnails, optional details and archive v
 
 ## Windows packaging
 
-Run `powershell -NoProfile -File packaging/Build-Installer.ps1` to publish the self-contained Windows x64 app and build the per-user MSI. Output: `artifacts/publish/win-x64/ArcHive.exe` and `artifacts/installer/ArcHive-0.5.0-win-x64.msi`. No separate .NET runtime is required by the installed application. Build prerequisites and verification commands are in [packaging/README.md](packaging/README.md).
+Run `powershell -NoProfile -File packaging/Build-Installer.ps1` to publish the self-contained Windows x64 app and build the per-user MSI. Output: `artifacts/publish/win-x64/ArcHive.exe` and `artifacts/installer/ArcHive-0.5.1-win-x64.msi`. No separate .NET runtime is required by the installed application. Build prerequisites and verification commands are in [packaging/README.md](packaging/README.md).
 
 The approved icon is embedded in ArcHive.exe, the Start Menu shortcut and the Installed Apps entry. The sidebar blends the original logo into its surface without a black image rectangle. Windows uses its standard file-type icon for the .msi file itself. The package is currently unsigned.
 
@@ -37,7 +37,7 @@ Choose a progress state in game details and filter it beside Search. Progress an
 
 Expand **Versions and release history** to record a latest-known version and source note. In **Files and launch setup**, select an archive or installation to edit its version, platform and channel. Numeric versions are compared within matching platform/channel values; unsupported version formats show Unknown. These are local/manual observations, not live online update checks.
 
-Each installation can have multiple launch profiles. Create a profile, choose its executable, add one editable row per argument and optionally a working directory (relative to the installation or an absolute path inside it). A blank working directory uses the executable's folder. Blank argument rows represent empty arguments; arguments are literal, with no shell expansion. **Make default** selects the profile restored for that installation. **Save details and profiles** persists edits. Every launch shows the resolved command and directory before execution.
+Each installation can have multiple launch profiles. Create a profile, choose its executable, add one editable row per argument and optionally a working directory (relative to the installation or an absolute path inside it). A blank working directory uses the executable's folder. Blank argument rows represent empty arguments; arguments are literal, with no shell expansion. **Make default** selects the profile restored for that installation. **Save details and profiles** persists edits. Launch starts the selected profile directly after path/profile validation, without a confirmation dialog.
 
 Existing SQLite libraries upgrade automatically with a retained pre-v2 backup. Older binaries cannot read schema 2; see [SQLITE-MIGRATION.md](SQLITE-MIGRATION.md) for rollback. This milestone was verified with automated tests and a Release build; full UI automation was intentionally skipped.
 
@@ -56,4 +56,9 @@ IGDB supplies covers, artwork and screenshots; RAWG supplies backgrounds and ava
 
 Controller-support icons appear on game cards marked **Full** or **Partial** in the **Controller input support** selector. Unknown and None show no icon. Set this manually, or explicitly accept a provider's controller-support field; no support is inferred from the game's platform. Save details after editing.
 
-With **Gamepad navigation** enabled, an XInput-compatible controller can use the D-pad/left stick to select games, shoulder buttons to switch All/Favorites/Archives, and A to open launch confirmation. Release A and press it again to confirm; B cancels. ArcHive must be active and not editing a text box/selector or running another operation. Clicking the game grid leaves editing mode. Input pauses when a game takes focus. The setting is session-only; unsupported DirectInput-only controllers need an XInput-compatible mapping. Automated input simulation passed; physical-controller/end-to-end UI testing was not performed.
+In **Settings**, choose DualSense (default), DualShock 4 or Xbox button jewels and enable gamepad navigation. An XInput-compatible controller uses the D-pad/left stick to select games, shoulders to switch All/Favorites/Archives, and Cross/A to launch directly. ArcHive must be active and not editing a text box/selector or running another operation. Clicking the game grid leaves editing mode. Input pauses when a game takes focus. Settings persist across restarts; PlayStation button profiles change prompts, not input drivers. DirectInput-only controllers need an XInput-compatible mapping. Automated input simulation passed; physical-controller/end-to-end UI testing was not performed.
+
+
+## Discreet visibility control (0.5.1)
+
+The small crossed-out **18** beside Search hides games marked **NSFW**. Click it to show **18+** and include them; click again to hide them. The tooltip and accessible label identify the current state. The choice persists and defaults to hidden. Mark/unmark games with **NSFW** in details and save. This filters the grid, favorites, archive list, search results, details selection and gamepad navigation; it does not delete anything. Existing unmarked games remain visible—classification is manual, not guessed from titles, tags or ratings.

@@ -31,11 +31,18 @@ Games have Unknown, None, Partial or Full controller support. Partial/Full show 
 
 ## Gamepad navigation and launching
 
-Windows [XInput](https://learn.microsoft.com/en-us/windows/win32/xinput/getting-started-with-xinput) is polled every 60 ms. The first connected controller among four slots drives ArcHive. DirectInput-only controllers are not supported natively; a compatible mapping may expose them as XInput. The sidebar toggle controls navigation for this session.
+Windows [XInput](https://learn.microsoft.com/en-us/windows/win32/xinput/getting-started-with-xinput) is polled every 60 ms. The first connected controller among four slots drives ArcHive. DirectInput-only controllers are not supported natively; a compatible mapping may expose them as XInput. Settings controls navigation and persists your button profile: DualSense by default, DualShock 4 (DS4) or Xbox. DualSense jewels are neutral; DS4 jewels use muted PlayStation colors; Xbox uses lettered jewels. Profile selection changes visual prompts only, not the XInput transport.
 
 - D-pad or left stick: select within the visible filtered grid/list, scrolling selected rows into view. The selected card is highlighted. The stick has a 12,000-unit dead zone; directional repeats start after 450 ms and repeat at 120 ms intervals.
 - Shoulder buttons: cycle All games, Favorites and Archives.
-- A: open the existing selected installation/profile's launch confirmation. The same confirmation is used for mouse launching and shows exact command/working directory. Release buttons, then press A again to launch, or B to cancel. A is edge-triggered and never repeats while held.
-- Input is ignored when ArcHive is inactive, disabled by a modal dialog, busy with an operation, or editing a text/password field or selector. Return focus to the game grid to resume. Reconnection, controller-slot change, focus return and confirmation windows require neutral input before accepting actions. Launch setup still requires a valid explicit executable/profile; the badge does not bypass checks.
+- Cross/A: launch the selected installation/profile immediately, with the same executable/path checks as mouse launching. No confirmation dialog is shown. Accept is edge-triggered and never repeats while held.
+- Input is ignored when ArcHive is inactive, disabled by a modal dialog, busy with an operation, or editing a text/password field or selector. Return focus to the game grid to resume. Reconnection, controller-slot change and focus return require neutral input before accepting actions. Launch setup still requires a valid explicit executable/profile; the badge does not bypass checks.
 
 No buttons are injected into a game and no game input mappings are modified. Automated tests exercise the navigation state machine, actual Windows image decoders, cache and persistence logic. Physical-controller behavior, accessibility, layout and full end-to-end UI flows were not tested in this milestone.
+
+
+## 0.5.1 preferences and visibility
+
+The general Settings dialog is separate from API credential settings. `settings.json` under the app data directory stores controller profile, gamepad navigation and the ShowNsfw preference, with atomic saves and a backup. Missing settings default to DualSense, enabled navigation and hidden NSFW. Invalid settings are preserved on disk and the app uses defaults until the user saves a change.
+
+The subtle search-bar control switches between a muted crossed-out circled 18 (hidden) and 18+ (shown), with an explicit tooltip/accessibility state. It filters games marked with the manual NSFW checkbox; existing unclassified games remain visible. Changing visibility clears filtered-out selections and therefore their inspector artwork and launch target. Hidden games remain in the library database. The support badge on game cards now uses the active controller's accept-button jewel, preserving the Partial/Full tooltip. Profiles do not provide native DualSense/DS4 HID support.

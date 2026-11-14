@@ -94,3 +94,10 @@ Remaining coverage: this is a primary-workflow GUI pass, not an exhaustive UI au
 - Cache tests cover concurrent request deduplication, no authentication header, atomic publication, offline reuse across instances, disk eviction/redownload, corrupt-cache repair, cancellation, MIME/HTTP/size/decode/network failure and failure backoff. Fixtures do not contact image CDNs or use credentials.
 - Simulated gamepad tests cover neutral arming, held-button suppression, cancellation, shoulders, timed directional repeat, dead zone/signed extremes, focus/busy/disconnect gating, responsive grid boundaries and separate confirmation presses. Native XInput polling tolerates unavailable controllers. Physical-controller navigation and launch behavior remain unverified; the existing controlled child-launch test remains green.
 - The suite ran in the normal Windows session to retain the previous isolated Credential Manager regression tests, with temporary test credentials removed afterward. No user library or real game executable was used. Version numbers align at 0.5.0; installer rebuild/install-uninstall testing remains outside this milestone.
+
+
+## Direct launch, controller profiles and visibility — 0.5.1
+
+- 324 automated checks pass (307 previous + 17 preference/filter checks). Release build passes with zero warnings/errors. Direct launching retains the existing executable validation, exact argument-delivery regression and edge-triggered input tests; the confirmation window was removed.
+- New checks cover DualSense/hidden defaults, profile mappings, persisted settings and backups, invalid/corrupt settings preservation, per-game NSFW SQLite round trips, unclassified legacy records and nonrepeating direct-launch input.
+- Hiding is applied to the shared visible game list used by grid, archives, favorites, search and controller navigation; filtered-out selections are explicitly cleared. Physical controller behavior and full end-to-end UI tests were not run. PlayStation profiles change jewels/prompts and still require an XInput-compatible mapping for input.

@@ -41,6 +41,12 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 - Editable Unknown/None/Partial/Full controller support; badges for Partial/Full and reviewable RAWG controller hints when explicitly present.
 - Active-window XInput navigation with dead zones, directional repeat, selection highlight, shoulder view switching and controller-operable launch confirmation. No input injection into games. Real hardware/full UI verification remains outstanding.
 
+## Controller profiles and discreet visibility — delivered in 0.5.1
+
+- Direct mouse/gamepad launching without confirmation; executable/profile checks and held-button suppression remain.
+- Persistent DualSense (default), DualShock 4 and Xbox visual prompt profiles, vector button jewels in settings/launch/cards, and persistent gamepad navigation preference. Native PlayStation HID input remains outside the existing XInput backend.
+- Small crossed-out 18 / 18+ control for hiding/showing manually classified NSFW games. Persisted setting defaults to hidden; filters all library views and clears filtered selections without deleting records.
+
 ## V1 — complete the core workflow
 
 | Work | Acceptance |

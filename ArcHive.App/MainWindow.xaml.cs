@@ -62,6 +62,7 @@ public partial class MainWindow : Window
     public MainWindow()
     {
         InitializeComponent();
+        LoadPreferences();
         ProfileArgumentRows.ItemsSource = argumentRows;
         ControllerSupportBox.ItemsSource = Enum.GetValues<ControllerSupport>();
         StartGamepad();
@@ -92,6 +93,7 @@ public partial class MainWindow : Window
         MetadataReconciliation.SetManual(selected, MetadataField.ReleaseYear, ReleaseYearBox.Text.Trim());
         MetadataReconciliation.SetManual(selected, MetadataField.Engine, EngineBox.Text.Trim());
         if (ControllerSupportBox.SelectedItem is ControllerSupport support) MetadataReconciliation.SetManual(selected, MetadataField.ControllerSupport, support.ToString());
+        selected.IsNsfw = NsfwBox.IsChecked == true;
         selected.Favorite = FavoriteBox.IsChecked == true;
         selected.Played = PlayedBox.IsChecked == true;
         CommitMilestone();
@@ -101,12 +103,12 @@ public partial class MainWindow : Window
         var current = selected;
         var profileId = editorProfile?.Id;
         Games.ItemsSource = library.Games.Where(g =>
-            (!archivesView || g.Archives.Count > 0) &&
+            preferences.Includes(g) && (!archivesView || g.Archives.Count > 0) &&
             (StatusFilter.SelectedIndex <= 0 || g.Progress.ToString() == StatusFilter.SelectedItem as string) &&
             (FavoritesOnly.IsChecked != true || g.Favorite) &&
             (g.Title.Contains(Search.Text, StringComparison.OrdinalIgnoreCase) || g.Tags.Contains(Search.Text, StringComparison.OrdinalIgnoreCase)))
             .OrderBy(g => g.Title).ToList();
-        Games.SelectedItem = current;
+        Games.SelectedItem = current is not null && Games.Items.Contains(current) ? current : null;
         if (editorInstallation?.Profiles.FirstOrDefault(p => p.Id == profileId) is { } profile) ProfileChoices.SelectedItem = profile;
         ArchiveList.ItemsSource = Games.ItemsSource;
         ArchiveList.SelectedItem = Games.SelectedItem;
@@ -126,7 +128,7 @@ public partial class MainWindow : Window
         if (selected is null)
         {
             TitleBox.Clear(); TagsBox.Clear(); DescriptionBox.Clear(); ReleaseYearBox.Clear(); EngineBox.Clear();
-            FavoriteBox.IsChecked = PlayedBox.IsChecked = false;
+            FavoriteBox.IsChecked = PlayedBox.IsChecked = NsfwBox.IsChecked = false;
             ArchiveChoices.ItemsSource = null; FolderChoices.ItemsSource = null;
             Screenshot.ImagePath = null; Screenshot.Reference = null; ScreenshotStrip.ItemsSource = null; ArtworkSources.Text = ""; ControllerSupportBox.SelectedItem = null; DetailTitle.Text = "Select a game"; DetailState.Text = ""; Paths.Text = "Select a game to see its details.";
             ClearMilestone();
@@ -137,7 +139,7 @@ public partial class MainWindow : Window
         ReleaseYearBox.Text = selected.ReleaseYear; EngineBox.Text = selected.Engine; ControllerSupportBox.SelectedItem = selected.ControllerSupport;
         TagsBox.Text = selected.Tags;
         DescriptionBox.Text = selected.Description;
-        FavoriteBox.IsChecked = selected.Favorite;
+        FavoriteBox.IsChecked = selected.Favorite; NsfwBox.IsChecked = selected.IsNsfw;
         PlayedBox.IsChecked = selected.Played;
         LoadGameMilestone();
         ShowPaths();
@@ -295,10 +297,10 @@ public partial class MainWindow : Window
     private void Launch(object sender, RoutedEventArgs e) => Guard(() =>
     {
         Commit();
+        if (selected is not null && !preferences.Includes(selected)) { Refresh(); return; }
         if (ActiveInstallation is not GameInstallation installation || editorProfile is null)
             throw new InvalidOperationException("Select an installation and configure a launch profile first.");
         var plan = LaunchService.Prepare(installation, editorProfile);
-        if (new LaunchConfirmation(plan, GamepadEnabled.IsChecked == true) { Owner = this }.ShowDialog() != true) return;
         using var process = Process.Start(plan.ToStartInfo());
         if (process is null) throw new IOException("Windows did not start the game.");
         Commit(); selected!.Played = true; selected.LastLaunched = DateTimeOffset.UtcNow;
