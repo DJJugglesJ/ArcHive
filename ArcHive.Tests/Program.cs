@@ -7,6 +7,22 @@ if (args.Length >= 2 && args[0] == "--launch-probe")
     return;
 }
 
+if (args.Length > 0 && args[0] == "--wait-process") { await Task.Delay(3500); return; }
+if (args.Length > 0 && args[0] == "--parent-process")
+{
+    using var child = System.Diagnostics.Process.Start(new System.Diagnostics.ProcessStartInfo(Path.Combine(AppContext.BaseDirectory, "ArcHive.Tests.exe")) { UseShellExecute = false, CreateNoWindow = true, ArgumentList = { "--wait-process" } });
+    await Task.Delay(1500); return;
+}
+if (File.Exists(Path.Combine(AppContext.BaseDirectory, "plugin-fixture.mode")))
+{
+    var request = System.Text.Json.JsonSerializer.Deserialize<PluginRequest>(Console.In.ReadToEnd(), PluginCatalog.Json)!;
+    if (request.Query?.Title == "wait") await Task.Delay(30000);
+    if (request.Query?.Title == "crash") { Environment.Exit(7); return; }
+    if (request.Query?.Title == "oversize") { Console.Write(new string('x', 2_100_000)); return; }
+    if (request.Query?.Title == "bad") { Console.Write("not JSON"); return; }
+    Console.Write(System.Text.Json.JsonSerializer.Serialize(new PluginResponse(1, [], request.Launch), PluginCatalog.Json)); return;
+}
+
 var root = Path.Combine(Path.GetTempPath(), "archive-test-" + Guid.NewGuid());
 Directory.CreateDirectory(root);
 var passed = 0;
@@ -91,6 +107,7 @@ try
     await DetectionTests.Run(root, Check);
     await SaveBackupTests.Run(root, Check);
     await SourceWorkflowTests.Run(root, Check);
+    await V1Tests.Run(root, Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }

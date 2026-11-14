@@ -5,4 +5,5 @@
   <ItemGroup><Compile Include="../ArcHive.App/CompactPathConverter.cs" Link="CompactPathConverter.cs"/><Compile Include="../ArcHive.App/ArtworkImages.cs" Link="ArtworkImages.cs"/><Compile Include="../ArcHive.App/XInputPad.cs" Link="XInputPad.cs"/><Compile Include="../ArcHive.App/NativePlayStationInput.cs" Link="NativePlayStationInput.cs"/></ItemGroup>
   <ItemGroup><Page Include="../ArcHive.App/OrganizationWindow.xaml" Link="OrganizationWindow.xaml"/><Compile Include="../ArcHive.App/OrganizationWindow.xaml.cs" Link="OrganizationWindow.xaml.cs"/></ItemGroup>
 <ItemGroup><Compile Include="../ArcHive.App/ControllerKeys.cs" Link="ControllerKeys.cs"/><Compile Include="../ArcHive.App/ControllerFocus.cs" Link="ControllerFocus.cs"/><Compile Include="../ArcHive.App/ControllerKeyboard.cs" Link="ControllerKeyboard.cs"/></ItemGroup>
+<ItemGroup><Compile Include="../ArcHive.App/ChoiceDialog.cs" Link="ChoiceDialog.cs"/></ItemGroup>
 </Project>

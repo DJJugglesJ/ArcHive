@@ -29,7 +29,7 @@ public partial class ArchiveQueueWindow : Window
         if (operation is not null) return;
         operation = new(); PreviewControls.IsEnabled = QueueControls.IsEnabled = false; StopButton.IsEnabled = true;
         try { await action(operation.Token); }
-        catch (OperationCanceledException) { Status.Text = "Cancelled. Original files retained."; }
+        catch (OperationCanceledException) { Status.Text = "Canceled. Original files retained."; }
         catch (Exception ex) { Status.Text = ex.Message; }
         finally { operation.Dispose(); operation = null; PreviewControls.IsEnabled = QueueControls.IsEnabled = true; StopButton.IsEnabled = false; RefreshJobs(); }
     }
@@ -43,7 +43,7 @@ public partial class ArchiveQueueWindow : Window
             Contents.ItemsSource = result.Entries;
             PreviewSummary.Text = $"{result.Entries.Count:N0} entries · {result.ArchiveBytes:N0} archive bytes · {result.ExpandedBytes:N0} declared output bytes";
             EnqueueButton.IsEnabled = result.CanExtract;
-            Status.Text = result.CanExtract ? "Preview ready. Extraction rechecks the archive; preview does not verify compressed payload integrity." : "Unsupported entries found. Review the Issue column.";
+            Status.Text = result.CanExtract ? "Archive preview ready. File integrity will be checked during extraction." : "Some archive entries aren't supported. Review the Issue column.";
         });
     }
     private void Enqueue(object sender, RoutedEventArgs e)
@@ -51,7 +51,7 @@ public partial class ArchiveQueueWindow : Window
         if (game is null || archive is null || !EnqueueButton.IsEnabled) return;
         var picker = new OpenFolderDialog { Title = "Choose extraction parent (each job gets a new folder)" };
         if (picker.ShowDialog(this) != true) return;
-        Try(() => { queue.Enqueue(game, archive, picker.FolderName); Status.Text = "Queued. Run when ready, or close and add more archives."; });
+        Try(() => { queue.Enqueue(game, archive, picker.FolderName); Status.Text = "Added to queue. Start extraction when ready."; });
     }
     private async void Run(object sender, RoutedEventArgs e) => await Work(async token =>
     {
@@ -63,7 +63,7 @@ public partial class ArchiveQueueWindow : Window
 #endif
         var progress = new Progress<string>(message => { if (operation is not null) { Status.Text = message; RefreshJobs(); } });
         await queue.RunAsync(extractor, link, progress, token);
-        Status.Text = token.IsCancellationRequested ? "Queue stopped. Later jobs remain pending." : "Queue pass finished. Review states and errors; Extracted jobs can retry linking without extracting again.";
+        Status.Text = token.IsCancellationRequested ? "Extraction stopped. Remaining jobs are still queued." : "Queue pass finished. Review states and errors; Extracted jobs can retry linking without extracting again.";
     });
     private void Retry(object sender, RoutedEventArgs e) => Try(() => { if (Jobs.SelectedItem is ExtractionJob job) queue.Retry(job.Id); });
     private void CancelPending(object sender, RoutedEventArgs e) => Try(() => { if (Jobs.SelectedItem is ExtractionJob job) queue.CancelPending(job.Id); });

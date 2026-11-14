@@ -46,14 +46,14 @@ public partial class MainWindow : Window
         if (detailsPage) BackToCollection(this, new());
         Commit(); archivesView = archives;
         FavoritesOnly.IsChecked = favorites;
-        PageTitle.Text = archives ? "Archive manager" : favorites ? "Your favorites" : "Your library";
-        PageSubtitle.Text = archives ? "Inspect your downloads. Extract when you are ready." : "A home for every game you discover.";
+        PageTitle.Text = archives ? "Archives" : favorites ? "Favorites" : "Library";
+        PageSubtitle.Text = archives ? "Inspect your downloads. Extract when you are ready." : "Your games, all in one place.";
         Gallery.Visibility = archives ? Visibility.Collapsed : Visibility.Visible;
         ArchiveList.Visibility = archives ? Visibility.Visible : Visibility.Collapsed;
         Refresh(); (archives ? (Control)ArchiveList : Gallery).Focus();
     }
     private void ToggleInspector(object sender, RoutedEventArgs e)
-    { if (selected is null) Status.Text = "Select an entry to open its details."; else ShowDetailsPage(); }
+    { if (selected is null) Status.Text = "Select a game to view its details."; else ShowDetailsPage(); }
 
     public MainWindow()
     {
@@ -63,25 +63,26 @@ public partial class MainWindow : Window
         ControllerSupportBox.ItemsSource = Enum.GetValues<ControllerSupport>();
         StartGamepad();
 #if MULTI_ARCHIVE
-        ExtractButton.Content = "Preview / queue";
+        ExtractButton.Content = "Manage Archive…";
 #endif
         store = new SqliteLibraryStore(Path.Combine(data, "library.db"), Path.Combine(data, "library.json"));
-        try { library = store.Load(); extractionQueue = new ExtractionQueue(Path.Combine(data, "extraction-queue.json")); }
+        try { library = store.Load(); extractionQueue = new ExtractionQueue(Path.Combine(data, "extraction-queue.json")); store.CompletePendingPurge(extractionQueue.ClearForLibraryReset); LibraryFileMoves.Recover(library, Path.Combine(data, "file-operations.json")); }
         catch (Exception ex)
         {
-            MessageBox.Show("Library or extraction queue could not be loaded. Existing files have been retained. Check the migration and archive recovery guides; another ArcHive instance may own this data folder.\n\n" + ex.Message);
+            ErrorDialog.ShowDetails(this, "Your library or an operation journal could not be loaded safely. Existing files have been retained. Check the recovery guides; another ArcHive instance may own this data folder.", ex);
             Application.Current.Shutdown(); return;
         }
         ProgressBox.ItemsSource = Enum.GetValues<GameProgress>();
-        StatusFilter.ItemsSource = new[] { "All statuses" }.Concat(Enum.GetNames<GameProgress>()).ToArray();
+        StatusFilter.ItemsSource = new[] { "All Play Statuses" }.Concat(Enum.GetNames<GameProgress>()).ToArray();
         StatusFilter.SelectedIndex = 0;
         ready = true;
+        StartPlaytime();
         Refresh();
         Loaded += (_, _) => Gallery.Focus();
         Closing += OnClosing;
         Closed += (_, _) => extractionQueue?.Dispose();
         if (extractionQueue.Jobs.Any(j => j.State != ExtractionState.Completed && j.State != ExtractionState.Cancelled))
-            Status.Text = "Extraction jobs await review. Open Extraction queue to run pending jobs or recover interrupted work.";
+            Status.Text = "Extraction jobs await review. Open Extraction Queue to run pending jobs or recover interrupted work.";
     }
 
     private void Commit()
@@ -106,19 +107,20 @@ public partial class MainWindow : Window
             preferences.Includes(g) && (!archivesView || g.Archives.Count > 0) &&
             (StatusFilter.SelectedIndex <= 0 || g.Progress.ToString() == StatusFilter.SelectedItem as string) &&
             (FavoritesOnly.IsChecked != true || g.Favorite) &&
-            (g.Title.Contains(Search.Text, StringComparison.OrdinalIgnoreCase) || g.Tags.Contains(Search.Text, StringComparison.OrdinalIgnoreCase)))
+            (g.Title.Contains(Search.Text, StringComparison.OrdinalIgnoreCase) || g.Tags.Contains(Search.Text, StringComparison.OrdinalIgnoreCase) || g.Naming.CanonicalTitle.Contains(Search.Text, StringComparison.OrdinalIgnoreCase) || g.Naming.OriginalName.Contains(Search.Text, StringComparison.OrdinalIgnoreCase) || g.Collections.Any(c => c.Contains(Search.Text, StringComparison.OrdinalIgnoreCase))))
             .OrderByDescending(g => preferences.LibraryOrder == LibraryOrder.FavoritesFirst && g.Favorite)
             .ThenByDescending(g => preferences.LibraryOrder == LibraryOrder.RecentlyPlayed ? g.LastLaunched : null)
             .ThenBy(g => g.Title).ToList();
+        Games.ItemsSource = LibraryBrowsing.Apply(((IEnumerable<Game>)Games.ItemsSource), browse).ToList();
         Games.SelectedItem = current is not null && Games.Items.Contains(current) ? current : null;
         if (editorInstallation?.Profiles.FirstOrDefault(p => p.Id == profileId) is { } profile) ProfileChoices.SelectedItem = profile;
         ArchiveList.ItemsSource = Games.ItemsSource;
         ArchiveList.SelectedItem = Games.SelectedItem;
         RebuildGallery();
-        EmptyTitle.Text = library.Games.Count == 0 ? "Your next adventure starts here." : "No games match this view.";
-        EmptyDescription.Text = library.Games.Count == 0 ? "Add a folder containing games or archives. Your original files stay in place." : "Try another search, progress filter or collection. Hidden entries remain in your library.";
+        EmptyTitle.Text = library.Games.Count == 0 ? UiText.EmptyTitle : UiText.NoMatches;
+        EmptyDescription.Text = library.Games.Count == 0 ? UiText.EmptyDescription : UiText.NoMatchesDescription;
         EmptyState.Visibility = Games.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
-        Status.Text = $"{Games.Items.Count} shown / {library.Games.Count} entries • {library.Roots.Count} library folders (manual rescan)";
+        Status.Text = UiText.LibraryCount(Games.Items.Count, library.Games.Count, library.Roots.Count);
     }
     private void FilterChanged(object sender, RoutedEventArgs e)
     { if (ready) { Commit(); Refresh(); } }
@@ -137,11 +139,11 @@ public partial class MainWindow : Window
             TitleBox.Clear(); TagsBox.Clear(); DescriptionBox.Clear(); ReleaseYearBox.Clear(); EngineBox.Clear();
             FavoriteBox.IsChecked = PlayedBox.IsChecked = NsfwBox.IsChecked = false;
             ArchiveChoices.ItemsSource = null; FolderChoices.ItemsSource = null;
-            Screenshot.ImagePath = null; Screenshot.Reference = null; ScreenshotStrip.ItemsSource = null; ArtworkSources.Text = ""; ControllerSupportBox.SelectedItem = null; DetailTitle.Text = "Select a game"; DetailState.Text = ""; Paths.Text = "Select a game to see its details.";
+            Screenshot.ImagePath = null; Screenshot.Reference = null; ScreenshotStrip.ItemsSource = null; ArtworkSources.Text = ""; ControllerSupportBox.SelectedItem = null; DetailTitle.Text = "Select a game"; DetailState.Text = ""; Paths.Text = "Select a game to view its details.";
             ClearMilestone();
             return;
         }
-        DetailTitle.Text = selected.Title; OverviewDescription.Text = string.IsNullOrWhiteSpace(selected.Description) ? "No description yet. Find metadata in Sources, or add your own notes under Edit game details." : selected.Description; DetailState.Text = $"{selected.State} · {selected.Progress} · {selected.UpdateState}";
+        DetailTitle.Text = selected.Title; OverviewDescription.Text = string.IsNullOrWhiteSpace(selected.Description) ? UiText.NoDescription : selected.Description; DetailState.Text = $"Installation Status: {selected.InstallationStatus} · Play Status: {selected.Progress} · Update Status: {selected.UpdateStatus}";
         TitleBox.Text = selected.Title;
         ReleaseYearBox.Text = selected.ReleaseYear; EngineBox.Text = selected.Engine; ControllerSupportBox.SelectedItem = selected.ControllerSupport;
         TagsBox.Text = selected.Tags;
@@ -175,6 +177,7 @@ public partial class MainWindow : Window
     }
     private void UpdateLocationSummary()
     {
+        OpenGameFolderButton.IsEnabled = ActiveInstallation is not null && Directory.Exists(ActiveInstallation.Path);
         if (Paths is null) return;
         PrimaryActionLabel.Text = GameWorkflow.Label(GameWorkflow.Primary(ActiveInstallation, editorProfile, ActiveArchive));
         System.Windows.Automation.AutomationProperties.SetName(PlayButton, PrimaryActionLabel.Text);
@@ -212,7 +215,7 @@ public partial class MainWindow : Window
         operation = new(); Toolbar.IsEnabled = Workspace.IsEnabled = Search.IsEnabled = FavoritesOnly.IsEnabled = StatusFilter.IsEnabled = false;
         CancelButton.IsEnabled = true;
         try { await action(operation.Token); store.Save(library); Refresh(); }
-        catch (OperationCanceledException) { Status.Text = "Operation cancelled."; }
+        catch (OperationCanceledException) { Status.Text = "Operation canceled."; }
         catch (Exception ex) { Status.Text = ex.Message; MessageBox.Show(this, ex.Message, "Operation failed"); }
         finally
         {
@@ -281,15 +284,19 @@ public partial class MainWindow : Window
         editorProfile.WorkingDirectory = Path.GetDirectoryName(dialog.FileName)!;
         LoadLocationEditors(); store.Save(library); UpdateLocationSummary();
     });
-    private void Launch(object sender, RoutedEventArgs e) => Guard(() =>
+    private async void Launch(object sender, RoutedEventArgs e) => await Busy(async token =>
     {
         Commit();
         if (selected is not null && !preferences.Includes(selected)) { Refresh(); return; }
         if (ActiveInstallation is not GameInstallation installation || editorProfile is null)
-            throw new InvalidOperationException("Select an installation and configure a launch profile first.");
-        var plan = LaunchService.Prepare(installation, editorProfile);
+            throw new InvalidOperationException("Choose an installation and set up a launch profile before playing.");
+        if (selected!.Sessions.Any(s => s.Active)) throw new InvalidOperationException("This game is already being tracked. Close it before launching again.");
+        var adapters = IntegrationSession.Adapters(preferences).ToArray();
+        var plan = await Task.Run(() => LaunchService.PrepareAsync(installation, editorProfile, adapters, token), token);
+        token.ThrowIfCancellationRequested();
         using var process = Process.Start(plan.ToStartInfo());
         if (process is null) throw new IOException("Windows did not start the game.");
+        Track(selected!, process);
         Commit(); selected!.Played = true; selected.LastLaunched = DateTimeOffset.UtcNow;
         PlayedBox.IsChecked = true; store.Save(library);
     });
@@ -305,9 +312,9 @@ public partial class MainWindow : Window
     });
     private void OnClosing(object? sender, CancelEventArgs e)
     {
-        if (operation is not null) { operation.Cancel(); e.Cancel = true; Status.Text = "Cancelling; close again after the operation stops."; return; }
-        try { Commit(); store.Save(library); }
-        catch (Exception ex) { e.Cancel = true; MessageBox.Show(this, "Could not save library: " + ex.Message); }
+        if (operation is not null) { operation.Cancel(); e.Cancel = true; Status.Text = "Canceling; close again after the operation stops."; return; }
+        try { StopPlaytime(); Commit(); store.Save(library); }
+        catch (Exception ex) { playtimeTimer.Start(); e.Cancel = true; MessageBox.Show(this, "Could not save library: " + ex.Message); }
     }
 }
 

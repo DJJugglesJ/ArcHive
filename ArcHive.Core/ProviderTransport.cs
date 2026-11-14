@@ -38,7 +38,7 @@ public sealed class ProviderTransport(HttpClient client, string[] hosts, TimeSpa
                 if (!response.IsSuccessStatusCode)
                     throw new ProviderException(response.StatusCode switch
                     {
-                        HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => "Provider rejected the credentials or their permissions. Check provider settings.",
+                        HttpStatusCode.Unauthorized or HttpStatusCode.Forbidden => "Access was denied. Check your credentials and permissions in Sources.",
                         HttpStatusCode.TooManyRequests => "Provider rate limit reached. Try again later.",
                         _ => $"Provider request failed (HTTP {(int)response.StatusCode})."
                     }, response.StatusCode);

@@ -15,7 +15,7 @@ public partial class DetectionWindow : Window
         Current.Text = $"Current title: {game.Title}\nCurrent engine: {(game.Engine.Length == 0 ? "Not set" : game.Engine)}";
         Installations.ItemsSource = game.Installations; Installations.SelectedIndex = game.Installations.Count > 0 ? 0 : -1;
         Evidence.Text = string.Join("\n", game.DetectionHistory.TakeLast(5).Select(h => $"{h.At:g}: {h.Engine} {h.Executable}\n{string.Join("; ", h.Evidence)}"));
-        Closing += (_, e) => { if (scan is not null) { scan.Cancel(); e.Cancel = true; Status.Text = "Cancelling scan; close again when it stops."; } };
+        Closing += (_, e) => { if (scan is not null) { scan.Cancel(); e.Cancel = true; Status.Text = "Canceling scan; close again when it stops."; } };
     }
     private void InstallationChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -37,7 +37,7 @@ public partial class DetectionWindow : Window
             Evidence.Text = string.Join("\n", report.Notes); ApplyButton.IsEnabled = true;
             Status.Text = $"{report.Candidates.Count} candidates, {report.Engines.Count} engine hints. Select evidence and check only the changes you want.";
         }
-        catch (Exception ex) { report = null; Status.Text = ex is OperationCanceledException ? "Scan cancelled." : ex.Message; }
+        catch (Exception ex) { report = null; Status.Text = ex is OperationCanceledException ? "Scan canceled." : ex.Message; }
         finally { scan.Dispose(); scan = null; ScanButton.IsEnabled = Installations.IsEnabled = true; }
     }
     private void CandidateChanged(object sender, SelectionChangedEventArgs e)
@@ -50,8 +50,8 @@ public partial class DetectionWindow : Window
         if (report is null) return;
         try
         {
-            if (UseCandidate.IsChecked != true && UseEngine.IsChecked != true && UseTitle.IsChecked != true) throw new InvalidOperationException("Check at least one suggestion to apply.");
-            if (UseCandidate.IsChecked == true && Candidates.SelectedItem is null) throw new InvalidOperationException("Select an executable candidate.");
+            if (UseCandidate.IsChecked != true && UseEngine.IsChecked != true && UseTitle.IsChecked != true) throw new InvalidOperationException("Select at least one change to apply.");
+            if (UseCandidate.IsChecked == true && Candidates.SelectedItem is null) throw new InvalidOperationException("Select an executable.");
             if (UseEngine.IsChecked == true && Engines.SelectedItem is null) throw new InvalidOperationException("Select an engine suggestion.");
             var result = LaunchDetection.Apply(source, game.Id, report, UseCandidate.IsChecked == true ? ((LaunchCandidate)Candidates.SelectedItem).Path : null,
                 UseEngine.IsChecked == true ? ((EngineSuggestion)Engines.SelectedItem).Name : null,

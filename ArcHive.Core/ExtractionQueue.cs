@@ -15,6 +15,7 @@ public sealed class ExtractionJob
     public DateTime SourceWriteUtc { get; set; }
     public ReleaseInfo Release { get; set; } = new();
     public ExtractionState State { get; set; }
+    [System.Text.Json.Serialization.JsonIgnore] public string DisplayState => UiText.Extraction(State);
     public List<string> Attempts { get; set; } = [];
     public string? Output { get; set; }
     public string Error { get; set; } = "";
@@ -33,6 +34,13 @@ public sealed class ExtractionQueue : IDisposable
     private ExtractionJournal journal;
     private bool running;
     public IReadOnlyList<ExtractionJob> Jobs => journal.Jobs;
+    public bool IsRunning => running;
+    public void ClearForLibraryReset()
+    {
+        if (running) throw new InvalidOperationException("Stop extraction before purging the library.");
+        if (File.Exists(file)) File.Copy(file, file + ".pre-purge-" + Guid.NewGuid().ToString("N") + ".json");
+        var empty = new ExtractionJournal(); Save(empty); journal = empty;
+    }
     public ExtractionQueue(string file)
     {
         this.file = Path.GetFullPath(file); Directory.CreateDirectory(Path.GetDirectoryName(this.file)!);
@@ -44,7 +52,7 @@ public sealed class ExtractionQueue : IDisposable
             Validate(journal);
             if (journal.Jobs.Any(j => j.State == ExtractionState.Running))
             {
-                foreach (var job in journal.Jobs.Where(j => j.State == ExtractionState.Running)) { job.State = ExtractionState.Interrupted; job.Error = "Interrupted before completion was recorded. Retry starts fresh; prior attempt files are retained."; }
+                foreach (var job in journal.Jobs.Where(j => j.State == ExtractionState.Running)) { job.State = ExtractionState.Interrupted; job.Error = "Extraction was interrupted. Retry to start again. Previous files were retained."; }
                 Save(journal);
             }
         }
@@ -76,21 +84,27 @@ public sealed class ExtractionQueue : IDisposable
         var next = JsonSerializer.Deserialize<ExtractionJournal>(JsonSerializer.Serialize(journal))!;
         change(next.Jobs.Single(j => j.Id == id)); Save(next);
     }
-    public void Enqueue(Game game, GameArchive archive, string parent)
+    public void Enqueue(Game game, GameArchive archive, string parent) => EnqueueBatch([(game, archive)], parent);
+    public void EnqueueBatch(IEnumerable<(Game Game, GameArchive Archive)> items, string parent)
     {
         if (running) throw new InvalidOperationException("Stop the queue before adding jobs.");
-        if (!game.Archives.Any(a => a.Id == archive.Id)) throw new InvalidOperationException("Archive must belong to the game.");
-        parent = Path.GetFullPath(parent); PathSafety.NoLinks(parent); PathSafety.NoLinks(archive.Path);
-        if (journal.Jobs.Any(j => j.GameId == game.Id && Game.SamePath(j.Archive, archive.Path) && Game.SamePath(j.Parent, parent) && j.State is ExtractionState.Pending or ExtractionState.Running or ExtractionState.Extracted)) throw new InvalidOperationException("This extraction is already queued.");
-        var info = new FileInfo(archive.Path);
+        parent = Path.GetFullPath(parent); PathSafety.NoLinks(parent);
         var next = JsonSerializer.Deserialize<ExtractionJournal>(JsonSerializer.Serialize(journal))!;
-        next.Jobs.Add(new() { GameId = game.Id, ArchiveId = archive.Id, Title = game.Title, Archive = Path.GetFullPath(archive.Path), Parent = parent,
-            SourceLength = info.Length, SourceWriteUtc = info.LastWriteTimeUtc, Release = archive.Release with { } }); Save(next);
+        foreach (var (game, archive) in items)
+        {
+            if (!game.Archives.Any(a => a.Id == archive.Id)) throw new InvalidOperationException("Archive must belong to the game.");
+            PathSafety.NoLinks(archive.Path);
+            if (next.Jobs.Any(j => j.GameId == game.Id && Game.SamePath(j.Archive, archive.Path) && Game.SamePath(j.Parent, parent) && j.State is ExtractionState.Pending or ExtractionState.Running or ExtractionState.Extracted)) throw new InvalidOperationException("This extraction is already queued.");
+            var info = new FileInfo(archive.Path);
+            next.Jobs.Add(new() { GameId = game.Id, ArchiveId = archive.Id, Title = game.Title, Archive = Path.GetFullPath(archive.Path), Parent = parent,
+                SourceLength = info.Length, SourceWriteUtc = info.LastWriteTimeUtc, Release = archive.Release with { } });
+        }
+        Save(next);
     }
     public void Retry(Guid id)
     {
         if (running) throw new InvalidOperationException("Stop the queue first.");
-        Change(id, job => { if (job.State is not (ExtractionState.Interrupted or ExtractionState.Failed or ExtractionState.Cancelled)) throw new InvalidOperationException("Only interrupted, failed or cancelled jobs can be retried."); job.State = ExtractionState.Pending; job.Error = ""; job.Output = null; });
+        Change(id, job => { if (job.State is not (ExtractionState.Interrupted or ExtractionState.Failed or ExtractionState.Cancelled)) throw new InvalidOperationException("Only interrupted, failed or canceled jobs can be retried."); job.State = ExtractionState.Pending; job.Error = ""; job.Output = null; });
     }
     public void CancelPending(Guid id)
     {
@@ -112,7 +126,7 @@ public sealed class ExtractionQueue : IDisposable
                     {
                         PathSafety.NoLinks(job.Archive); PathSafety.NoLinks(job.Parent);
                         using var sourceLock = new FileStream(job.Archive, FileMode.Open, FileAccess.Read, FileShare.Read);
-                        if (sourceLock.Length != job.SourceLength || File.GetLastWriteTimeUtc(job.Archive) != job.SourceWriteUtc) throw new IOException("Archive changed since queueing. Add it again after reviewing it.");
+                        if (sourceLock.Length != job.SourceLength || File.GetLastWriteTimeUtc(job.Archive) != job.SourceWriteUtc) throw new IOException("The archive has changed since it was queued. Preview it again before extracting.");
                         var preview = await ArchiveInspection.ReadAsync(job.Archive, token);
                         if (!preview.CanExtract) throw new InvalidDataException("Archive preview contains unsupported or unsafe entries.");
                         var attempt = Path.Combine(job.Parent, "ArcHive-extract-" + job.Id.ToString("N") + "-" + Guid.NewGuid().ToString("N"));
@@ -131,7 +145,7 @@ public sealed class ExtractionQueue : IDisposable
                 }
                 catch (OperationCanceledException)
                 {
-                    Change(id, j => { if (j.State != ExtractionState.Extracted) j.State = ExtractionState.Cancelled; j.Error = "Cancelled; subsequent jobs remain pending."; }); break;
+                    Change(id, j => { if (j.State != ExtractionState.Extracted) j.State = ExtractionState.Cancelled; j.Error = "Canceled; subsequent jobs remain queued."; }); break;
                 }
                 catch (Exception ex)
                 {

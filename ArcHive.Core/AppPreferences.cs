@@ -7,6 +7,7 @@ public enum LibraryDensity { Comfortable, Compact }
 public enum ControllerProfile { DualSense, DualShock4, Xbox }
 public sealed class AppPreferences
 {
+    public string LocaleEmulatorPath { get; set; } = "";
     public LibraryOrder LibraryOrder { get; set; }
     public LibraryDensity LibraryDensity { get; set; }
     public bool EnableF95Zone { get; set; }

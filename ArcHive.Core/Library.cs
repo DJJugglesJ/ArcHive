@@ -8,6 +8,12 @@ public sealed class Game : System.ComponentModel.INotifyPropertyChanged
     private bool isSelected;
     [System.Text.Json.Serialization.JsonIgnore]
     public bool IsSelected { get => isSelected; set { if (isSelected == value) return; isSelected = value; PropertyChanged?.Invoke(this, new(nameof(IsSelected))); } }
+    public List<PlaySession> Sessions { get; set; } = [];
+    public List<string> Collections { get; set; } = [];
+    public GameNaming Naming { get; set; } = new();
+    public List<Game> MergedRecords { get; set; } = [];
+    [System.Text.Json.Serialization.JsonIgnore] public double PlaytimeSeconds => Sessions.Sum(s => s.Seconds);
+    [System.Text.Json.Serialization.JsonIgnore] public string PlaytimeLabel => $"{PlaytimeSeconds / 3600:0.0} hours";
     public F95ThreadLink? F95Thread { get; set; }
     public Dictionary<string, string> OwnedLibraryIds { get; set; } = [];
     public List<SaveLocation> SaveLocations { get; set; } = [];
@@ -50,7 +56,11 @@ public sealed class Game : System.ComponentModel.INotifyPropertyChanged
     [System.Text.Json.Serialization.JsonIgnore]
     public string UpdateState => VersionTracking.GetUpdateState(this);
     [System.Text.Json.Serialization.JsonIgnore]
-    public string CardStatus => $"{Progress} · {State}";
+    public string InstallationStatus => UiText.Availability(State);
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string UpdateStatus => UiText.Update(UpdateState);
+    [System.Text.Json.Serialization.JsonIgnore]
+    public string CardStatus => $"{Progress} · {InstallationStatus}";
     public DateTimeOffset? LastLaunched { get; set; }
     public string? ScreenshotPath { get; set; }
     [System.Text.Json.Serialization.JsonIgnore]

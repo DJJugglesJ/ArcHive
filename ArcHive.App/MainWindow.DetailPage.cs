@@ -16,10 +16,10 @@ public partial class MainWindow
         Grid.SetColumn(InspectorBorder, 0); Grid.SetColumnSpan(InspectorBorder, 2); InspectorColumn.Width = new GridLength(0);
         BackToLibrary.Visibility = Visibility.Visible; InspectorToggle.Visibility = Visibility.Collapsed;
         SearchFilters.Visibility = Visibility.Collapsed;
-        PageTitle.Text = "Game details"; PageSubtitle.Text = DisplayPaths.Compact(selected.SourceLocation);
+        PageTitle.Text = "Game Details"; PageSubtitle.Text = DisplayPaths.Compact(selected.SourceLocation);
         DetailsScroller.ScrollToTop(); PlayButton.Focus();
         Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() => { if (detailsPage && IsActive) PlayButton.Focus(); }));
-        if (preferences.GamepadEnabled) { var prompts = ControllerPrompts.For(preferences.ControllerProfile); ControllerNavigationHint.Text = $"{prompts.Accept}: select · {prompts.Cancel}: back · {prompts.Menu}: context · Options / Start: menu · {prompts.Previous}/{prompts.Next}: focus"; }
+        if (preferences.GamepadEnabled) { var prompts = ControllerPrompts.For(preferences.ControllerProfile); ControllerNavigationHint.Text = UiText.ControllerHint(preferences.ControllerProfile); }
     }
     private void BackToCollection(object sender, RoutedEventArgs e)
     {
@@ -28,8 +28,8 @@ public partial class MainWindow
         InspectorBorder.Visibility = Visibility.Collapsed; BrowsePane.Visibility = Visibility.Visible;
         BackToLibrary.Visibility = Visibility.Collapsed; InspectorToggle.Visibility = Visibility.Collapsed; CollectionActions.Visibility = Visibility.Visible;
         SearchFilters.Visibility = Visibility.Visible;
-        PageTitle.Text = archivesView ? "Archive manager" : FavoritesOnly.IsChecked == true ? "Your favorites" : "Your library";
-        PageSubtitle.Text = archivesView ? "Inspect your downloads. Extract when you are ready." : "A home for every game you discover.";
+        PageTitle.Text = archivesView ? "Archives" : FavoritesOnly.IsChecked == true ? "Favorites" : "Library";
+        PageSubtitle.Text = archivesView ? "Inspect your downloads. Extract when you are ready." : "Your games, all in one place.";
         Refresh(); (archivesView ? (Control)ArchiveList : Gallery).Focus();
     }
     private void PrimaryGameAction(object sender, RoutedEventArgs e)
@@ -41,7 +41,7 @@ public partial class MainWindow
             case GamePrimaryAction.Play: Launch(sender, e); break;
             case GamePrimaryAction.Extract: Extract(sender, e); break;
             case GamePrimaryAction.LinkFolder: LinkFolder(sender, e); break;
-            default: GameSections.SelectedIndex = 3; Status.Text = "Choose an executable or use Detect launch options in Files & launch."; break;
+            default: GameSections.SelectedIndex = 3; Status.Text = "Choose an executable or use Scan Game Files in Launch."; break;
         }
     }
     private void CopySourcePaths(object sender, RoutedEventArgs e) => Guard(() => { if (selected is not null) Clipboard.SetText(selected.SourceSummary); });

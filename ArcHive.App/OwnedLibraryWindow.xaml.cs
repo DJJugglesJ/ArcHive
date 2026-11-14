@@ -13,7 +13,7 @@ public partial class OwnedLibraryWindow : Window
     public OwnedLibraryWindow(Library library, Action<Library> save)
     {
         InitializeComponent(); this.library = library; this.save = save; ProviderChanged(this, null!);
-        Closing += (_, e) => { if (pending is not null) { pending.Cancel(); e.Cancel = true; Message.Text = "Cancelling lookup. Close again when it finishes."; } };
+        Closing += (_, e) => { if (pending is not null) { pending.Cancel(); e.Cancel = true; Message.Text = "Canceling lookup. Close again when it finishes."; } };
     }
     private void ProviderChanged(object sender, SelectionChangedEventArgs e)
     {
@@ -29,7 +29,7 @@ public partial class OwnedLibraryWindow : Window
     {
         if (pending is not null) return; pending = new(); Actions.IsEnabled = ApplyButton.IsEnabled = false; Games.ItemsSource = null;
         try { ProviderSession.Load(); using var client = new HttpClient(new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false }); Show(await OwnedLibraryImport.FetchSteamAsync(new(client, ["api.steampowered.com"]), ProviderSession.Credentials.SteamKey, SteamId.Text.Trim(), pending.Token)); }
-        catch (Exception ex) { Message.Text = ex is OperationCanceledException ? "Lookup cancelled or timed out." : ex is ProviderException ? ex.Message : "Steam library response could not be read."; }
+        catch (Exception ex) { Message.Text = ex is OperationCanceledException ? "Lookup canceled or timed out." : ex is ProviderException ? ex.Message : "Steam library response could not be read."; }
         finally { pending.Dispose(); pending = null; Actions.IsEnabled = true; }
     }
     private void ImportFile(object sender, RoutedEventArgs e)
@@ -43,6 +43,6 @@ public partial class OwnedLibraryWindow : Window
     private void Apply(object sender, RoutedEventArgs e)
     {
         if (pending is not null || Games.SelectedItems.Count == 0) { Message.Text = "Select titles first."; return; }
-        try { save(OwnedLibraryImport.Apply(library, Games.SelectedItems.Cast<OwnedGame>())); DialogResult = true; } catch { Message.Text = "Library could not be saved. Existing entries are unchanged."; }
+        try { save(OwnedLibraryImport.Apply(library, Games.SelectedItems.Cast<OwnedGame>())); DialogResult = true; } catch { Message.Text = "Library could not be saved. Existing games are unchanged."; }
     }
 }

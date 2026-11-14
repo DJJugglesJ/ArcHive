@@ -13,7 +13,7 @@ public partial class AboutWindow : Window
         var version = build.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion.Split('+')[0]
             ?? build.GetName().Version?.ToString(3) ?? "Unknown";
         VersionLabel.Text = $"Version {version}";
-        DeveloperLabel.Text = $"Developed by {build.GetCustomAttribute<AssemblyCompanyAttribute>()?.Company}";
+        DeveloperLabel.Text = ArcHive.Core.UiText.Attribution;
         CopyrightLabel.Text = build.GetCustomAttribute<AssemblyCopyrightAttribute>()?.Copyright;
     }
 }

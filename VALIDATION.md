@@ -154,3 +154,12 @@ Live fixture verification confirmed opening details did not change the launch ma
 - Isolated desktop checks used diagnostic input through the same controller route: collection to details, Triangle context menu, skip disabled actions, archive dialog, Options menu to Settings, shoulder focus traversal, dropdown cancel without closing Settings, text entry and discard, and nested About/back. About displayed 0.11.0 and the approved icon.
 - MSI installed successfully into a dedicated test folder (exit 0). The installed executable launched, its application DLL matched the publish output, and the final controller keyboard theme was verified. Uninstall succeeded (exit 0), removed the installed executable and preserved the test library byte-for-byte. No user library or credentials were used for these checks.
 - Physical controller hardware, firmware compatibility and controller-driven native file dialogs were not exercised live. Native file dialogs use guarded standard Windows keyboard input. External browsers and launched games retain their own input handling.
+
+## ArcHive 1.0 source milestone — 2026-11-14
+
+- Release app build: zero warnings and zero errors.
+- Automated suite: 692 checks passed, including the existing Windows Credential Manager tests.
+- New coverage: SQLite persistence of playtime/naming/collections/merge records; interrupted session recovery and manual correction; real parent/child process monitoring; merge conflict retention, stable launch/source IDs and old save-snapshot access; atomic batch queue failure; purge database/queue interruption boundaries; stale file previews, collision rejection, actual same-drive moves, rollback after database failure and committed recovery against SQLite; Locale Emulator XML/PE/profile argument rules; explicit plugin install/disable/enable/remove, output bounds, crashes, timeout, cancellation and hash tampering.
+- The 10,000-game browse fixture verifies combined filters and playtime ordering. Measured at 6 ms in this Windows test run (timing is also printed by the runner); this is a core query measurement, not an end-to-end artwork/UI benchmark.
+- No full end-to-end UI run for this milestone, as requested. No claim of physical-controller testing, live authenticated source testing or real Locale Emulator game execution. Plugin tests run isolated local fixture processes under the test account.
+- Approved branding assets remain unchanged. Source version is 1.0.0; published release assets remain a separate release operation.

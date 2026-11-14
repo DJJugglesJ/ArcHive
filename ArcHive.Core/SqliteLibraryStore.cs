@@ -106,6 +106,29 @@ public sealed class SqliteLibraryStore(string database, string? legacyJson = nul
         Backup(c, database + ".bak");
         using var tx = c.BeginTransaction(); Write(c, tx, library); tx.Commit();
     }
+    public string Purge()
+    {
+        using var c = Open();
+        if (Schema(c) != 2) throw new InvalidOperationException("Load the supported library before purging it.");
+        var backup = database + ".pre-purge-" + Guid.NewGuid().ToString("N") + ".db";
+        Backup(c, backup);
+        using var tx = c.BeginTransaction();
+        Execute(c, tx, "CREATE TABLE IF NOT EXISTS maintenance(key TEXT PRIMARY KEY, value TEXT NOT NULL)");
+        Write(c, tx, new Library());
+        Execute(c, tx, "INSERT OR REPLACE INTO maintenance VALUES('purge_pending',$p0)", backup);
+        tx.Commit(); return backup;
+    }
+    public bool CompletePendingPurge(Action clearQueue)
+    {
+        using var c = Open();
+        using var command = c.CreateCommand();
+        command.CommandText = "SELECT count(*) FROM sqlite_master WHERE type='table' AND name='maintenance'";
+        if (Convert.ToInt32(command.ExecuteScalar()) == 0) return false;
+        command.CommandText = "SELECT count(*) FROM maintenance WHERE key='purge_pending'";
+        if (Convert.ToInt32(command.ExecuteScalar()) == 0) return false;
+        clearQueue();
+        Execute(c, null, "DELETE FROM maintenance WHERE key='purge_pending'"); return true;
+    }
     private static void Write(SqliteConnection c, SqliteTransaction tx, Library library)
     {
         Execute(c, tx, "DELETE FROM launch_profiles; DELETE FROM installations; DELETE FROM archives; DELETE FROM games; DELETE FROM roots;");
@@ -118,7 +141,7 @@ public sealed class SqliteLibraryStore(string database, string? legacyJson = nul
             foreach (var archive in g.Archives) VersionTracking.Record(g, archive.Release, "Archive " + archive.Id);
             foreach (var installation in g.Installations) VersionTracking.Record(g, installation.Release, "Installation " + installation.Id);
             VersionTracking.Record(g, g.LatestRelease, g.LatestReleaseSource);
-            var metadata = new Game { F95Thread = g.F95Thread, OwnedLibraryIds = g.OwnedLibraryIds, SaveLocations = g.SaveLocations, DetectionHistory = g.DetectionHistory, IsNsfw = g.IsNsfw, Artwork = g.Artwork, ControllerSupport = g.ControllerSupport, Metadata = g.Metadata, ReleaseYear = g.ReleaseYear, Engine = g.Engine, Id = g.Id, Title = g.Title, Tags = g.Tags, Description = g.Description, Favorite = g.Favorite,
+            var metadata = new Game { Sessions = g.Sessions, Naming = g.Naming, Collections = g.Collections, MergedRecords = g.MergedRecords, F95Thread = g.F95Thread, OwnedLibraryIds = g.OwnedLibraryIds, SaveLocations = g.SaveLocations, DetectionHistory = g.DetectionHistory, IsNsfw = g.IsNsfw, Artwork = g.Artwork, ControllerSupport = g.ControllerSupport, Metadata = g.Metadata, ReleaseYear = g.ReleaseYear, Engine = g.Engine, Id = g.Id, Title = g.Title, Tags = g.Tags, Description = g.Description, Favorite = g.Favorite,
                 Played = g.Played, LastLaunched = g.LastLaunched, ScreenshotPath = g.ScreenshotPath, Progress = g.Progress,
                 LatestRelease = g.LatestRelease, LatestReleaseSource = g.LatestReleaseSource, LatestReleaseCheckedAt = g.LatestReleaseCheckedAt, ReleaseHistory = g.ReleaseHistory };
             Execute(c, tx, "INSERT INTO games VALUES($p0,$p1)", g.Id.ToString(), JsonSerializer.Serialize(metadata));

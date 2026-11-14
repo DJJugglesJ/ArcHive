@@ -29,6 +29,11 @@ public static class LaunchService
     {
         if (!installation.Profiles.Any(p => p.Id == profile.Id)) throw new InvalidDataException("The profile does not belong to this installation.");
         if (!string.IsNullOrWhiteSpace(profile.AdapterId)) throw new NotSupportedException("This launch adapter is not installed. Choose a native profile.");
+        return PrepareNative(installation, profile);
+    }
+    public static LaunchPlan PrepareNative(GameInstallation installation, LaunchProfile profile)
+    {
+        if (!installation.Profiles.Any(p => p.Id == profile.Id)) throw new InvalidDataException("The profile does not belong to this installation.");
         var root = Path.GetFullPath(installation.Path);
         if (!Directory.Exists(root)) throw new DirectoryNotFoundException("The installation folder is unavailable.");
         if (string.IsNullOrWhiteSpace(profile.ExecutablePath)) throw new FileNotFoundException("Choose an executable for this profile.");
@@ -44,6 +49,20 @@ public static class LaunchService
         if (!Directory.Exists(working)) throw new DirectoryNotFoundException("The working directory is missing.");
         if (profile.Arguments.Any(a => a is null || a.Contains('\0'))) throw new InvalidDataException("Arguments cannot contain null characters.");
         return new(exe, working, profile.Arguments.ToArray());
+    }
+    public static async Task<LaunchPlan> PrepareAsync(GameInstallation installation, LaunchProfile profile, IEnumerable<ILaunchAdapter> adapters, CancellationToken token)
+    {
+        token.ThrowIfCancellationRequested();
+        var native = PrepareNative(installation, profile);
+        if (string.IsNullOrWhiteSpace(profile.AdapterId)) return native;
+        var id = profile.AdapterId.Split('/')[0];
+        var adapter = adapters.SingleOrDefault(a => a.Id == id) ?? throw new NotSupportedException("The selected launch adapter is unavailable or disabled. Check Settings → Integrations.");
+        return await adapter.PrepareAsync(native, profile, token);
+    }
+    public static bool CanConfigure(GameInstallation installation, LaunchProfile profile)
+    {
+        try { PrepareNative(installation, profile); return true; }
+        catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException or ArgumentException or NotSupportedException) { return false; }
     }
     public static bool CanLaunch(GameInstallation installation, LaunchProfile profile)
     {

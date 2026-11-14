@@ -48,6 +48,7 @@ public static class Scanner
                 ? g.Archives.Any(a => Game.SamePath(a.Path, item.Archives[0].Path))
                 : g.Installations.Any(i => PathSafety.IsWithin(i.Path, item.Installations[0].Path)))) continue;
             VersionTracking.InitializeLocations(item);
+            item.Naming = NamingReview.Suggest(item);
             library.Games.Add(item);
         }
     }

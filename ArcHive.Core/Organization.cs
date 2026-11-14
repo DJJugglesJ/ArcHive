@@ -93,7 +93,7 @@ public static class DuplicateDetection
     }
 }
 
-public enum BatchAction { Favorite, Unfavorite, SetStatus, AddTags, RemoveTags, MarkNsfw, ClearNsfw, RemoveEntries }
+public enum BatchAction { Favorite, Unfavorite, SetStatus, AddTags, RemoveTags, MarkNsfw, ClearNsfw, RemoveEntries, AddCollection, RemoveCollection, MarkPlayed, MarkUnplayed }
 public sealed record BatchRequest(BatchAction Action, GameProgress Status = GameProgress.Backlog, string Tags = "");
 public sealed record BatchChange(Guid GameId, string Title, string Before, string After);
 public sealed record BatchPlan(Library Result, IReadOnlyList<BatchChange> Changes);
@@ -109,7 +109,7 @@ public static class BatchOperations
         if (ids.Count == 0) throw new ArgumentException("Select at least one entry.");
         if (ids.Any(id => !source.Games.Any(g => g.Id == id))) throw new InvalidOperationException("Selection changed. Reopen batch organization.");
         var tags = Tags(request.Tags);
-        if (request.Action is BatchAction.AddTags or BatchAction.RemoveTags && (tags.Count == 0 || request.Tags.Length > 4096))
+        if (request.Action is BatchAction.AddTags or BatchAction.RemoveTags or BatchAction.AddCollection or BatchAction.RemoveCollection && (tags.Count == 0 || request.Tags.Length > 4096))
             throw new ArgumentException("Enter comma-separated tags (up to 4096 characters).");
         var copy = JsonSerializer.Deserialize<Library>(JsonSerializer.Serialize(source))!;
         var changes = new List<BatchChange>();
@@ -126,6 +126,12 @@ public static class BatchOperations
                     before = game.Tags; var current = Tags(game.Tags);
                     after = string.Join(", ", request.Action == BatchAction.AddTags ? current.Concat(tags).Distinct(StringComparer.OrdinalIgnoreCase) : current.Except(tags, StringComparer.OrdinalIgnoreCase));
                     MetadataReconciliation.SetManual(game, MetadataField.Tags, after); break;
+                case BatchAction.AddCollection: case BatchAction.RemoveCollection:
+                    before = string.Join(", ", game.Collections);
+                    game.Collections = (request.Action == BatchAction.AddCollection ? game.Collections.Concat(tags).Distinct(StringComparer.OrdinalIgnoreCase) : game.Collections.Except(tags, StringComparer.OrdinalIgnoreCase)).ToList();
+                    after = string.Join(", ", game.Collections); break;
+                case BatchAction.MarkPlayed: case BatchAction.MarkUnplayed:
+                    before = game.Played.ToString(); game.Played = request.Action == BatchAction.MarkPlayed; after = game.Played.ToString(); break;
                 case BatchAction.MarkNsfw: case BatchAction.ClearNsfw:
                     before = game.IsNsfw.ToString(); game.IsNsfw = request.Action == BatchAction.MarkNsfw; after = game.IsNsfw.ToString(); break;
                 case BatchAction.RemoveEntries:

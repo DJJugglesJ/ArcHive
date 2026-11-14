@@ -113,15 +113,15 @@ public partial class MainWindow
         {
             Add("Library", () => { if (detailsPage) BackToCollection(this, new()); Navigate(false, false); }, operation is null);
             Add("Favorites", () => { if (detailsPage) BackToCollection(this, new()); Navigate(false, true); }, operation is null);
-            Add("Archive manager", () => { if (detailsPage) BackToCollection(this, new()); Navigate(true, false); }, operation is null);
-            Add("Add games folder", () => AddRoot(this, new()), operation is null);
-            Add("Import owned library", () => OpenOwnedLibrary(this, new()), operation is null);
+            Add("Archives", () => { if (detailsPage) BackToCollection(this, new()); Navigate(true, false); }, operation is null);
+            Add("Add Library Folder…", () => AddRoot(this, new()), operation is null);
+            Add("Import Owned Games…", () => OpenOwnedLibrary(this, new()), operation is null);
             Add("Activity", () => OpenExtractionQueue(this, new()));
-            Add("Organize library", () => OrganizeLibrary(this, new()), operation is null);
+            Add("Organize Library", () => OrganizeLibrary(this, new()), operation is null);
             Add("Settings", () => OpenSettings(this, new()), operation is null);
         }
         else { if (owner is ControllerKeyboard keyboard) Add("Use entered text", () => keyboard.DialogResult = true); Add("Cancel / back", owner.Close); }
-        Add("Controller help", () => MessageBox.Show(owner, "Cross / A: select or edit text\nCircle / B: cancel or back\nTriangle / Y: context options\nOptions / Start: app options\nL1 / R1 (LB / RB): previous / next control\nD-pad / left stick: navigate lists and controls\nSquare / X: enter text (also in file pickers)\n\nIn native Windows dialogs, Options opens the dialog menu. Use shoulders to reach buttons and fields. External websites and launched games use their own controls.", "Controller controls"));
+        Add("Controller help", () => MessageBox.Show(owner, UiText.ControllerHelp, "Controller controls"));
         menu.Opened += (_, _) => FocusMenu(menu); menu.IsOpen = true;
     }
 }

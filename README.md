@@ -1,137 +1,94 @@
 # ArcHive
 
-**From archive to adventure.** A local-first Windows library for standalone games downloaded as ZIP, RAR and 7z archives.
+**From Archive to Adventure.** A local-first Windows library for standalone games downloaded as ZIP, RAR and 7z archives.
 
-![ArcHive approved branding](ArcHive.App/Assets/ArcHive-brand-approved.png)
+![Approved ArcHive branding](ArcHive.App/Assets/ArcHive-brand-approved.png)
 
-Turn a folder of downloads into an artwork-rich collection. Find your games, keep multiple versions together, choose how they launch, and organize your backlog without moving the original files.
+Turn a folder of downloads into an artwork-rich collection. Keep versions together, choose how games launch, track your playtime and protect your saves.
 
-Built with **C# / .NET 10 / WPF**, backed by **SQLite**. Current version: **0.11.0**. [Download the Windows release](https://github.com/DJJugglesJ/ArcHive/releases/tag/v0.11.0).
+Built with **C# / .NET 10 / WPF** and **SQLite**. Source version: **1.0.0**. [Published Windows releases](https://github.com/DJJugglesJ/ArcHive/releases) are listed separately from source builds.
 
-## Your collection, in one place
+## Your games, in one place
 
-- **Preview and queue archives.** Inspect ZIP/RAR/7z contents, sizes and entry issues. Queue sequential extractions, stop safely, and recover interrupted jobs with fresh retries and idempotent library linking.
-- **Choose with evidence.** Review launch candidates and engine hints from local files, exclude common helpers, and apply only checked suggestions. Existing launch defaults and manual metadata stay intact unless explicitly changed.
-- **Discover and launch.** Recursively scan folders for archives and executables. Extract ZIP/RAR/7z into a new game folder, link existing installations, and create named launch profiles with individual arguments and working directories.
-- **Make it yours.** Browse a responsive artwork grid, favorites and a separate archive view. Search titles/tags, edit notes, track Backlog / Playing / Completed / Abandoned, and open a dedicated details page.
-- **Keep versions straight.** Store multiple archives and installations per entry, release/platform/channel details, latest-known releases and observation history. Numeric comparisons help identify local update gaps.
-- **Enrich with confidence.** Review metadata candidates from VNDB, Steam, IGDB, itch.io and RAWG. Matching uses title/alias, year and engine evidence; choose fields individually and preserve source attribution. Protected undo is available for text metadata.
-- **Bring the artwork.** Select provider covers, backdrops and screenshots, or use local images. Background downloads and bounded disk/memory caches keep the library responsive and reuse cached artwork offline.
-- **Play from the couch.** Navigate and launch with native DualSense/DS4 USB or Bluetooth input, or Xbox through XInput. Select DualSense, DS4 or Xbox button jewels. Cards display controller support when marked Partial or Full. Controller navigation includes Settings, dialogs, file pickers and an on-screen keyboard; [button mappings](NATIVE-CONTROLLERS.md).
-- **Organize in batches.** Multi-select entries, preview changes, then update favorites, progress, tags or NSFW classification. Remove unwanted library records while keeping original archives and game folders.
-- **Protect your saves.** Link game-specific save folders, create timestamped snapshots, preview restores, and retain protected pre-restore copies. Regular snapshot retention is configurable. [Backup and recovery details](SAVE-BACKUPS.md).
-- **Review duplicates.** Find shared paths and possible title/version matches. Optional background SHA-256 comparison identifies byte-identical archives, with cancellation and per-file warnings.
-- **Keep visibility discreet.** A small crossed-out 18 / 18+ toggle hides or shows manually marked NSFW entries. Hidden is the default; unclassified games remain visible.
+- **Discover and launch.** Recursively find archives and executable folders. Keep multiple installations, versions and named launch profiles with individual arguments, working directories and defaults.
+- **Inspect before extracting.** Preview ZIP/RAR/7z contents and issues, queue jobs, cancel safely and recover interrupted extraction without deleting originals.
+- **Find information with confidence.** Review Steam, IGDB, itch.io, VNDB and RAWG candidates. Choose individual fields and artwork, preserve attribution and manual choices, and undo metadata changes. Optional F95Zone tools associate public threads and review update evidence.
+- **Enjoy the artwork.** Covers, cinematic backdrops, screenshots and an artwork-rich grid use asynchronous bounded caches with offline reuse.
+- **Browse your way.** Search display/canonical/original names, tags and collections. Combine collection, engine, controller, availability and unplayed filters; sort by title, playtime or recent play. Track Backlog, Playing, Completed and Abandoned independently of Played history.
+- **Track time.** Record launch sessions and observed child processes, recover checkpointed durations and correct incomplete sessions manually.
+- **Organize in batches.** Preview favorites, tags, status, collections, Played and NSFW changes. Queue archives together, review local identification, or preview same-drive file renames and relocation with a recovery journal.
+- **Merge with evidence.** Find shared paths, possible title matches and byte-identical archives. Choose a primary game, retain conflicting source records and preserve launch profiles, sessions and save-backup ownership. No automatic deletion.
+- **Protect progress.** Configure save folders, create snapshots, review restores and retain protected pre-restore backups. Regular snapshot retention is configurable.
+- **Play from the couch.** Native DualSense/DS4 USB or Bluetooth and Xbox/XInput navigation; selectable button jewels, controller-support badges, context menus and an on-screen keyboard. Cross/A selects, Circle/B goes back, Triangle/Y opens context options, Options/Start opens the menu.
+- **Keep control.** A discreet 18 toggle manages manually classified NSFW visibility. Settings provides a confirmed library purge that retains game files and a recovery database.
+- **Extend explicitly.** Configure an existing Locale Emulator installation or install and enable trusted metadata/launch plugins. [Integration contracts and limits](INTEGRATIONS.md).
 
-## Run ArcHive
+## Run from source
 
-### From source
-
-Use Windows and the **.NET 10 SDK**. Run these commands from the repository root; the first build restores dependencies from NuGet:
+Use Windows and the **.NET 10 SDK**. From the repository root:
 
 ```powershell
 dotnet build ArcHive.App/ArcHive.App.csproj -c Release
 dotnet run --project ArcHive.App/ArcHive.App.csproj -c Release
 ```
 
-### Build a Windows installer
+The first build restores NuGet dependencies. For an isolated library, set `ARCHIVE_DATA_DIRECTORY` before starting the app. By default, data lives in `%LOCALAPPDATA%\ArcHive`, separate from the installation.
+
+## Your first game
+
+1. Add a library folder and scan it. Rescans preserve edited metadata and never launch games automatically.
+2. Select a game to open details. Use **Manage Archive…** to preview and queue extraction, or link an existing game folder.
+3. In **Launch**, use **Scan Game Files** to review executable and engine evidence, or choose an executable manually. Save a launch profile and select its default.
+4. Use **Find Game Information** to review a provider match and artwork, or edit the fields yourself.
+5. Choose **Play**. Keep ArcHive open to record playtime; review or correct sessions through **Playtime & Naming…** in Overview.
+
+Right-click or Triangle/Y opens game options. **Organize Library → Batch Tools…** contains duplicate merging, extraction, identification and file operations. **Browse…** controls additional filters and statistics. [Detailed 1.0 workflows](V1-WORKFLOWS.md).
+
+## Metadata and privacy
+
+Manual organization and launching need no account. Lookups and artwork selections are explicit; ArcHive does not download games automatically.
+
+| Source | Lookup scope |
+| --- | --- |
+| Steam | Supported app-ID/title catalog; optional owned-library lookup/import |
+| IGDB | Title search and available cover, artwork and screenshots |
+| itch.io | Your owned games or editable projects; not public catalog search |
+| VNDB | Title search, metadata and available cover/screenshots |
+| RAWG | Title search, artwork and explicit controller hints |
+| F95Zone | Optional direct public-thread association and reviewed update evidence |
+| GOG | Browser sign-in link and optional owned-library JSON import |
+
+Credentials are session-only or saved through Windows Credential Manager, never in ArcHive library/settings files. Browser sign-ins remain in the browser. Plugins run as your Windows account and are not sandboxed; enable only distributions you trust. [Source settings](SOURCE-CONNECTIONS.md) · [Metadata matching](METADATA.md).
+
+## Preservation and recovery
+
+Database backups are separate from game-save snapshots. Extraction retains originals and uncertain interrupted output. Purging removes library records and roots, not games or saves. Duplicate merging preserves source records and backup ownership. File moves require explicit previews, same-drive destinations and content verification; collisions, overlapping paths and configured save folders are rejected. Retain pending journals when recovery requests manual review.
+
+[Save backups](SAVE-BACKUPS.md) · [Extraction queue](ARCHIVE-QUEUE.md) · [Database migration](SQLITE-MIGRATION.md) · [File operations and purge](V1-WORKFLOWS.md).
+
+## Build an installer
 
 ```powershell
 powershell -NoProfile -File packaging/Build-Installer.ps1
 ```
 
-This produces a self-contained Windows x64 executable and per-user MSI:
+This builds a self-contained Windows x64 application and per-user MSI, using the approved executable, shortcut and installer branding:
 
 - `artifacts/publish/win-x64/ArcHive.exe`
-- `artifacts/installer/ArcHive-0.11.0-win-x64.msi`
+- `artifacts/installer/ArcHive-1.0.0-win-x64.msi`
 
-The installed app needs no separate .NET runtime. The executable, Start Menu shortcut and Installed Apps entry carry the approved ArcHive icon. Packages are currently unsigned; these are build outputs, not a claim that downloadable releases are published. See [packaging prerequisites and details](packaging/README.md).
+Packages are unsigned. Building packages does not publish a GitHub release. [Packaging prerequisites](packaging/README.md).
 
-## Your first game
-
-1. Choose **Add library folder** and select a folder containing your downloads or installed games. Rescans preserve edited metadata and do not launch anything.
-2. Select an entry. For an archive, choose **Preview / queue**, inspect the contents, and **Add to queue** with a destination parent. **Run pending / finish linking** extracts to a unique folder and retains the original archive. For an existing installation, use **Add folder** if needed.
-3. Choose **Launch / engine suggestions** to inspect local evidence and explicitly add a profile, or use **Files and launch setup** and **Choose executable**. Add a named profile, arguments and an optional working directory. Save your changes.
-4. Choose **Find metadata** to review a provider match and artwork, or edit the details manually.
-5. Left-click a game or press Cross/A to open its details page, then choose **Play game**. The selected profile launches after validation. Played history and last launch time are recorded independently of progress status.
-
-Right-click a card/archive row or press Triangle/Y on the selected game to open options. Shift+F10 also opens options. Full source locations appear in details and tables, even when the display title is numeric. See [launch suggestions and controls](LAUNCH-DETECTION.md).
-
-Controller input pauses while ArcHive is inactive, busy or editing a field. Release the controls after connecting or returning to the app. Native Sony input takes priority over XInput mirrors; profiles change the displayed symbols independently of the detected device. ArcHive does not map input into games. See [supported controllers](NATIVE-CONTROLLERS.md).
-
-## Archive queue and recovery
-
-Use **Extraction queue** to review jobs across restarts. Jobs run only when requested. Stop leaves later jobs pending; interrupted jobs need an explicit Retry and use fresh folders. Completed output awaiting library linking can finish without extracting again. Select a job to inspect its output and retained attempt paths. Uncertain files from crashes are retained for review. See [archive workflow and recovery](ARCHIVE-QUEUE.md).
-
-## Clean up a growing library
-
-Use search, status, favorites, archive view and visibility controls to narrow the library, then choose **Organize**. Only entries in that current view appear in the organizer.
-
-- Select rows with Ctrl/Shift, or **Select all shown**.
-- Choose **Find duplicates**. Enable **Compare archive contents (SHA-256)** for byte comparisons; this reads same-size archive candidates and can take time for large downloads.
-- Select an evidence group to review its titles and paths. **PossibleTitle** means a review candidate, often different releases; **SharedPath** means multiple references to one location; **ExactArchive** means matching size and SHA-256 at scan time.
-- Select the entries you want to change, choose an action, and **Preview changes**. Review each before/after value, then **Apply preview**. Changing selection or arguments invalidates the preview.
-
-Removal requires an additional confirmation and removes library records and their metadata only. Files remain on disk and rescans may rediscover them. There is no automatic merge, file deletion or folder-content comparison. See [duplicate and batch behavior](ORGANIZATION.md).
-
-## Metadata, privacy and storage
-
-Manual organization and launching require no provider account. Metadata searches and artwork choices are explicit; there is no automatic game downloading or release polling.
-
-| Provider | Current lookup scope |
-| --- | --- |
-| VNDB | Title search, metadata and available covers/screenshots |
-| Steam | Supported app-ID/title catalog; no guessed artwork URLs |
-| IGDB | Title search and available cover/artwork/screenshots; your app credentials |
-| itch.io | Your owned games or editable projects and available covers; not public catalog search |
-| RAWG | Title search, available background/screenshots and explicit controller hints; your API key |
-
-Matching scores are review aids, not guarantees. Configure your own credentials in **Provider settings**, optionally stored in Windows Credential Manager. They are not saved in library records. Consult [METADATA.md](METADATA.md) for provider scopes, attribution, import format and reconciliation rules.
-
-The default data folder is `%LOCALAPPDATA%\ArcHive`, separate from installed program files. SQLite stores the library; settings, cached artwork and local images stay alongside it. Saves retain a rolling database backup. Existing libraries migrate with dedicated migration backups; see [migration and recovery](SQLITE-MIGRATION.md). Database backups are not game-save backups. For an isolated development library, set `ARCHIVE_DATA_DIRECTORY` before starting the app.
-
-## Roadmap
-
-| Delivered | Next / planned |
-| --- | --- |
-| Discovery, archive previews, persistent extraction queue and restart recovery | Broader corruption testing, decoder resource limits and orphan cleanup |
-| SQLite, favorites, tags and search | Richer collections and filtering |
-| Versions, progress, launch profiles and evidence-based launch/engine suggestions | Broader engine signatures and richer filename review |
-| Five metadata providers, confidence matching, optional F95Zone public thread checks | Scheduled provider release polling and authenticated/private thread access |
-| Artwork selection, asynchronous caching and controller navigation | Broader image formats, accessibility and large-library benchmarks |
-| Duplicate review and transactional batch organization | Duplicate reconciliation/merge, batch identification/extraction and previewed relocation |
-| Last-launched history, save-folder backups and previewed restore | Session playtime, automatic save discovery and scheduled backups |
-| Native launch profiles | Optional Locale Emulator adapter and versioned plugins |
-
-[ROADMAP.md](ROADMAP.md) tracks delivered milestones and acceptance criteria. Windows WPF remains the current implementation; cross-platform Avalonia is a future consideration.
-
-## Verification and current limits
-
-Run the automated suite:
+## Verification
 
 ```powershell
 dotnet run --project ArcHive.Tests/ArcHive.Tests.csproj -c Release
 ```
 
-**621 checks pass**, including launch/engine suggestions, manual-choice preservation, Triangle input, archive recovery, duplicates and transactional batch edits. The Release build passes with zero warnings/errors. A live end-to-end desktop test exercised detection/apply/launch, organizer batches, archive preview, selection, options and restart using an isolated fixture library. Real controller hardware and authenticated live provider behavior remain unverified. See [VALIDATION.md](VALIDATION.md) for the evidence and limits.
+The automated suite covers persistence/migration, safe extraction, source providers, credentials, controller parsing/routing, save restore, merge preservation, playtime, file recovery, Locale Emulator configuration and plugin subprocesses. The 1.0 milestone skips full end-to-end UI tests. Physical controllers, live provider availability and a real game under Locale Emulator are not verified by fixture tests. See [VALIDATION.md](VALIDATION.md) for current results and limits.
 
-Extraction stages files without overwriting existing games and checks paths, entry counts and declared/actual output sizes. Encrypted/incomplete archives are unsupported. Extraction is not a malware sandbox; use trusted downloads and user-controlled destinations. Decoder CPU/memory limits, hardware power-loss testing, orphan cleanup and broader corruption/link-metadata testing remain hardening work. Artwork currently supports the documented PNG/JPEG provider paths. Version tracking is local/manual, not automatic online updating.
+## Roadmap
 
-## Project guide
+[ROADMAP.md](ROADMAP.md) records changes by version and planned work, including additional source/engine coverage, scheduled backups and release checks, cross-drive relocation, portability and further performance/accessibility work.
 
-- [Launch detection and UI checks](LAUNCH-DETECTION.md) · [Archive queue and recovery](ARCHIVE-QUEUE.md) · [Organization](ORGANIZATION.md) · [Metadata](METADATA.md) · [Artwork and gamepads](ARTWORK-GAMEPAD.md)
-- [Native controllers](NATIVE-CONTROLLERS.md) · [Design and branding](design/DESIGN.md)
-- [Roadmap](ROADMAP.md) · [Validation](VALIDATION.md) · [Windows packaging](packaging/README.md)
-- `ArcHive.App` — WPF interface, artwork presentation and Windows input
-- `ArcHive.Core` — scanning, extraction, storage, providers, launch plans and organization
-- `ArcHive.Tests` — automated regression suite and provider fixtures
-
-### Save backups and restore
-
-Open a game, choose **Save backups**, and add its save folder. Close the game and pause cloud-save syncing, then choose **Back up now**. To restore, select a snapshot, choose **Preview restore**, review the changes, then confirm **Restore snapshot**. The current folder is backed up before replacement. **Recover interrupted restore** handles an interrupted folder swap. These are local snapshots, not cloud backups.
-
-### Refined workflows and sources
-
-Details now group Overview, Artwork, Versions, Files & launch, Sources and Saves. The main action adapts to readiness: Play, Set up launch, Extract to play, or Link game folder. Expanded Settings includes library ordering/density, per-source credentials, controls, storage and optional F95Zone tools. Add games also offers previewed Steam/GOG owned-library import.
-
-Saved API credentials stay in Windows Credential Manager. Website sign-in stays in the browser. F95Zone supports explicit public-thread checks; GOG owned-library import is JSON-based, not authenticated sync. See [workflow map](WORKFLOWS.md) and [source capabilities and limits](SOURCE-CONNECTIONS.md).
+Developed by Bellum Labs · Nicholas Gartin. © 2026 Bellum Labs. All rights reserved.

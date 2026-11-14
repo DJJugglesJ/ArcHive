@@ -30,7 +30,7 @@ public partial class SaveBackupsWindow : Window
         if (busy is not null) return;
         busy = new(); Actions.IsEnabled = Snapshots.IsEnabled = false; Status.Text = "Working on save files…";
         try { await action(busy.Token); }
-        catch (Exception ex) { Status.Text = ex is OperationCanceledException ? "Cancelled. Existing saves are unchanged unless restore had already begun its final swap." : ex.Message; }
+        catch (Exception ex) { Status.Text = ex is OperationCanceledException ? "Canceled. Existing saves are unchanged unless restore had already begun its final swap." : ex.Message; }
         finally { busy.Dispose(); busy = null; Actions.IsEnabled = Snapshots.IsEnabled = true; if (Status.Text == "Working on save files…") Status.Text = "Ready. Select a snapshot to preview a restore, or back up now."; }
     }
     private async void SaveLocationChanged(object sender, SelectionChangedEventArgs e)
@@ -82,7 +82,7 @@ public partial class SaveBackupsWindow : Window
     private async void Restore(object sender, RoutedEventArgs e)
     {
         if (preview is not { } plan) return;
-        if (MessageBox.Show(this, $"Replace saves in:\n{plan.Destination}\n\n{plan.Changes.Count} changes. Close the game and pause cloud syncing first. Current saves will be backed up and the previous folder retained. Continue?", "Restore saves", MessageBoxButton.YesNo, MessageBoxImage.Warning, MessageBoxResult.No) != MessageBoxResult.Yes) return;
+        if (!ChoiceDialog.Confirm(this, "Restore Snapshot", $"Restore saves to:\n{plan.Destination}\n\n{plan.Changes.Count} changes. Restoring replaces the entire save folder. Close the game and pause cloud syncing first. Current saves will be backed up before restoring, and the previous folder will be retained.", "Restore Snapshot")) return;
         await Run(async token =>
         {
             Invalidate(); var result = await Service.RestoreAsync(plan, token); Snapshots.ItemsSource = await Service.ListAsync();

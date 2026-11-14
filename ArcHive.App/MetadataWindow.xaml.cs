@@ -16,6 +16,8 @@ public partial class MetadataWindow : Window
     public MetadataWindow(Game game, MetadataCandidate? initial = null)
     {
         InitializeComponent(); this.game = game; QueryBox.Text = game.Title;
+        try { foreach (var plugin in IntegrationSession.Catalog.List().Where(p => p.Enabled && p.Manifest.Capabilities.Contains("metadata"))) ProviderChoice.Items.Add(new ComboBoxItem { Content = plugin.Manifest.Name + " (Plugin)", Tag = plugin.Manifest.Id }); }
+        catch (Exception ex) { Message.Text = ex.Message; }
         if (initial is not null) Show(Query(), [initial]);
         Closed += (_, _) => cancellation.Cancel();
         try { ProviderSession.Load(); } catch (ProviderException ex) { Message.Text = ex.Message; }
@@ -31,11 +33,13 @@ public partial class MetadataWindow : Window
         SearchActions.IsEnabled = false; Candidates.ItemsSource = null; Message.Text = "Searching selected provider…";
         try
         {
-            var query = Query(); var found = await ProviderSession.Get(ProviderChoice.SelectedIndex).SearchAsync(query, cancellation.Token);
+            var query = Query();
+            IMetadataProvider provider = ProviderChoice.SelectedItem is ComboBoxItem { Tag: string pluginId } ? new PluginMetadataProvider(IntegrationSession.Catalog, pluginId) : ProviderSession.Get(ProviderChoice.SelectedIndex);
+            var found = await Task.Run(() => provider.SearchAsync(query, cancellation.Token), cancellation.Token);
             cancellation.Token.ThrowIfCancellationRequested(); Show(query, found);
         }
         catch (OperationCanceledException) { Message.Text = "Search canceled or timed out. You can retry."; }
-        catch (Exception ex) { Message.Text = "Lookup failed. Your library is unchanged. " + ex.Message; }
+        catch (Exception ex) { Message.Text = "Couldn't retrieve game information. No changes were made. " + ex.Message; }
         finally { SearchActions.IsEnabled = true; }
     }
     private void ImportOffline(object sender, RoutedEventArgs e)
@@ -53,7 +57,7 @@ public partial class MetadataWindow : Window
     private void Show(MetadataQuery query, IReadOnlyList<MetadataCandidate> found)
     {
         Candidates.ItemsSource = MetadataMatching.Rank(query, found);
-        Message.Text = found.Count == 0 ? "No candidates found. Try another title or import offline metadata." : "Select a candidate to review its fields. No match is selected automatically.";
+        Message.Text = found.Count == 0 ? "No matches found. Try another search term or provider." : "Select a candidate to review its fields. No match is selected automatically.";
     }
     private void SelectCandidate(object sender, SelectionChangedEventArgs e)
     {

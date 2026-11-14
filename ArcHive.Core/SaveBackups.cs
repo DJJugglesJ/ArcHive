@@ -5,6 +5,7 @@ namespace ArcHive.Core;
 
 public sealed class SaveLocation
 {
+    public Guid? BackupOwnerId { get; set; }
     public Guid Id { get; set; } = Guid.NewGuid();
     public string Folder { get; set; } = "";
     public int Retention { get; set; } = 10;
@@ -13,7 +14,7 @@ public sealed class SaveLocation
 public sealed record SaveEntry(string Path, bool Directory, long Size, string Hash);
 public sealed record SaveSnapshot(Guid Id, Guid GameId, Guid LocationId, string Source, DateTimeOffset Created, bool Protected, List<SaveEntry> Entries)
 {
-    public override string ToString() => $"{Created.ToLocalTime():yyyy-MM-dd HH:mm:ss} · {Entries.Count(e => !e.Directory)} files" + (Protected ? " · Before restore (protected)" : "");
+    public override string ToString() => $"{Created.ToLocalTime():yyyy-MM-dd HH:mm:ss} Â· {Entries.Count(e => !e.Directory)} files" + (Protected ? " Â· Before restore (protected)" : "");
 }
 public sealed record SaveRestorePreview(Guid SnapshotId, string CurrentFingerprint, string SnapshotFingerprint, string Destination, IReadOnlyList<string> Changes);
 public sealed record SaveRestoreResult(Guid? SafetySnapshotId, string? PreviousFolder);
@@ -21,7 +22,7 @@ public sealed record SaveRestoreResult(Guid? SafetySnapshotId, string? PreviousF
 /// <summary>Local, manually requested folder snapshots. Never discovers save paths or follows links.</summary>
 public sealed class SaveBackups(string storage, Guid gameId, SaveLocation location, long byteLimit = 2L * 1024 * 1024 * 1024, int entryLimit = 10000)
 {
-    private string Root => Path.Combine(Path.GetFullPath(storage), gameId.ToString("N"), location.Id.ToString("N"));
+    private string Root => Path.Combine(Path.GetFullPath(storage), (location.BackupOwnerId ?? gameId).ToString("N"), location.Id.ToString("N"));
     private string Target => Path.TrimEndingDirectorySeparator(Path.GetFullPath(location.Folder));
     private string SnapshotPath(Guid id) => Path.Combine(Root, id.ToString("N"));
     private string Journal => Path.Combine(Root, "restore.json");
@@ -110,7 +111,7 @@ public sealed class SaveBackups(string storage, Guid gameId, SaveLocation locati
         var folder = SnapshotPath(id); var manifest = Path.Combine(folder, "snapshot.json"); PathSafety.NoLinks(manifest);
         if (new FileInfo(manifest).Length > 16 * 1024 * 1024) throw new InvalidDataException("Oversized snapshot manifest.");
         var snapshot = JsonSerializer.Deserialize<SaveSnapshot>(File.ReadAllText(manifest)) ?? throw new InvalidDataException("Invalid snapshot.");
-        if (snapshot.Id != id || snapshot.GameId != gameId || snapshot.LocationId != location.Id || !Game.SamePath(snapshot.Source, Target) || snapshot.Entries is null || snapshot.Entries.Count > entryLimit)
+        if (snapshot.Id != id || snapshot.GameId != (location.BackupOwnerId ?? gameId) || snapshot.LocationId != location.Id || !Game.SamePath(snapshot.Source, Target) || snapshot.Entries is null || snapshot.Entries.Count > entryLimit)
             throw new InvalidDataException("Snapshot does not belong to this save location.");
         if (!Directory.Exists(Path.Combine(folder, "files"))) throw new InvalidDataException("Snapshot payload is missing.");
         if (verify && Fingerprint(Inventory(Path.Combine(folder, "files"), token)) != Fingerprint(snapshot.Entries)) throw new InvalidDataException("Snapshot integrity check failed.");
@@ -124,7 +125,7 @@ public sealed class SaveBackups(string storage, Guid gameId, SaveLocation locati
     {
         if (!Directory.Exists(Target)) throw new DirectoryNotFoundException("Save folder does not exist yet.");
         var before = Inventory(Target, token); var id = Guid.NewGuid(); var staging = Path.Combine(Root, ".partial-" + id.ToString("N"));
-        var snapshot = new SaveSnapshot(id, gameId, location.Id, Target, DateTimeOffset.UtcNow, protect, before);
+        var snapshot = new SaveSnapshot(id, location.BackupOwnerId ?? gameId, location.Id, Target, DateTimeOffset.UtcNow, protect, before);
         CopyTree(Target, Path.Combine(staging, "files"), before, token);
         if (Fingerprint(before) != Fingerprint(Inventory(Path.Combine(staging, "files"), token)) || Fingerprint(before) != Fingerprint(Inventory(Target, token)))
             throw new IOException("Saves changed while copying; no snapshot was published. Close the game and try again.");

@@ -41,7 +41,7 @@ public partial class MainWindow
     private void ShowVersionSummary()
     {
         if (selected is null) return;
-        UpdateHint.Text = selected.UpdateState + (selected.LatestReleaseCheckedAt is { } checkedAt ? $" · Latest recorded {checkedAt.LocalDateTime:g}" : " · No latest release recorded");
+        UpdateHint.Text = "Update Status: " + selected.UpdateStatus + (selected.LatestReleaseCheckedAt is { } checkedAt ? $" · Last Recorded {checkedAt.LocalDateTime:g}" : " · No known release recorded");
         VersionHistory.ItemsSource = selected.ReleaseHistory.OrderByDescending(h => h.ObservedAt)
             .Select(h => $"{h.Release.Version} · {h.Release.Platform} · {h.Release.Channel} · {h.Source} · {h.ObservedAt.LocalDateTime:g}").ToArray();
     }
@@ -75,6 +75,7 @@ public partial class MainWindow
         editorProfile.ExecutablePath = ProfileExecutableBox.Text.Trim();
         editorProfile.WorkingDirectory = ProfileWorkingBox.Text.Trim();
         editorProfile.Arguments = argumentRows.Select(row => row.Value).ToList();
+        if (AdapterChoices.SelectedItem is AdapterChoice adapter) editorProfile.AdapterId = adapter.Id;
     }
     private void LoadLocationEditors()
     {
@@ -98,6 +99,17 @@ public partial class MainWindow
     }
     private void LoadProfileEditor()
     {
+        var choices = new List<AdapterChoice> { new(null, "Native Windows") };
+        AdapterHint.Text = "Configure Locale Emulator and trusted plugins in Settings → Integrations.";
+        try
+        {
+            if (!string.IsNullOrWhiteSpace(preferences.LocaleEmulatorPath))
+                choices.AddRange(LocaleEmulatorAdapter.ReadProfiles(preferences.LocaleEmulatorPath).Select(p => new AdapterChoice(p.AdapterId, "Locale Emulator · " + p)));
+            choices.AddRange(IntegrationSession.Catalog.List().Where(p => p.Enabled && p.Manifest.Capabilities.Contains("launch")).Select(p => new AdapterChoice("plugin:" + p.Manifest.Id, p.Manifest.Name)));
+        }
+        catch (Exception ex) { AdapterHint.Text = ex.Message; }
+        if (editorProfile?.AdapterId is { Length: > 0 } missing && choices.All(c => c.Id != missing)) choices.Add(new(missing, "Unavailable: " + missing));
+        AdapterChoices.ItemsSource = choices; AdapterChoices.SelectedItem = choices.FirstOrDefault(c => c.Id == editorProfile?.AdapterId) ?? choices[0];
         ProfileEditor.IsEnabled = editorProfile is not null;
         ProfileNameBox.Text = editorProfile?.Name ?? "";
         ProfileExecutableBox.Text = editorProfile?.ExecutablePath ?? "";

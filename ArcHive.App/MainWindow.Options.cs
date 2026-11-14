@@ -25,7 +25,7 @@ public partial class MainWindow
     private void OpenSource(object sender, RoutedEventArgs e) => Guard(() =>
     {
         if (selected is null) return;
-        var path = ActiveInstallation?.Path ?? ActiveArchive?.Path ?? selected.SourceLocation;
+        var path = ActiveInstallation?.Path ?? throw new DirectoryNotFoundException("Select a game installation first. An archive folder is not a game installation.");
         if (File.Exists(path)) path = Path.GetDirectoryName(path)!;
         if (!Directory.Exists(path)) throw new DirectoryNotFoundException("Source folder is unavailable: " + path);
         PathSafety.NoLinks(path);
@@ -65,14 +65,15 @@ public partial class MainWindow
             item.Click += (_, _) => { optionsMenu.IsOpen = false; action(); };
             optionsMenu.Items.Add(item); if (enabled) optionActions.Add((item, action));
         }
-        Add("Open game details", ShowDetailsPage);
-        Add("Launch / engine suggestions", () => DetectLaunch(this, new()), selected.Installations.Count > 0);
-        Add("Preview archive / queue", () => Extract(this, new()), selected.Archives.Count > 0);
-        Add("Open source folder", () => OpenSource(this, new()));
-        Add("Save backups and restore", () => OpenSaveBackups(this, new()));
-        if (preferences.EnableF95Zone) Add("F95Zone thread / updates", () => OpenF95Thread(this, new()));
-        Add("Find metadata", () => FindMetadata(this, new()));
-        Add("Organize current view", () => OrganizeLibrary(this, new()));
+        Add("Open Game Details", ShowDetailsPage);
+        Add("Scan Game Files", () => DetectLaunch(this, new()), selected.Installations.Count > 0);
+        Add("Manage Archive…", () => Extract(this, new()), selected.Archives.Count > 0);
+        Add("Open Game Folder", () => OpenSource(this, new()), ActiveInstallation is not null && Directory.Exists(ActiveInstallation.Path));
+        Add("Playtime & Naming…", () => OpenGameHistory(this, new()));
+        Add("Save Backups", () => OpenSaveBackups(this, new()));
+        if (preferences.EnableF95Zone) Add("F95Zone Thread & Updates…", () => OpenF95Thread(this, new()));
+        Add("Find Game Information", () => FindMetadata(this, new()));
+        Add("Organize Library", () => OrganizeLibrary(this, new()));
         optionsMenu.Opened += (_, _) => Dispatcher.BeginInvoke(() => optionActions.FirstOrDefault().Item?.Focus());
         optionsMenu.IsOpen = true;
     }

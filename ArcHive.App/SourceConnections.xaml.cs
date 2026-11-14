@@ -29,7 +29,7 @@ public partial class SourceConnections : UserControl
         Capability.Text = i switch {
             0 => "Steam catalog matching. Uses a Steam Web API key to look up titles. This is separate from your Steam account's game library.",
             1 => "IGDB title search, descriptions and artwork through your registered Twitch application.",
-            2 => "Find metadata in your owned itch.io games or projects using your own API key.",
+            2 => "Find game information in your owned itch.io games or projects using your own API key.",
             3 => "RAWG title search and artwork using your API key. Attribution remains visible in ArcHive.",
             4 => "VNDB title search. No account credentials required.",
             5 => "Link a specific F95Zone thread and review publicly available title, description and version evidence. Enable thread tools under Optional sources first.",

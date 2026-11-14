@@ -15,7 +15,7 @@ public partial class F95ThreadWindow : Window
     {
         InitializeComponent(); this.game = game; ThreadUrl.Text = game.F95Thread?.Url ?? "";
         Evidence.Text = game.F95Thread is { } link ? $"Last observed: {link.CheckedAt:g}\n{link.ObservedTitle}\nVersion: {link.ObservedVersion}" : "Paste a thread link to begin.";
-        Closing += (_, e) => { if (request is not null) { request.Cancel(); e.Cancel = true; Status.Text = "Cancelling lookup; close again when finished."; } };
+        Closing += (_, e) => { if (request is not null) { request.Cancel(); e.Cancel = true; Status.Text = "Canceling lookup; close again when finished."; } };
     }
     private void UrlChanged(object sender, TextChangedEventArgs e) { result = null; if (Review is not null) Review.IsEnabled = false; if (UseVersion is not null) { UseVersion.IsChecked = false; UseVersion.IsEnabled = false; } }
     private async void CheckThread(object sender, RoutedEventArgs e)
@@ -23,7 +23,7 @@ public partial class F95ThreadWindow : Window
         if (request is not null) return; request = new(); Actions.IsEnabled = ThreadUrl.IsEnabled = false; Status.Text = "Checking the public page…";
         result = null; Review.IsEnabled = UseVersion.IsEnabled = false; UseVersion.IsChecked = false;
         try { result = await Source.CheckAsync(ThreadUrl.Text, request.Token); Evidence.Text = $"{result.Candidate.Title}\nObserved version: {(result.Version.Length > 0 ? result.Version : "Not identified")}\nSource: {result.Url}\nChecked: {result.Candidate.RetrievedAt:g}\n\n" + string.Join("\n", result.Candidate.Fields.Select(f => $"{f.Key}: {f.Value}")); Review.IsEnabled = true; UseVersion.IsEnabled = result.Version.Length > 0; Status.Text = "Review the evidence before applying anything."; }
-        catch (Exception ex) { Status.Text = ex is OperationCanceledException ? "Lookup cancelled or timed out." : ex.Message; }
+        catch (Exception ex) { Status.Text = ex is OperationCanceledException ? "Lookup canceled or timed out." : ex.Message; }
         finally { request.Dispose(); request = null; Actions.IsEnabled = ThreadUrl.IsEnabled = true; }
     }
     private void OpenThread(object sender, RoutedEventArgs e) { try { Process.Start(new ProcessStartInfo(F95ThreadSource.CanonicalUrl(ThreadUrl.Text)) { UseShellExecute = true }); } catch (Exception ex) { Status.Text = ex is ProviderException ? ex.Message : "Could not open the thread."; } }

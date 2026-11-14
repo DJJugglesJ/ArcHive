@@ -29,3 +29,7 @@ The core validates the complete selection and request before building a deep-cop
 49 new checks bring the suite to 430. They cover strong vs weak duplicate evidence, equal-size different bytes, shared references, title versions, empty scopes/titles, missing/invalid/locked/changed paths, cancellation, supplied visibility scope, all batch actions, invalid/stale selections, tag semantics/provenance, source immutability, launch-profile preservation, database persistence/backup and transaction rollback. Eight component checks construct the actual organizer without showing a window to verify selection/argument preview invalidation and save-error behavior. Full end-to-end UI automation was not run.
 
 Batch extraction, identification, relocation, merge/reconciliation and a recovery journal remain separate roadmap work.
+
+## 1.0 organization additions
+
+Duplicate merging, collections, Played changes, batch extraction/local identification and previewed same-drive rename/relocation are implemented in 1.0. The original 0.7 behavior described above remains the foundation. See [V1-WORKFLOWS.md](V1-WORKFLOWS.md) for current commands, primary-record conflict rules, preserved backups and interrupted file-operation recovery.
