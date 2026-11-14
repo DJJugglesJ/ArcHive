@@ -80,7 +80,7 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 
 ## Release gates
 
-The exact second approved logo has been supplied and integrated into the running app. The approved ICO is now packaged in the executable and Windows MSI. Regress scanning/extraction/database migration and edited metadata preservation. Exercise empty/missing/broken-art states, search, selection, resizing and cancellation. Document actual performance measurements separately from intended targets. VNDB, Steam, IGDB, itch.io and RAWG connect only on explicit lookup with their documented scopes. F95Zone remains planned.
+The exact second approved logo has been supplied and integrated into the running app. The approved ICO is now packaged in the executable and Windows MSI. Regress scanning/extraction/database migration and edited metadata preservation. Exercise empty/missing/broken-art states, search, selection, resizing and cancellation. Document actual performance measurements separately from intended targets. VNDB, Steam, IGDB, itch.io and RAWG connect only on explicit lookup with their documented scopes. F95Zone public-thread association and checks are delivered in 0.11.0; private account access remains unavailable.
 
 ## Native PlayStation input — delivered in 0.6.0
 
@@ -118,3 +118,12 @@ Live fixture verification confirmed opening details did not change the launch ma
 ## Save backups and restore — delivered in 0.10.0
 
 Per-game save-folder configuration persists in SQLite. Background snapshot/restore work validates content hashes and rejects links, overlapping backup locations, stale previews and corrupted snapshots. Folder replacement is journaled; pre-restore snapshots and displaced folders remain available. 551 automated checks pass; Release build has zero warnings/errors. Full end-to-end UI tests were skipped as requested. See [SAVE-BACKUPS.md](SAVE-BACKUPS.md).
+
+## Workflow and source settings — delivered in 0.11.0
+
+- Focused game-detail tabs, adaptive primary action, Add games entry chooser and dedicated Activity/Organize navigation.
+- Settings sections for library sorting/density, source connections, controls, storage, optional sources and About.
+- Windows Credential Manager persistence, source-specific editing/disconnect, browser-owned sign-ins.
+- Optional F95Zone thread association, bounded public-page evidence lookup and explicit field/version application.
+- Previewed owned-title import: Steam API or JSON; GOG JSON. No storefront downloads or authenticated GOG synchronization.
+- 595 automated checks and a warning-free Release build; focused layout review. See WORKFLOWS.md and SOURCE-CONNECTIONS.md for capability boundaries.

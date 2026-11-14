@@ -29,7 +29,7 @@ public partial class MainWindow : Window
     }
     private void GalleryResized(object sender, SizeChangedEventArgs e)
     {
-        var columns = Math.Max(1, (int)(e.NewSize.Width / 190));
+        var columns = Math.Max(1, (int)(e.NewSize.Width / (preferences.LibraryDensity == LibraryDensity.Compact ? 190 : 240)));
         if (columns == galleryColumns) return;
         galleryColumns = columns; RebuildGallery();
     }
@@ -107,12 +107,16 @@ public partial class MainWindow : Window
             (StatusFilter.SelectedIndex <= 0 || g.Progress.ToString() == StatusFilter.SelectedItem as string) &&
             (FavoritesOnly.IsChecked != true || g.Favorite) &&
             (g.Title.Contains(Search.Text, StringComparison.OrdinalIgnoreCase) || g.Tags.Contains(Search.Text, StringComparison.OrdinalIgnoreCase)))
-            .OrderBy(g => g.Title).ToList();
+            .OrderByDescending(g => preferences.LibraryOrder == LibraryOrder.FavoritesFirst && g.Favorite)
+            .ThenByDescending(g => preferences.LibraryOrder == LibraryOrder.RecentlyPlayed ? g.LastLaunched : null)
+            .ThenBy(g => g.Title).ToList();
         Games.SelectedItem = current is not null && Games.Items.Contains(current) ? current : null;
         if (editorInstallation?.Profiles.FirstOrDefault(p => p.Id == profileId) is { } profile) ProfileChoices.SelectedItem = profile;
         ArchiveList.ItemsSource = Games.ItemsSource;
         ArchiveList.SelectedItem = Games.SelectedItem;
         RebuildGallery();
+        EmptyTitle.Text = library.Games.Count == 0 ? "Your next adventure starts here." : "No games match this view.";
+        EmptyDescription.Text = library.Games.Count == 0 ? "Add a folder containing games or archives. Your original files stay in place." : "Try another search, progress filter or collection. Hidden entries remain in your library.";
         EmptyState.Visibility = Games.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
         Status.Text = $"{Games.Items.Count} shown / {library.Games.Count} entries • {library.Roots.Count} library folders (manual rescan)";
     }
@@ -137,7 +141,7 @@ public partial class MainWindow : Window
             ClearMilestone();
             return;
         }
-        DetailTitle.Text = selected.Title; DetailState.Text = $"{selected.State} · {selected.Progress} · {selected.UpdateState}";
+        DetailTitle.Text = selected.Title; OverviewDescription.Text = string.IsNullOrWhiteSpace(selected.Description) ? "No description yet. Find metadata in Sources, or add your own notes under Edit game details." : selected.Description; DetailState.Text = $"{selected.State} · {selected.Progress} · {selected.UpdateState}";
         TitleBox.Text = selected.Title;
         ReleaseYearBox.Text = selected.ReleaseYear; EngineBox.Text = selected.Engine; ControllerSupportBox.SelectedItem = selected.ControllerSupport;
         TagsBox.Text = selected.Tags;
@@ -172,6 +176,9 @@ public partial class MainWindow : Window
     private void UpdateLocationSummary()
     {
         if (Paths is null) return;
+        PrimaryActionLabel.Text = GameWorkflow.Label(GameWorkflow.Primary(ActiveInstallation, editorProfile, ActiveArchive));
+        System.Windows.Automation.AutomationProperties.SetName(PlayButton, PrimaryActionLabel.Text);
+        ExtractButton.Visibility = ActiveArchive is null ? Visibility.Collapsed : Visibility.Visible;
         var parsed = FilenameParser.Parse(Path.GetFileName(ActiveArchive?.Path ?? ActiveInstallation?.Path ?? ""));
         Paths.Text = $"Filename hints: version {parsed.Version ?? "unknown"} / {parsed.Platform ?? "unknown"}\nArchive: {(ActiveArchive is null ? "—" : DisplayPaths.Compact(ActiveArchive.Path))}\nFolder: {(ActiveInstallation is null ? "—" : DisplayPaths.Compact(ActiveInstallation.Path))}\nLaunch: {(editorProfile is null ? "Choose an executable" : DisplayPaths.Compact(editorProfile.ExecutablePath))}";
     }

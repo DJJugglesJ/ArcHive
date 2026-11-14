@@ -89,6 +89,7 @@ try
     await ExtractionQueueTests.Run(root, Check);
     await DetectionTests.Run(root, Check);
     await SaveBackupTests.Run(root, Check);
+    await SourceWorkflowTests.Run(root, Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }

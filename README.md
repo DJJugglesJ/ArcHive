@@ -6,7 +6,7 @@
 
 Turn a folder of downloads into an artwork-rich collection. Find your games, keep multiple versions together, choose how they launch, and organize your backlog without moving the original files.
 
-Built with **C# / .NET 10 / WPF**, backed by **SQLite**. Current source version: **0.10.0**.
+Built with **C# / .NET 10 / WPF**, backed by **SQLite**. Current source version: **0.11.0**.
 
 ## Your collection, in one place
 
@@ -43,7 +43,7 @@ powershell -NoProfile -File packaging/Build-Installer.ps1
 This produces a self-contained Windows x64 executable and per-user MSI:
 
 - `artifacts/publish/win-x64/ArcHive.exe`
-- `artifacts/installer/ArcHive-0.10.0-win-x64.msi`
+- `artifacts/installer/ArcHive-0.11.0-win-x64.msi`
 
 The installed app needs no separate .NET runtime. The executable, Start Menu shortcut and Installed Apps entry carry the approved ArcHive icon. Packages are currently unsigned; these are build outputs, not a claim that downloadable releases are published. See [packaging prerequisites and details](packaging/README.md).
 
@@ -97,7 +97,7 @@ The default data folder is `%LOCALAPPDATA%\ArcHive`, separate from installed pro
 | Discovery, archive previews, persistent extraction queue and restart recovery | Broader corruption testing, decoder resource limits and orphan cleanup |
 | SQLite, favorites, tags and search | Richer collections and filtering |
 | Versions, progress, launch profiles and evidence-based launch/engine suggestions | Broader engine signatures and richer filename review |
-| Five metadata providers, confidence matching and reconciliation | Provider release polling and optional F95Zone thread associations |
+| Five metadata providers, confidence matching, optional F95Zone public thread checks | Scheduled provider release polling and authenticated/private thread access |
 | Artwork selection, asynchronous caching and controller navigation | Broader image formats, accessibility and large-library benchmarks |
 | Duplicate review and transactional batch organization | Duplicate reconciliation/merge, batch identification/extraction and previewed relocation |
 | Last-launched history, save-folder backups and previewed restore | Session playtime, automatic save discovery and scheduled backups |
@@ -113,7 +113,7 @@ Run the automated suite:
 dotnet run --project ArcHive.Tests/ArcHive.Tests.csproj -c Release
 ```
 
-**551 checks pass**, including launch/engine suggestions, manual-choice preservation, Triangle input, archive recovery, duplicates and transactional batch edits. The Release build passes with zero warnings/errors. A live end-to-end desktop test exercised detection/apply/launch, organizer batches, archive preview, selection, options and restart using an isolated fixture library. Real controller hardware and authenticated live provider behavior remain unverified. See [VALIDATION.md](VALIDATION.md) for the evidence and limits.
+**595 checks pass**, including launch/engine suggestions, manual-choice preservation, Triangle input, archive recovery, duplicates and transactional batch edits. The Release build passes with zero warnings/errors. A live end-to-end desktop test exercised detection/apply/launch, organizer batches, archive preview, selection, options and restart using an isolated fixture library. Real controller hardware and authenticated live provider behavior remain unverified. See [VALIDATION.md](VALIDATION.md) for the evidence and limits.
 
 Extraction stages files without overwriting existing games and checks paths, entry counts and declared/actual output sizes. Encrypted/incomplete archives are unsupported. Extraction is not a malware sandbox; use trusted downloads and user-controlled destinations. Decoder CPU/memory limits, hardware power-loss testing, orphan cleanup and broader corruption/link-metadata testing remain hardening work. Artwork currently supports the documented PNG/JPEG provider paths. Version tracking is local/manual, not automatic online updating.
 
@@ -129,3 +129,9 @@ Extraction stages files without overwriting existing games and checks paths, ent
 ### Save backups and restore
 
 Open a game, choose **Save backups**, and add its save folder. Close the game and pause cloud-save syncing, then choose **Back up now**. To restore, select a snapshot, choose **Preview restore**, review the changes, then confirm **Restore snapshot**. The current folder is backed up before replacement. **Recover interrupted restore** handles an interrupted folder swap. These are local snapshots, not cloud backups.
+
+### Refined workflows and sources
+
+Details now group Overview, Artwork, Versions, Files & launch, Sources and Saves. The main action adapts to readiness: Play, Set up launch, Extract to play, or Link game folder. Expanded Settings includes library ordering/density, per-source credentials, controls, storage and optional F95Zone tools. Add games also offers previewed Steam/GOG owned-library import.
+
+Saved API credentials stay in Windows Credential Manager. Website sign-in stays in the browser. F95Zone supports explicit public-thread checks; GOG owned-library import is JSON-based, not authenticated sync. See [workflow map](WORKFLOWS.md) and [source capabilities and limits](SOURCE-CONNECTIONS.md).

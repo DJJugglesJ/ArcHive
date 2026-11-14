@@ -1,0 +1,12 @@
+<UserControl x:Class="ArcHive.App.SourceConnections" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml">
+ <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
+  <TextBlock Text="Your sources, connected clearly" FontSize="22"/><TextBlock Text="Saved keys are secured by Windows Credential Manager. Website sign-ins stay in your browser; they do not grant ArcHive account access." TextWrapping="Wrap" Foreground="#8FAA99" Margin="0,12,0,20"/>
+  <ComboBox x:Name="Source" SelectionChanged="SourceChanged" AutomationProperties.Name="Source to configure" Margin="0,0,0,16"><ComboBoxItem Content="Steam"/><ComboBoxItem Content="IGDB"/><ComboBoxItem Content="itch.io"/><ComboBoxItem Content="RAWG"/><ComboBoxItem Content="VNDB"/><ComboBoxItem Content="F95Zone"/><ComboBoxItem Content="GOG"/></ComboBox>
+  <TextBlock x:Name="Capability" TextWrapping="Wrap" Margin="0,0,0,14"/><TextBlock x:Name="ConnectionState" Foreground="#B3FFD0" Margin="0,0,0,16"/>
+  <StackPanel x:Name="KeyEditor"><TextBlock x:Name="KeyLabel"/><PasswordBox x:Name="Key" Padding="10" Margin="0,6,0,14"/><StackPanel x:Name="ClientEditor" Visibility="Collapsed"><TextBlock Text="Twitch client ID"/><TextBox x:Name="ClientId"/></StackPanel><CheckBox x:Name="Remember" Content="Remember securely in Windows" IsChecked="True"/><TextBlock Text="Turn off to keep all provider keys in memory for this session only and remove the saved Windows credential. No key is written to an ArcHive file." TextWrapping="Wrap" Foreground="#8FAA99" Margin="0,4,0,12"/><WrapPanel><Button Content="Save connection" Click="Save"/><Button Content="Disconnect this source" Click="Disconnect"/></WrapPanel></StackPanel>
+  <WrapPanel><Button Content="Open website / sign in" Click="OpenWebsite"/><Button x:Name="KeyHelp" Content="Get API credentials" Click="OpenKeyHelp"/></WrapPanel>
+  <Border Background="#14231B" CornerRadius="8" Padding="16" Margin="0,14"><TextBlock x:Name="Limitations" TextWrapping="Wrap" Foreground="#8FAA99"/></Border>
+  <TextBlock x:Name="Message" TextWrapping="Wrap" Foreground="#B3FFD0" Margin="0,10"/>
+  <TextBlock Text="Security" FontSize="18" Margin="0,18,0,8"/><TextBlock Text="ArcHive never asks for your Steam, GOG or forum password. API credentials are only sent to their matching service. Disconnect clears the source's key and cached provider instances; browser sessions are managed by your browser." TextWrapping="Wrap" Foreground="#8FAA99"/>
+ </StackPanel></ScrollViewer>
+</UserControl>

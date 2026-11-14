@@ -9,7 +9,7 @@ ArcHive reads Sony controllers through Windows Raw Input. Connect by USB or pair
 
 DualSense Edge, third-party clones and dedicated wireless adapters are not claimed as supported. Basic Bluetooth works without sending feature/output reports to enable extended mode. Extended Bluetooth packets require a valid HIDP-prefixed CRC32.
 
-D-pad/left stick moves selection, Cross opens the selected game details (choose Play there to launch), Circle returns to the collection, and L1/R1 switch library views. DualSense/DS4/Xbox settings select button artwork independently of device detection. Touchpad, gyro, rumble, adaptive triggers, audio and other advanced features are outside this navigation backend.
+D-pad/left stick moves selection, Cross opens the selected game details (choose Play there to launch), Circle returns to the collection, and L1/R1 switch library views, or details tabs while a game is open. DualSense/DS4/Xbox settings select button artwork independently of device detection. Touchpad, gyro, rumble, adaptive triggers, audio and other advanced features are outside this navigation backend.
 
 Native Sony input has priority while a recognized device is connected, including over an XInput mirror exposed by a mapper. The first registered native device owns navigation until removed. This deliberately prevents simultaneous Xbox control while that Sony device is connected. A mapper that hides the physical HID device can still supply XInput instead. Registration failure leaves XInput available and adds a hint in the navigation area.
 

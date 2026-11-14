@@ -31,6 +31,15 @@ public partial class MainWindow
         PathSafety.NoLinks(path);
         var info = new ProcessStartInfo("explorer.exe") { UseShellExecute = false }; info.ArgumentList.Add(Path.GetFullPath(path)); Process.Start(info)?.Dispose();
     });
+    private void OpenAddGames(object sender, RoutedEventArgs e)
+    {
+        if (operation is not null) return;
+        var menu = new ContextMenu { PlacementTarget = (FrameworkElement)sender, Placement = PlacementMode.Bottom };
+        void Add(string title, RoutedEventHandler action) { var item = new MenuItem { Header = title }; item.Click += action; menu.Items.Add(item); }
+        Add("Scan a folder of games or archives", AddRoot);
+        Add("Import owned Steam / GOG titles", OpenOwnedLibrary);
+        menu.IsOpen = true;
+    }
     private void OpenOptions(object sender, RoutedEventArgs e) => ShowOptions();
     private void CardRightClick(object sender, MouseButtonEventArgs e)
     {
@@ -60,6 +69,7 @@ public partial class MainWindow
         Add("Preview archive / queue", () => Extract(this, new()), selected.Archives.Count > 0);
         Add("Open source folder", () => OpenSource(this, new()));
         Add("Save backups and restore", () => OpenSaveBackups(this, new()));
+        if (preferences.EnableF95Zone) Add("F95Zone thread / updates", () => OpenF95Thread(this, new()));
         Add("Find metadata", () => FindMetadata(this, new()));
         Add("Organize current view", () => OrganizeLibrary(this, new()));
         optionsMenu.Opened += (_, _) => Dispatcher.BeginInvoke(() => optionActions.FirstOrDefault().Item?.Focus());

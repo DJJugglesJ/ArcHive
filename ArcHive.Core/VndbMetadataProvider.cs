@@ -29,7 +29,7 @@ public sealed class VndbMetadataProvider(HttpClient client) : IMetadataProvider
                 Content = JsonContent.Create(new { filters = new[] { "search", "=", title },
                     fields = "title,alttitle,aliases,description,released,image.url,screenshots.url", sort = "searchrank", results = 20 })
             };
-            request.Headers.UserAgent.ParseAdd("ArcHive/0.10.0");
+            request.Headers.UserAgent.ParseAdd("ArcHive/0.11.0");
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, deadline.Token);
             if (response.StatusCode == HttpStatusCode.TooManyRequests)
             {

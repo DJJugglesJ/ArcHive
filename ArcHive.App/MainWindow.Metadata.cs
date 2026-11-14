@@ -16,6 +16,13 @@ public partial class MainWindow
         var copy = JsonSerializer.Deserialize<Game>(JsonSerializer.Serialize(selected))!;
         action(copy.Artwork); SaveMetadata(copy);
     });
+    private void OpenF95Thread(object sender, RoutedEventArgs e) => Guard(() =>
+    {
+        if (!preferences.EnableF95Zone) { Status.Text = "Enable F95Zone tools in Settings → Optional sources."; return; }
+        Commit(); if (selected is null) return;
+        var copy = JsonSerializer.Deserialize<Game>(JsonSerializer.Serialize(selected))!;
+        if (new F95ThreadWindow(copy) { Owner = this }.ShowDialog() == true) SaveMetadata(copy);
+    });
     private void FindMetadata(object sender, RoutedEventArgs e) => Guard(() =>
     {
         Commit(); if (selected is null) return;

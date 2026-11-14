@@ -2,9 +2,14 @@ using System.Text.Json;
 
 namespace ArcHive.Core;
 
+public enum LibraryOrder { Title, RecentlyPlayed, FavoritesFirst }
+public enum LibraryDensity { Comfortable, Compact }
 public enum ControllerProfile { DualSense, DualShock4, Xbox }
 public sealed class AppPreferences
 {
+    public LibraryOrder LibraryOrder { get; set; }
+    public LibraryDensity LibraryDensity { get; set; }
+    public bool EnableF95Zone { get; set; }
     public ControllerProfile ControllerProfile { get; set; } = ControllerProfile.DualSense;
     public bool ShowNsfw { get; set; }
     public bool GamepadEnabled { get; set; } = true;
@@ -25,12 +30,12 @@ public sealed class AppPreferencesStore(string file)
     {
         if (!File.Exists(file)) return new();
         var settings = JsonSerializer.Deserialize<AppPreferences>(File.ReadAllText(file)) ?? throw new InvalidDataException("Invalid app settings.");
-        if (!Enum.IsDefined(settings.ControllerProfile)) throw new InvalidDataException("Unsupported controller profile.");
+        if (!Enum.IsDefined(settings.ControllerProfile) || !Enum.IsDefined(settings.LibraryOrder) || !Enum.IsDefined(settings.LibraryDensity)) throw new InvalidDataException("Unsupported controller profile.");
         return settings;
     }
     public void Save(AppPreferences settings)
     {
-        if (!Enum.IsDefined(settings.ControllerProfile)) throw new InvalidDataException("Unsupported controller profile.");
+        if (!Enum.IsDefined(settings.ControllerProfile) || !Enum.IsDefined(settings.LibraryOrder) || !Enum.IsDefined(settings.LibraryDensity)) throw new InvalidDataException("Unsupported controller profile.");
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(file))!);
         var temporary = file + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try

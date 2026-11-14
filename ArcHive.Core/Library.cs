@@ -8,6 +8,8 @@ public sealed class Game : System.ComponentModel.INotifyPropertyChanged
     private bool isSelected;
     [System.Text.Json.Serialization.JsonIgnore]
     public bool IsSelected { get => isSelected; set { if (isSelected == value) return; isSelected = value; PropertyChanged?.Invoke(this, new(nameof(IsSelected))); } }
+    public F95ThreadLink? F95Thread { get; set; }
+    public Dictionary<string, string> OwnedLibraryIds { get; set; } = [];
     public List<SaveLocation> SaveLocations { get; set; } = [];
     public List<DetectionDecision> DetectionHistory { get; set; } = [];
     [System.Text.Json.Serialization.JsonIgnore]
@@ -54,7 +56,7 @@ public sealed class Game : System.ComponentModel.INotifyPropertyChanged
     [System.Text.Json.Serialization.JsonIgnore]
     public string State => Installations.Any(i => i.Profiles.Any(p => LaunchService.CanLaunch(i, p))) ? "Ready"
         : Installations.Any(i => Directory.Exists(i.Path)) || Directory.Exists(DirectoryPath) ? "Folder linked"
-        : Archives.Any(a => File.Exists(a.Path)) || File.Exists(ArchivePath) ? "Archived" : "Missing";
+        : Archives.Any(a => File.Exists(a.Path)) || File.Exists(ArchivePath) ? "Archived" : OwnedLibraryIds.Count > 0 ? "Not installed" : "Missing";
 
     public void UpgradeLocations()
     {

@@ -6,7 +6,7 @@ namespace ArcHive.App;
 
 internal static class ProviderSession
 {
-    private static readonly HttpClient Client = new(new HttpClientHandler { AllowAutoRedirect = false });
+    private static readonly HttpClient Client = new(new HttpClientHandler { AllowAutoRedirect = false, UseCookies = false });
     private static readonly WindowsProviderCredentialStore Store = new();
     public static ProviderCredentials Credentials { get; private set; } = new();
     public static bool Remembered { get; private set; }
@@ -45,22 +45,6 @@ public partial class ProviderSettingsWindow : Window
 {
     public ProviderSettingsWindow()
     {
-        InitializeComponent(); var c = ProviderSession.Credentials;
-        SteamKey.Password = c.SteamKey; IgdbId.Text = c.IgdbClientId; IgdbSecret.Password = c.IgdbClientSecret;
-        ItchKey.Password = c.ItchKey; RawgKey.Password = c.RawgKey; Remember.IsChecked = ProviderSession.Remembered;
-    }
-    private void Save(object sender, RoutedEventArgs e)
-    {
-        try
-        {
-            ProviderSession.Save(new() { SteamKey = SteamKey.Password.Trim(), IgdbClientId = IgdbId.Text.Trim(), IgdbClientSecret = IgdbSecret.Password.Trim(), ItchKey = ItchKey.Password.Trim(), RawgKey = RawgKey.Password.Trim() }, Remember.IsChecked == true);
-            DialogResult = true;
-        }
-        catch (ProviderException ex) { Message.Text = ex.Message; }
-    }
-    private void Forget(object sender, RoutedEventArgs e)
-    {
-        try { ProviderSession.Save(new(), false); DialogResult = true; }
-        catch (ProviderException ex) { Message.Text = ex.Message; }
+        InitializeComponent(); Connections.Saved += (_, _) => DialogResult = true;
     }
 }

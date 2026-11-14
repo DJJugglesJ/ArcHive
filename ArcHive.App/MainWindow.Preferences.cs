@@ -20,9 +20,10 @@ public partial class MainWindow
     }
     private void ShowPreferences()
     {
+        F95ThreadButton.Visibility = preferences.EnableF95Zone ? Visibility.Visible : Visibility.Collapsed;
         ActiveControllerProfile = preferences.ControllerProfile;
         var prompts = ControllerPrompts.For(preferences.ControllerProfile);
-        ControllerNavigationHint.Text = preferences.GamepadEnabled ? $"{prompts.Accept}: open / select · {prompts.Menu}: options · {prompts.Previous}/{prompts.Next}: views" : "Gamepad navigation off";
+        ControllerNavigationHint.Text = preferences.GamepadEnabled ? $"{prompts.Accept}: open / select · {prompts.Menu}: options · {prompts.Previous}/{prompts.Next}: {(detailsPage ? "detail tabs" : "views")}" : "Gamepad navigation off";
         NsfwLabel.Text = preferences.ShowNsfw ? "18+" : "18";
         NsfwCircle.Visibility = NsfwSlash.Visibility = preferences.ShowNsfw ? Visibility.Collapsed : Visibility.Visible;
         var state = preferences.ShowNsfw ? "NSFW games shown — click to hide" : "NSFW games hidden — click to show";
@@ -30,15 +31,16 @@ public partial class MainWindow
     }
     private void OpenSettings(object sender, RoutedEventArgs e) => Guard(() =>
     {
-        var window = new SettingsWindow(preferences) { Owner = this };
+        var window = new SettingsWindow(preferences, library.Roots, data) { Owner = this };
         if (window.ShowDialog() != true) return;
-        preferenceStore.Save(window.Result); preferences = window.Result; ShowPreferences();
+        preferenceStore.Save(window.Result); preferences = window.Result; ShowPreferences(); galleryColumns = Math.Max(1, (int)(Gallery.ActualWidth / (preferences.LibraryDensity == LibraryDensity.Compact ? 190 : 240))); Refresh();
+        switch (window.RequestedAction) { case "add": AddRoot(this, new()); break; case "scan": Rescan(this, new()); break; case "organize": OrganizeLibrary(this, new()); break; case "import": OpenOwnedLibrary(this, new()); break; case "queue": OpenExtractionQueue(this, new()); break; }
     });
     private void ToggleNsfw(object sender, RoutedEventArgs e) => Guard(() =>
     {
         if (operation is not null) return;
         Commit();
-        var next = new AppPreferences { ControllerProfile = preferences.ControllerProfile, GamepadEnabled = preferences.GamepadEnabled, ShowNsfw = !preferences.ShowNsfw };
+        var next = System.Text.Json.JsonSerializer.Deserialize<AppPreferences>(System.Text.Json.JsonSerializer.Serialize(preferences))!; next.ShowNsfw = !preferences.ShowNsfw;
         preferenceStore.Save(next); preferences = next; ShowPreferences(); Refresh();
     });
 }

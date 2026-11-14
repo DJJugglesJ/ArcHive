@@ -13,9 +13,10 @@ public partial class MetadataWindow : Window
     private readonly CancellationTokenSource cancellation = new();
     private readonly List<(CheckBox Choice, MetadataProposal Proposal)> rows = [];
     private readonly List<(ArtworkReference Art, ArtworkKind Role)> artworkChoices = [];
-    public MetadataWindow(Game game)
+    public MetadataWindow(Game game, MetadataCandidate? initial = null)
     {
         InitializeComponent(); this.game = game; QueryBox.Text = game.Title;
+        if (initial is not null) Show(Query(), [initial]);
         Closed += (_, _) => cancellation.Cancel();
         try { ProviderSession.Load(); } catch (ProviderException ex) { Message.Text = ex.Message; }
     }
