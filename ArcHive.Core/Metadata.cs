@@ -49,7 +49,7 @@ public static class MetadataMatching
             return new MetadataMatch(c, Math.Clamp(score, 0, 1), evidence.ToArray(), false);
         }).GroupBy(m => (m.Candidate.Provider, m.Candidate.Id)).Select(g => g.OrderByDescending(m => m.Score).First())
           .OrderByDescending(m => m.Score).ThenBy(m => m.Candidate.Provider, StringComparer.Ordinal).ThenBy(m => m.Candidate.Id, StringComparer.Ordinal).ToArray();
-        return results.Select(m => m with { Ambiguous = results.Any(other => other != m && Math.Abs(other.Score - m.Score) < .1) }).ToArray();
+        return results.Select((m, i) => m with { Ambiguous = (i > 0 && results[i - 1].Score - m.Score < .1) || (i + 1 < results.Length && m.Score - results[i + 1].Score < .1) }).ToArray();
     }
 }
 public static class MetadataValidation

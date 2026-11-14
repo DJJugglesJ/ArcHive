@@ -1,6 +1,6 @@
 # Metadata providers and review
 
-ArcHive 0.3.0 supplies `IMetadataProvider`, an offline candidate importer and an optional VNDB adapter. Steam, IGDB, itch.io, RAWG and F95Zone network adapters are not implemented yet. No credentials are requested or persisted. Manual library use stays offline.
+ArcHive 0.4.0 supplies `IMetadataProvider`, offline import and optional VNDB, Steam, IGDB, itch.io and RAWG adapters. All searches are explicit and use the existing confidence/field-review workflow. F95Zone remains planned. Manual library use stays offline.
 
 ## Review workflow
 
@@ -48,6 +48,36 @@ Only the search title is sent. No credentials, paths, notes or library-wide uplo
 
 VNDB API usage is subject to its [usage terms](https://api.vndb.org/kana#usage-terms) and [data license](https://vndb.org/d9). Review those terms before distributing commercial products or redistributing data. The UI identifies VNDB and preserves field attribution. Other adapters should use supported APIs and keep credentials out of the library, logs and repository.
 
+## Additional provider scopes (0.4.0)
+
+| Provider | Source and supported fields | Setup |
+| --- | --- | --- |
+| Steam | Official `IStoreService/GetAppList` catalog, filtered to games: app ID and title only. Catalog title matching happens locally; no undocumented store-detail scraping. | Your Steam Web API key. |
+| IGDB | `/v4/games` title search: ID, title, aliases, summary, release year, engine names and genres. | Your Twitch application's client ID and client secret. ArcHive obtains a client-credentials app token, renews it before expiry (at most one hour), and retries once after 401. No shared application secret ships. |
+| itch.io — owned games | `/profile/owned-keys`: stable game IDs/titles and short text when available. Reads only published games represented by owned keys. Unclaimed bundle games may be absent. Private purchase/key details are discarded. | Your itch.io key or scoped token with `profile:owned`. |
+| itch.io — projects | `/profile/games`: games you uploaded or can edit; IDs/titles/short text. | Your itch.io key or scoped token with `profile:games`. |
+| RAWG | `/api/games` title search: ID, title, released year, genre/tag names. Does not fetch a detail page or description per candidate. | Your RAWG API key. |
+
+itch.io account scopes are not a public catalog search. Its publication dates are not treated as game release dates. Steam modified timestamps are likewise not release dates. Every provider result still requires candidate selection and per-field approval. Source links appear in review and library views; provenance records the originating provider and ID.
+
+### Credentials and request handling
+
+Open **Provider settings**, enter your credentials, and save. Blank keys disable the corresponding provider. The default is session-only; checking **Remember in Windows Credential Manager** stores a small JSON credential blob for the current Windows account, outside the game database and project files. Unchecking it removes saved settings; **Forget all keys** removes saved settings and clears the session providers/caches. Existing library metadata remains. The Windows credential blob is limited to 2,560 bytes. Credentials remain in process memory while used; this is not protection from software already running as your Windows user. Do not distribute your own client secrets with the app.
+
+IGDB sends client credentials in a Twitch token POST form and its resulting bearer token in game-query headers. itch.io uses an Authorization bearer header. Steam and RAWG use the documented key query parameter over HTTPS; transport errors never include request URLs, response bodies, inner exceptions or credentials. No provider receives archive paths or notes. Steam/itch matching does not send the search title: it downloads the explicitly selected catalog/account scope and searches locally.
+
+The four adapters share a host-allowlisted transport with redirects disabled by the desktop client, 20-second HTTP deadlines, 2 MB response limits, cancellation, request spacing and capped rate-limit backoff. Each search is limited to three minutes. IGDB requests are spaced by 350 ms; Steam, itch.io and RAWG by one second. Search results cache for ten minutes (up to 100 title queries). Complete Steam catalogs cache for six hours in memory; complete itch.io catalogs for ten minutes. Catalogs and tokens are not saved to disk. Changing settings resets all provider instances.
+
+Steam pages use an advancing app-ID cursor, at most 50 pages of 10,000 entries. itch.io owned keys continue through short pages until an empty page, at most 100 pages of 500 keys; duplicate game IDs collapse while repeated key IDs fail the lookup. Editable-project lists are limited to 10,000 entries. Count, cursor, size or deadline failures do not publish a partial catalog. Returned pagination URLs are never followed. IGDB and RAWG return the first 20 search candidates; refine the title for more precise results. Catalog matching is performed off the UI thread, with a linear ambiguity check after sorting rather than pairwise comparisons.
+
+### Official references and attribution
+
+- [Steam IStoreService](https://partner.steamgames.com/doc/webapi/IStoreService) and [Web API authentication](https://partner.steamgames.com/doc/webapi_overview/auth).
+- [IGDB API](https://api-docs.igdb.com/) and [Twitch token flow](https://dev.twitch.tv/docs/authentication/getting-tokens-oauth/#client-credentials-grant-flow).
+- [itch.io server-side API and key setup](https://itch.io/docs/api/serverside).
+- [RAWG API key, terms and attribution](https://rawg.io/apidocs). Review your current plan and terms before distribution; the UI provides active RAWG backlinks wherever its metadata is shown.
+- [Windows Credential Manager API](https://learn.microsoft.com/en-us/windows/win32/api/wincred/nf-wincred-credwritew).
+
 ## Verification scope
 
-Automated tests use deterministic HTTP fixtures; they require no network, secrets or provider availability. They cover request shape, mapping, caching, cooldown, rate limits, malformed/oversized responses, failure and cancellation alongside ranking, conflict review, stale-preview rejection, provenance, undo and SQLite persistence. Live service availability and full end-to-end UI behavior are not claimed by these checks.
+Automated tests use deterministic HTTP fixtures; they require no network, secrets or provider availability. They cover request shape, mapping, caching, cooldown, rate limits, malformed/oversized responses, failure and cancellation alongside ranking, conflict review, stale-preview rejection, provenance, undo and SQLite persistence. Additional tests cover all four adapters, credential scoping, token renewal, short/duplicate/cyclic pagination, response limits and sanitized errors. Windows Credential Manager is exercised with a unique test-only credential that is deleted afterward; run this part in a normal Windows logon session (restricted/service sessions may lack a credential vault). Live service availability and full end-to-end UI behavior are not claimed by these checks.

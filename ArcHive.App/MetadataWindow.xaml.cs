@@ -9,8 +9,6 @@ namespace ArcHive.App;
 
 public partial class MetadataWindow : Window
 {
-    private static readonly HttpClient Client = new(new HttpClientHandler { AllowAutoRedirect = false });
-    private static readonly VndbMetadataProvider Vndb = new(Client);
     private readonly Game game;
     private readonly CancellationTokenSource cancellation = new();
     private readonly List<(CheckBox Choice, MetadataProposal Proposal)> rows = [];
@@ -18,14 +16,20 @@ public partial class MetadataWindow : Window
     {
         InitializeComponent(); this.game = game; QueryBox.Text = game.Title;
         Closed += (_, _) => cancellation.Cancel();
+        try { ProviderSession.Load(); } catch (ProviderException ex) { Message.Text = ex.Message; }
     }
+    private void ProviderChanged(object sender, SelectionChangedEventArgs e)
+    { if (Candidates is not null) Candidates.ItemsSource = null; }
+    private void ConfigureProviders(object sender, RoutedEventArgs e)
+    { if (new ProviderSettingsWindow { Owner = this }.ShowDialog() == true) { Candidates.ItemsSource = null; Message.Text = "Provider settings updated. Search when ready."; } }
+    private void OpenSource(object sender, System.Windows.Navigation.RequestNavigateEventArgs e) => MetadataSourceLinks.Open(e);
     private MetadataQuery Query() => new(QueryBox.Text, game.ReleaseYear, game.Engine);
     private async void SearchOnline(object sender, RoutedEventArgs e)
     {
-        SearchActions.IsEnabled = false; Candidates.ItemsSource = null; Message.Text = "Searching VNDB…";
+        SearchActions.IsEnabled = false; Candidates.ItemsSource = null; Message.Text = "Searching selected provider…";
         try
         {
-            var query = Query(); var found = await Vndb.SearchAsync(query, cancellation.Token);
+            var query = Query(); var found = await ProviderSession.Get(ProviderChoice.SelectedIndex).SearchAsync(query, cancellation.Token);
             cancellation.Token.ThrowIfCancellationRequested(); Show(query, found);
         }
         catch (OperationCanceledException) { Message.Text = "Search canceled or timed out. You can retry."; }

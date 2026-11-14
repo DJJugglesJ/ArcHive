@@ -81,6 +81,7 @@ try
     SqliteTests.Run(root, Check);
     MilestoneTests.Run(root, Check);
     await MetadataTests.Run(root, Check);
+    await ProviderTests.Run(Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }

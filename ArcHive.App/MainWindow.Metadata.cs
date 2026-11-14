@@ -6,6 +6,7 @@ namespace ArcHive.App;
 
 public partial class MainWindow
 {
+    private void OpenMetadataSource(object sender, System.Windows.Navigation.RequestNavigateEventArgs e) => MetadataSourceLinks.Open(e);
     private void FindMetadata(object sender, RoutedEventArgs e) => Guard(() =>
     {
         Commit(); if (selected is null) return;

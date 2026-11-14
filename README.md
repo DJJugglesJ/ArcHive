@@ -27,11 +27,11 @@ The adaptive artwork grid, background thumbnails, optional details and archive v
 
 ## Windows packaging
 
-Run `powershell -NoProfile -File packaging/Build-Installer.ps1` to publish the self-contained Windows x64 app and build the per-user MSI. Output: `artifacts/publish/win-x64/ArcHive.exe` and `artifacts/installer/ArcHive-0.3.0-win-x64.msi`. No separate .NET runtime is required by the installed application. Build prerequisites and verification commands are in [packaging/README.md](packaging/README.md).
+Run `powershell -NoProfile -File packaging/Build-Installer.ps1` to publish the self-contained Windows x64 app and build the per-user MSI. Output: `artifacts/publish/win-x64/ArcHive.exe` and `artifacts/installer/ArcHive-0.4.0-win-x64.msi`. No separate .NET runtime is required by the installed application. Build prerequisites and verification commands are in [packaging/README.md](packaging/README.md).
 
 The approved icon is embedded in ArcHive.exe, the Start Menu shortcut and the Installed Apps entry. The sidebar blends the original logo into its surface without a black image rectangle. Windows uses its standard file-type icon for the .msi file itself. The package is currently unsigned.
 
-## Versions, progress and launch profiles (0.3.0)
+## Versions, progress and launch profiles (0.2.0)
 
 Choose a progress state in game details and filter it beside Search. Progress and the Played flag are independent: launching records Played and last launch time without changing Completed or Abandoned.
 
@@ -41,8 +41,8 @@ Each installation can have multiple launch profiles. Create a profile, choose it
 
 Existing SQLite libraries upgrade automatically with a retained pre-v2 backup. Older binaries cannot read schema 2; see [SQLITE-MIGRATION.md](SQLITE-MIGRATION.md) for rollback. This milestone was verified with automated tests and a Release build; full UI automation was intentionally skipped.
 
-## Metadata lookup and review (0.3.0)
+## Metadata lookup and review (0.4.0)
 
-Select a game and choose **Find metadata**. Edit the search title, then explicitly search VNDB online or import a local JSON candidate array. Nothing goes online merely by opening the dialog. Search sends the title only; paths and notes stay local. See [METADATA.md](METADATA.md) for the import format, matching rules, provider scope and attribution.
+Select a game and choose **Find metadata**. Select VNDB, Steam, IGDB, itch.io or RAWG, then explicitly search or import a local JSON candidate array. Use **Provider settings** for your own API keys (and IGDB client ID/secret); optionally remember them in Windows Credential Manager. Nothing goes online merely by opening the dialog. Paths and notes stay local. Steam matches against its downloaded ID/title catalog; itch.io matches your owned games or editable projects, not a public search catalog. IGDB, RAWG and VNDB use title searches. See [METADATA.md](METADATA.md) for the import format, matching rules, provider scope and attribution.
 
-Select a candidate to compare current/proposed values. Existing values are unchecked by default; check only the fields you want to replace. Apply saves those fields with source identity and retrieval time. **Undo metadata** restores the last applied batch, unless a later manual edit would be overwritten. Title, description, tags, release year and engine edits are recorded as manual. Cancel leaves the lookup unapplied. Other online providers and artwork downloads are future work.
+Select a candidate to compare current/proposed values. Existing values are unchecked by default; check only the fields you want to replace. Apply saves those fields with source identity and retrieval time. **Undo metadata** restores the last applied batch, unless a later manual edit would be overwritten. Title, description, tags, release year and engine edits are recorded as manual. Cancel leaves the lookup unapplied. The four additional adapters are included in 0.4.0. Artwork downloads and F95Zone integration remain future work.

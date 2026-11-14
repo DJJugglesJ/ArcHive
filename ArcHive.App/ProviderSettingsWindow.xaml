@@ -1,0 +1,15 @@
+<Window x:Class="ArcHive.App.ProviderSettingsWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Metadata provider settings" Width="580" Height="680" WindowStartupLocation="CenterOwner">
+ <ScrollViewer VerticalScrollBarVisibility="Auto"><StackPanel Margin="24">
+  <TextBlock Text="Connect your metadata sources" FontSize="22"/>
+  <TextBlock Text="Supply your own API credentials. Blank fields disable a provider. Settings are used only when you explicitly search; no connection is made when saving." TextWrapping="Wrap" Margin="0,12"/>
+  <TextBlock Text="Steam Web API key (catalog IDs and titles)"/><PasswordBox x:Name="SteamKey" Margin="0,4,0,12" Padding="8"/>
+  <TextBlock Text="IGDB / Twitch client ID"/><TextBox x:Name="IgdbId"/>
+  <TextBlock Text="IGDB / Twitch client secret (your own registered app)"/><PasswordBox x:Name="IgdbSecret" Margin="0,4,0,12" Padding="8"/>
+  <TextBlock Text="itch.io API key (owned games or editable projects)"/><PasswordBox x:Name="ItchKey" Margin="0,4,0,12" Padding="8"/>
+  <TextBlock Text="RAWG API key"/><PasswordBox x:Name="RawgKey" Margin="0,4,0,12" Padding="8"/>
+  <CheckBox x:Name="Remember" Content="Remember in Windows Credential Manager"/>
+  <TextBlock Text="Unchecked: use for this app session and remove any previously saved provider settings. Keys never enter your game library. Use Forget to clear saved keys and the current session's provider caches." TextWrapping="Wrap" Foreground="#8FAA99" Margin="0,0,0,12"/>
+  <TextBlock x:Name="Message" TextWrapping="Wrap" Margin="0,0,0,12"/>
+  <WrapPanel><Button Content="Save settings" Click="Save"/><Button Content="Forget all keys" Click="Forget"/><Button Content="Cancel" IsCancel="True"/></WrapPanel>
+ </StackPanel></ScrollViewer>
+</Window>
