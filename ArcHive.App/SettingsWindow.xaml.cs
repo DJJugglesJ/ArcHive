@@ -18,6 +18,7 @@ public partial class SettingsWindow : Window
         if (Accept is null || Profiles.SelectedIndex < 0) return;
         Accept.Profile = CancelJewel.Profile = Alternate.Profile = Menu.Profile = (ControllerProfile)Profiles.SelectedIndex;
     }
+    private void ShowAbout(object sender, RoutedEventArgs e) => new AboutWindow { Owner = this }.ShowDialog();
     private void Save(object sender, RoutedEventArgs e)
     { Result.ControllerProfile = (ControllerProfile)Profiles.SelectedIndex; Result.GamepadEnabled = Gamepad.IsChecked == true; DialogResult = true; }
 }

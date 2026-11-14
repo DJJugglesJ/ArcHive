@@ -16,3 +16,5 @@ Outputs under artifacts/ are not source-controlled. ArcHive.exe and the MSI are 
 The ICO exporter is a format-packaging script, not a redraw. The UI logo uses the original source with premultiplied alpha compositing; no generated replacement image ships.
 
 Installer authoring follows the official [WiX package schema](https://docs.firegiant.com/wix/schema/wxs/package/) and [Windows Installer icon guidance](https://docs.firegiant.com/wix3/howtos/ui_and_localization/configure_arp_appearance/).
+
+The default version is read from Directory.Build.props. About uses assembly informational version (without the source revision suffix); company and copyright come from assembly metadata. Installer publisher: Bellum Labs. Distribute the complete self-contained ZIP, not ArcHive.exe alone.

@@ -1,10 +1,11 @@
 param(
-    [string]$Version = '0.9.0',
+    [string]$Version,
     [string]$WixPath,
     [switch]$SkipPublish
 )
 $ErrorActionPreference = 'Stop'
 $project = Split-Path $PSScriptRoot
+if (-not $Version) { $Version = ([xml](Get-Content (Join-Path $project 'Directory.Build.props') -Raw)).Project.PropertyGroup.Version }
 $artifacts = Join-Path $project 'artifacts'
 $publish = Join-Path $artifacts 'publish\win-x64'
 $output = Join-Path $artifacts 'installer'
@@ -57,7 +58,7 @@ $icon = Xml (Join-Path $project 'ArcHive.App\Assets\ArcHive.ico')
 $versionXml = Xml $Version
 $source = @"
 <Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
- <Package Name="ArcHive" Manufacturer="ArcHive" Version="$versionXml" UpgradeCode="93D19C3A-D94D-4908-98A8-EBEC4EF93778" Scope="perUser" InstallerVersion="500">
+ <Package Name="ArcHive" Manufacturer="Bellum Labs" Version="$versionXml" UpgradeCode="93D19C3A-D94D-4908-98A8-EBEC4EF93778" Scope="perUser" InstallerVersion="500">
   <MajorUpgrade DowngradeErrorMessage="A newer version of ArcHive is already installed."/>
   <MediaTemplate EmbedCab="yes" CompressionLevel="high"/>
   <Icon Id="ArcHive.ico" SourceFile="$icon"/>
