@@ -1,0 +1,17 @@
+<Window x:Class="ArcHive.App.MetadataWindow" xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation" xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml" Title="Review game metadata" Width="850" Height="760" MinWidth="650" MinHeight="550" WindowStartupLocation="CenterOwner">
+ <DockPanel Margin="22">
+  <StackPanel DockPanel.Dock="Top">
+   <TextBlock Text="Find the right game" FontSize="24"/>
+   <TextBlock Text="Scores are similarity hints, not verified identities. Select a candidate and choose each field to replace." TextWrapping="Wrap" Margin="0,10"/>
+   <TextBox x:Name="QueryBox" AutomationProperties.Name="Metadata search title"/>
+   <WrapPanel x:Name="SearchActions"><Button Content="Search VNDB online" Click="SearchOnline"/><Button Content="Import metadata JSON" Click="ImportOffline"/></WrapPanel>
+   <TextBlock Text="Online search sends only the title to VNDB. Offline import makes no network requests. VNDB data: https://vndb.org/d9 — API: https://api.vndb.org/kana" TextWrapping="Wrap" Foreground="#8FAA99"/>
+   <TextBlock x:Name="Message" TextWrapping="Wrap" Margin="0,12"/>
+  </StackPanel>
+  <StackPanel DockPanel.Dock="Bottom"><TextBlock Text="Unchecked fields keep their current value. Existing values are unchecked by default. Provider text is displayed as plain text." TextWrapping="Wrap" Margin="0,10"/><WrapPanel><Button x:Name="ApplyButton" Content="Apply selected fields" Click="Apply" IsEnabled="False"/><Button Content="Cancel" IsCancel="True"/></WrapPanel></StackPanel>
+  <Grid><Grid.RowDefinitions><RowDefinition Height="180"/><RowDefinition Height="*"/></Grid.RowDefinitions>
+   <ListBox x:Name="Candidates" SelectionChanged="SelectCandidate"><ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="5,8"/></DataTemplate></ListBox.ItemTemplate></ListBox>
+   <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"><StackPanel x:Name="FieldRows"/></ScrollViewer>
+  </Grid>
+ </DockPanel>
+</Window>

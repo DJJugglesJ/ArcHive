@@ -1,3 +1,3 @@
 # Next ArcHive increment
 
-The 0.2.0 version/status/profile milestone is implemented. Next: metadata-provider contracts, confidence matching and field-level reconciliation; then optional provider lookup. Keep schema-2 migration/rollback and real argument-delivery tests green. Full UI testing remains optional unless specifically requested.
+0.3.0 delivers metadata contracts, offline import, optional VNDB lookup, confidence evidence and field reconciliation. Next: additional supported provider adapters (Steam, IGDB, itch.io, RAWG), configured credentials in OS storage, and provider attribution-aware artwork caching. Keep deterministic metadata transport, matching, persistence and undo tests green. Full end-to-end UI tests remain optional unless requested.

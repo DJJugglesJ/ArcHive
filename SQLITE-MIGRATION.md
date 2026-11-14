@@ -25,3 +25,8 @@ Attaching a path already listed on another game does not delete or merge that ga
 Storage: relational games, archives, installations and roots tables. Game metadata is a versioned JSON payload in the games table; archive/install relationships and provenance use foreign keys. The current repository saves a full snapshot within one transaction and retains the existing single-instance UI policy. It is not a multi-user database or incremental large-library synchronization layer.
 
 Validation: 94 checks passed on .NET 10, including migration backup/source retention, all scalar metadata, multiple paths and executable choices, rescan deduplication, transaction rollback, readable backup, corrupt-source protection and migration retry, plus the existing archive suite.
+
+
+## 0.3.0 metadata compatibility
+
+Schema remains 2. Provider field provenance, retrieval timestamps and undo history are additive properties in each game's JSON metadata, alongside release year and engine. Absent fields in older records initialize empty. Normal transaction and database-backup behavior is unchanged. Older builds will discard new properties on save; preserve a backup before downgrading.

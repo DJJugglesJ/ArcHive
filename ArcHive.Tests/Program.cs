@@ -80,6 +80,7 @@ try
     await ArchiveTests.Run(root, Check);
     SqliteTests.Run(root, Check);
     MilestoneTests.Run(root, Check);
+    await MetadataTests.Run(root, Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }

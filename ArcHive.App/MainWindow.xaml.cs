@@ -84,9 +84,11 @@ public partial class MainWindow : Window
     private void Commit()
     {
         if (selected is null) return;
-        selected.Title = TitleBox.Text.Trim();
-        selected.Tags = TagsBox.Text.Trim();
-        selected.Description = DescriptionBox.Text;
+        MetadataReconciliation.SetManual(selected, MetadataField.Title, TitleBox.Text.Trim());
+        MetadataReconciliation.SetManual(selected, MetadataField.Tags, TagsBox.Text.Trim());
+        MetadataReconciliation.SetManual(selected, MetadataField.Description, DescriptionBox.Text);
+        MetadataReconciliation.SetManual(selected, MetadataField.ReleaseYear, ReleaseYearBox.Text.Trim());
+        MetadataReconciliation.SetManual(selected, MetadataField.Engine, EngineBox.Text.Trim());
         selected.Favorite = FavoriteBox.IsChecked == true;
         selected.Played = PlayedBox.IsChecked == true;
         CommitMilestone();
@@ -119,7 +121,7 @@ public partial class MainWindow : Window
         Details.IsEnabled = selected is not null;
         if (selected is null)
         {
-            TitleBox.Clear(); TagsBox.Clear(); DescriptionBox.Clear();
+            TitleBox.Clear(); TagsBox.Clear(); DescriptionBox.Clear(); ReleaseYearBox.Clear(); EngineBox.Clear();
             FavoriteBox.IsChecked = PlayedBox.IsChecked = false;
             ArchiveChoices.ItemsSource = null; FolderChoices.ItemsSource = null;
             Screenshot.ImagePath = null; DetailTitle.Text = "Select a game"; DetailState.Text = ""; Paths.Text = "Select a game to see its details.";
@@ -128,6 +130,7 @@ public partial class MainWindow : Window
         }
         DetailTitle.Text = selected.Title; DetailState.Text = $"{selected.State} · {selected.Progress} · {selected.UpdateState}";
         TitleBox.Text = selected.Title;
+        ReleaseYearBox.Text = selected.ReleaseYear; EngineBox.Text = selected.Engine;
         TagsBox.Text = selected.Tags;
         DescriptionBox.Text = selected.Description;
         FavoriteBox.IsChecked = selected.Favorite;

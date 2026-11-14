@@ -20,6 +20,13 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 - Conservative numeric release comparisons and local/manual update indicators. Ambiguous suffixes or mismatched platforms/channels remain Unknown. Side-by-side newest installations prevent false update flags.
 - Multiple named launch profiles per installation, persisted default, executable, argument list, working directory and reserved adapter ID. UI supports creation, editing, removal, default selection and executable browsing. Exact command/working-directory confirmation precedes every launch; arguments are passed without a shell.
 
+## Metadata and confidence milestone — delivered in 0.3.0
+
+- Provider contract and validated, bounded offline JSON import; optional explicit VNDB title search with stable IDs, short-lived memory cache, cancellation, timeout, size limits and rate-limit backoff.
+- Deterministic title/alias similarity plus optional year/engine evidence; conflicts lower scores, close candidates are flagged ambiguous, provider IDs remain separate. Scores are heuristics, not probabilities; all matches require review.
+- Field-level preview and opt-in replacement, manual provenance, source IDs/retrieval timestamps, persisted undo with subsequent-edit protection. Schema 2 stores additive metadata inside the existing game document; existing databases need no structural migration.
+- Review dialog and release year/engine editors. No automatic selection, merge, artwork retrieval, background traffic or release polling. Steam, IGDB, itch.io, RAWG and F95Zone adapters remain planned.
+
 ## V1 — complete the core workflow
 
 | Work | Acceptance |
@@ -30,8 +37,8 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 | Progress/status | Delivered in 0.2.0; update availability is a separate release indicator. |
 | Launch profiles | Delivered in 0.2.0. Native profiles work now; external adapters remain optional future integrations. |
 | Metadata lookup | Implement optional Steam, IGDB, itch.io, VNDB and RAWG adapters using supported endpoints and configured credentials. Manual/offline mode requires no account. |
-| Matching | Return candidates with stable provider IDs, title/alias/year/engine evidence and confidence. Ambiguous matches require review; never merge by title alone. |
-| Reconciliation | Store provenance and retrieval time per field. Preview conflicts, retain manual overrides, allow per-field source choice and undo. |
+| Matching | Delivered in 0.3.0: stable IDs, title/alias/year/engine evidence and heuristic confidence, explicit review. |
+| Reconciliation | Delivered in 0.3.0 for title, description, tags, release year and engine; per-field selection, provenance and protected undo. |
 | Artwork | Independent cover, backdrop and screenshot collections, async downloads, bounded disk cache, provider attribution and fallback artwork. Current local image is shared by card/detail. |
 | UX polish | Full cinematic detail page, selected-card indicator, keyboard grid navigation, active navigation state, reduced-motion-aware transitions and high-DPI/accessibility validation. |
 
@@ -53,4 +60,4 @@ Approved direction recovered from “Check ArcHive uniqueness” on 2026-11-14. 
 
 ## Release gates
 
-The exact second approved logo has been supplied and integrated into the running app. The approved ICO is now packaged in the executable and Windows MSI. Regress scanning/extraction/database migration and edited metadata preservation. Exercise empty/missing/broken-art states, search, selection, resizing and cancellation. Document actual performance measurements separately from intended targets. All online adapters above are planned, not connected in this build.
+The exact second approved logo has been supplied and integrated into the running app. The approved ICO is now packaged in the executable and Windows MSI. Regress scanning/extraction/database migration and edited metadata preservation. Exercise empty/missing/broken-art states, search, selection, resizing and cancellation. Document actual performance measurements separately from intended targets. VNDB lookup is connected only on explicit request; the other online adapters remain planned.

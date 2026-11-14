@@ -4,6 +4,9 @@ namespace ArcHive.Core;
 
 public sealed class Game
 {
+    public MetadataState Metadata { get; set; } = new();
+    public string ReleaseYear { get; set; } = "";
+    public string Engine { get; set; } = "";
     public List<GameArchive> Archives { get; set; } = [];
     public List<GameInstallation> Installations { get; set; } = [];
     public Guid Id { get; set; } = Guid.NewGuid();

@@ -65,3 +65,12 @@ Remaining coverage: this is a primary-workflow GUI pass, not an exhaustive UI au
 - Profile tests cover exact persistence, default ownership and rollback, profile deletion without legacy recreation, path containment, missing files/directories, unavailable adapters and null characters. A controlled child instance of the test executable verifies exact Unicode, empty, spaced, quoted and trailing-backslash arguments and working directory through ProcessStartInfo.ArgumentList. No downloaded game is launched.
 - Original extraction/hash/SQLite regression tests remain green. New arguments use explicit editable rows rather than command-line parsing; empty rows represent empty arguments and literal whitespace is retained.
 - Full end-to-end UI automation and installer install/uninstall tests were intentionally skipped for this milestone at the user's request to avoid unnecessary UI-test cost. No live user database was opened or migrated. Online version polling and external launch adapters remain unimplemented; latest-release metadata is manual/local.
+
+
+## Metadata and confidence milestone — 0.3.0
+
+- 175 automated checks pass (137 existing + 38 metadata checks); Release WPF build passes with zero warnings and errors.
+- Deterministic matching tests cover aliases, Unicode, punctuation, sequel numbers, missing evidence, year/engine conflicts, ambiguous ties, duplicate identities and provider namespaces.
+- Reconciliation tests cover preview immutability, selected fields only, manual provenance, timestamps, atomic stale-preview rejection, duplicate selections, protected undo, multi-field undo after a SQLite reload and legacy document compatibility.
+- Fake HTTP transport verifies VNDB request shape, stable ID/date mapping, cache isolation, request cooldown, rate-limit backoff, malformed/oversized data, server errors, cancellation before search and during a request. No live provider availability is asserted; no secrets or user library are used.
+- Full end-to-end UI tests were skipped as requested. The dialog is compiled with the Release app; interactive behavior is not claimed as end-to-end validated. Installer rebuilding/install-uninstall testing was outside this milestone. Version numbers are aligned at 0.3.0 for future packaging.

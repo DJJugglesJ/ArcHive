@@ -34,6 +34,8 @@
      <TextBlock Text="Title"/><TextBox x:Name="TitleBox"/><WrapPanel><CheckBox x:Name="FavoriteBox" Content="Favorite"/><CheckBox x:Name="PlayedBox" Content="Played"/></WrapPanel>
      <TextBlock Text="Progress"/><ComboBox x:Name="ProgressBox" Margin="0,4,0,12" AutomationProperties.Name="Game progress"/>
      <TextBlock Text="Tags (comma separated)"/><TextBox x:Name="TagsBox"/><TextBlock Text="Description / notes"/><TextBox x:Name="DescriptionBox" Height="90" AcceptsReturn="True" TextWrapping="Wrap" VerticalScrollBarVisibility="Auto"/><Button Content="Save details" Click="SaveDetails"/>
+     <WrapPanel><Button Content="Find metadata" Click="FindMetadata"/><Button Content="Undo metadata" Click="UndoMetadata"/></WrapPanel>
+     <TextBlock Text="Release year / engine"/><TextBox x:Name="ReleaseYearBox"/><TextBox x:Name="EngineBox"/>
      <Expander Header="Versions and release history" Foreground="#B3FFD0" Margin="0,12,0,0"><StackPanel Margin="0,12,0,0">
       <TextBlock x:Name="UpdateHint" TextWrapping="Wrap"/>
       <TextBlock Text="Latest known version (manual)" Margin="0,12,0,0"/><TextBox x:Name="LatestVersionBox"/>
