@@ -126,10 +126,6 @@ Extraction stages files without overwriting existing games and checks paths, ent
 - `ArcHive.Core` — scanning, extraction, storage, providers, launch plans and organization
 - `ArcHive.Tests` — automated regression suite and provider fixtures
 
-### About ArcHive
-
-Settings → About ArcHive displays the version from build metadata, Bellum Labs credit, and © 2026 Nicholas Gartin. All rights reserved.
-
 ### Save backups and restore
 
 Open a game, choose **Save backups**, and add its save folder. Close the game and pause cloud-save syncing, then choose **Back up now**. To restore, select a snapshot, choose **Preview restore**, review the changes, then confirm **Restore snapshot**. The current folder is backed up before replacement. **Recover interrupted restore** handles an interrupted folder swap. These are local snapshots, not cloud backups.
