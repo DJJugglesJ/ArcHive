@@ -10,7 +10,7 @@ Each accepted field stores its provider, stable provider ID and retrieval time. 
 
 ## Matching rules
 
-- Unicode compatibility normalization, case folding and punctuation tokenization; sequel numbers and accents are retained.
+- Unicode compatibility normalization, case folding and punctuation tokenization; Neighbor/Neighbour are equivalent comparison tokens. Sequel numbers, accents and saved source titles are retained.
 - Exact normalized title or alias contributes 0.8. Otherwise the best title/alias token Jaccard similarity contributes up to 0.8.
 - Known year and engine contribute 0.1 each when equal, or subtract 0.25 each when conflicting. Missing evidence contributes nothing. Clamp to 0–1.
 - Duplicate provider/ID pairs collapse; separate IDs and providers remain distinct. Candidates within 0.1 score of another are marked ambiguous. Sorting is deterministic.
@@ -100,3 +100,7 @@ Select the returned match to review the full first-post Overview (with social pr
 Named releases such as `v0.7.9 Halloween` are stored as version `v0.7.9` and channel `Halloween`; comparisons remain Unknown when installed channel/platform evidence differs or is missing. This avoids calling different releases equivalent.
 
 The supplied thread 65211 was checked through the actual HTTP source: clean title Carnal Instinct, engine Unreal Engine, 38 header tags, a fuller Overview and v0.7.9 / Halloween evidence. Fixture tests cover the same page structure using synthetic post text; no downloaded forum page is committed.
+
+### Multi-source follow-up
+
+Live searches for My Sexy Neighbor 2 confirmed Steam and RAWG return the sequel first, with selected-match descriptions and genres/tags. F95 thread 279707 supplies 18 tags and date-based version 2025-12-11. F95 status prefixes (Completed, Abandoned, On Hold) are removed from proposed titles; date-based versions are retained as evidence without asserting update ordering. itch.io accepts an empty-object owned_keys terminal page, as observed from the service, while rejecting nonempty malformed objects. Its account scope still does not search the public catalog. See VALIDATION.md for exact results and limitations.

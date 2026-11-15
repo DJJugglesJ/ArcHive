@@ -25,7 +25,7 @@ public sealed record MetadataMatch(MetadataCandidate Candidate, double Score, st
 public static class MetadataMatching
 {
     private static string Normalize(string value) => string.Join(" ", Regex.Matches(
-        value.Normalize(NormalizationForm.FormKC).ToLowerInvariant(), @"[\p{L}\p{N}]+").Select(m => m.Value));
+        value.Normalize(NormalizationForm.FormKC).ToLowerInvariant(), @"[\p{L}\p{N}]+").Select(m => m.Value == "neighbour" ? "neighbor" : m.Value));
     private static double Similarity(string left, string right)
     {
         var a = Normalize(left); var b = Normalize(right);

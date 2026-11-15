@@ -172,3 +172,14 @@ Live fixture verification confirmed opening details did not change the launch ma
 - The actual F95 HTTP adapter retrieved the supplied public thread 65211: Carnal Instinct, Unreal Engine, 38 header tags, a 652-character Overview, version v0.7.9 and channel Halloween. No authentication or challenge bypass was used. Synthetic test markup is committed; the downloaded page is not.
 - No full end-to-end UI run or live authenticated Steam/IGDB/RAWG/itch.io account verification. Fixture checks do not guarantee catalog coverage or availability. F95 lookup requires a thread URL/ID, not a title-only search.
 - Source is 1.0.1. Published v1.0.0 executable and installer assets are unchanged.
+
+
+## My Sexy Neighbor 2 multi-source verification (2026-11-14)
+
+- Actual authenticated Steam and RAWG title searches for My Sexy Neighbor 2 return the sequel first after normalizing Neighbor/Neighbour tokens for comparison. Source titles and sequel numbers are preserved. Steam app 3684710 and RAWG game 1015576 each score 0.8 (title-only heuristic, not probability).
+- Steam selected details returned a 1,383-character description and three genres. RAWG selected details returned a 239-character description and three tags/genres.
+- Actual F95 thread 279707 lookup returns My sexy Neighbour 2, Unity, 18 tags, a 240-character description and date-based version 2025-12-11. Completed status is removed from the proposed title. Date-based versions remain incomparable in update checks.
+- itch.io authenticated owned-key lookup succeeds after accepting its observed empty-object terminal page. No title matches in the available owned-library scope. Nonempty objects remain errors. This is not an itch.io public catalog search.
+- VNDB returns zero matches. IGDB was not configured, so its API was not tested.
+- Automated suite: 729 checks passed. Release app build: zero warnings/errors. No full end-to-end UI test performed. Published installer unchanged.
+- Opt-in diagnostic: `dotnet run --project ArcHive.Tests -c Release -- --providers-live "My Sexy Neighbor 2" 3684710`. Saved credentials are used only in memory; output includes result identities and field counts, never keys or descriptions. Optional final argument tests Steam details by ID. Focused diagnostics: `--itch-live` or `--rawg-live` followed by the title. These diagnostics never run as part of the automated suite.

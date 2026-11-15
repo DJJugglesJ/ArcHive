@@ -93,12 +93,14 @@ public sealed class F95ThreadSource(HttpClient client)
         if (raw.Length == 0 || raw.Length > 700 || Regex.IsMatch(raw, "just a moment|log in|sign in|access denied|attention required|security check", RegexOptions.IgnoreCase, RegexTimeout)) throw new ProviderException("A readable public thread title was not returned. Open the thread in your browser.");
         var canonical = Meta("og:url");
         if (canonical.Length == 0 || CanonicalUrl(WebUtility.HtmlDecode(canonical)) != url) throw new ProviderException("The page does not identify the requested thread.");
-        var versionMatch = Regex.Match(raw, @"\[(?<version>v?\d+(?:\.\d+){0,7}(?:[a-zA-Z][a-zA-Z0-9.-]*)?)(?:[ \t]+(?<channel>[^\]\r\n]{1,80}))?\]", RegexOptions.IgnoreCase, RegexTimeout);
+        var versionMatch = Regex.Match(raw, @"\[(?<version>\d{4}-\d{2}-\d{2}|v?\d+(?:\.\d+){0,7}(?:[a-zA-Z][a-zA-Z0-9.-]*)?)(?:[ \t]+(?<channel>[^\]\r\n]{1,80}))?\]", RegexOptions.IgnoreCase, RegexTimeout);
         var version = versionMatch.Success ? versionMatch.Value.Trim('[', ']') : "";
         var title = Regex.Replace(raw, @"\s*\|\s*F95zone.*$", "", RegexOptions.IgnoreCase, RegexTimeout);
         title = Regex.Replace(title, @"\[[^\]]*\]", "", RegexOptions.None, RegexTimeout).Trim();
+        title = Regex.Replace(title, @"^(?:(?:Completed|Abandoned|On Hold)\s*[-\u2013]\s*)+", "", RegexOptions.IgnoreCase, RegexTimeout);
         var enginePrefix = Regex.Match(title, @"^(Ren'Py|Unity|RPGM|Godot|Unreal Engine)\s*[-–]\s*", RegexOptions.IgnoreCase, RegexTimeout);
         if (enginePrefix.Success) title = title[enginePrefix.Length..].Trim();
+        title = Regex.Replace(title, @"^(?:(?:Completed|Abandoned|On Hold)\s*[-\u2013]\s*)+", "", RegexOptions.IgnoreCase, RegexTimeout);
         var fields = new Dictionary<MetadataField, string>(); var description = Clean(Meta("og:description")); if (description.Length > 0) fields[MetadataField.Description] = description[..Math.Min(description.Length, 10000)];
         var engine = Regex.Match(raw, @"\[(Ren'Py|Unity|RPGM|Godot|Unreal Engine)\]", RegexOptions.IgnoreCase, RegexTimeout); if (engine.Success) fields[MetadataField.Engine] = engine.Groups[1].Value; else if (enginePrefix.Success) fields[MetadataField.Engine] = enginePrefix.Groups[1].Value;
         // XenForo thread labels/tags live before the first post. Never collect reply tags.

@@ -23,6 +23,11 @@ if (File.Exists(Path.Combine(AppContext.BaseDirectory, "plugin-fixture.mode")))
     Console.Write(System.Text.Json.JsonSerializer.Serialize(new PluginResponse(1, [], request.Launch), PluginCatalog.Json)); return;
 }
 
+if (args.Length == 2 && args[0] is "--itch-live" or "--rawg-live") { await MetadataLiveProbe.Run(args[1],null,args[0] == "--itch-live" ? "itch" : "rawg"); return; }
+if (args.Length is 2 or 3 && args[0] == "--providers-live")
+{
+    await MetadataLiveProbe.Run(args[1], args.Length == 3 ? args[2] : null); return;
+}
 if (args.Length == 2 && args[0] == "--f95-live")
 {
     using var client = new System.Net.Http.HttpClient(new System.Net.Http.HttpClientHandler { AllowAutoRedirect = false, UseCookies = false });

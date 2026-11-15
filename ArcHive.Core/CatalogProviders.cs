@@ -140,6 +140,10 @@ public sealed class ItchMetadataProvider(ProviderTransport transport, string api
             request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", key);
             using var json = await transport.SendAsync(request, token); var root = json.RootElement;
             if (root.TryGetProperty("errors", out _)) throw new ProviderException("itch.io rejected the request. Check credentials and scopes.");
+            // The live owned-key endpoint represents its empty terminal page as {}.
+            // Accept only an empty object for this field, not malformed nonempty objects.
+            if (!projects && root.TryGetProperty("owned_keys", out var terminal) && terminal.ValueKind == JsonValueKind.Object && !terminal.EnumerateObject().Any())
+            { var complete = items.Values.ToArray(); var best = Best(title, complete); catalog = complete; catalogAt = DateTimeOffset.UtcNow; return best; }
             var rows = Rows(root, projects ? "games" : "owned_keys", projects ? 10000 : 500); var now = DateTimeOffset.UtcNow;
             foreach (var entry in rows.EnumerateArray())
             {
