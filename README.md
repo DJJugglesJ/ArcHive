@@ -6,13 +6,13 @@
 
 Turn a folder of downloads into an artwork-rich collection. Keep versions together, choose how games launch, track your playtime and protect your saves.
 
-Built with **C# / .NET 10 / WPF** and **SQLite**. Source version: **1.0.0**. [Published Windows releases](https://github.com/DJJugglesJ/ArcHive/releases) are listed separately from source builds.
+Built with **C# / .NET 10 / WPF** and **SQLite**. Source version: **1.0.1**. [Published Windows releases](https://github.com/DJJugglesJ/ArcHive/releases) are listed separately from source builds.
 
 ## Your games, in one place
 
 - **Discover and launch.** Recursively find archives and executable folders. Keep multiple installations, versions and named launch profiles with individual arguments, working directories and defaults.
 - **Inspect before extracting.** Preview ZIP/RAR/7z contents and issues, queue jobs, cancel safely and recover interrupted extraction without deleting originals.
-- **Find information with confidence.** Review Steam, IGDB, itch.io, VNDB and RAWG candidates. Choose individual fields and artwork, preserve attribution and manual choices, and undo metadata changes. Optional F95Zone tools associate public threads and review update evidence.
+- **Find information with confidence.** Review Steam, IGDB, itch.io, VNDB and RAWG candidates. Choose individual fields and artwork, preserve attribution and manual choices, and undo metadata changes. F95Zone appears in Find Game Information for public-thread descriptions, tags, engine and version/channel review.
 - **Enjoy the artwork.** Covers, cinematic backdrops, screenshots and an artwork-rich grid use asynchronous bounded caches with offline reuse.
 - **Browse your way.** Search display/canonical/original names, tags and collections. Combine collection, engine, controller, availability and unplayed filters; sort by title, playtime or recent play. Track Backlog, Playing, Completed and Abandoned independently of Played history.
 - **Track time.** Record launch sessions and observed child processes, recover checkpointed durations and correct incomplete sessions manually.
@@ -50,7 +50,7 @@ Manual organization and launching need no account. Lookups and artwork selection
 
 | Source | Lookup scope |
 | --- | --- |
-| Steam | Supported app-ID/title catalog; optional owned-library lookup/import |
+| Steam | App-ID/title catalog plus selected-match store descriptions/genres; optional owned-library import |
 | IGDB | Title search and available cover, artwork and screenshots |
 | itch.io | Your owned games or editable projects; not public catalog search |
 | VNDB | Title search, metadata and available cover/screenshots |
@@ -75,7 +75,7 @@ powershell -NoProfile -File packaging/Build-Installer.ps1
 This builds a self-contained Windows x64 application and per-user MSI, using the approved executable, shortcut and installer branding:
 
 - `artifacts/publish/win-x64/ArcHive.exe`
-- `artifacts/installer/ArcHive-1.0.0-win-x64.msi`
+- `artifacts/installer/ArcHive-1.0.1-win-x64.msi`
 
 Packages are unsigned. Building packages does not publish a GitHub release. [Packaging prerequisites](packaging/README.md).
 

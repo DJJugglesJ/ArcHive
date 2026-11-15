@@ -10,6 +10,7 @@ public sealed record MetadataCandidate(string Provider, string Id, string Title,
     Dictionary<MetadataField, string> Fields, DateTimeOffset RetrievedAt)
 {
     public ArtworkReference[] Artwork { get; init; } = [];
+    public ReleaseInfo? ObservedRelease { get; init; }
 }
 public sealed record MetadataQuery(string Title, string? Year = null, string? Engine = null);
 public interface IMetadataProvider
@@ -64,6 +65,8 @@ public static class MetadataValidation
             c.Aliases.Any(a => a is null || a.Length > 500) || c.Fields is null || c.RetrievedAt == default ||
             c.Fields.Any(f => !Enum.IsDefined(f.Key) || f.Value is null || f.Value.Length > 50000))
             throw new InvalidDataException("Invalid or oversized metadata candidate.");
+        if (c.ObservedRelease is { } release && (release.Version is null || release.Version.Length > 128 || release.Channel is null || release.Channel.Length > 100 || release.Platform is null || release.Platform.Length > 100 || release.OriginalName is null || release.OriginalName.Length > 700))
+            throw new InvalidDataException("Invalid provider release evidence.");
         if (c.Artwork is null || c.Artwork.Length > 32) throw new InvalidDataException("Too many artwork candidates.");
         foreach (var art in c.Artwork)
         {

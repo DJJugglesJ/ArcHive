@@ -28,7 +28,7 @@ public sealed class ProviderTransport(HttpClient client, string[] hosts, TimeSpa
                 nextRequest = DateTimeOffset.UtcNow + (interval ?? TimeSpan.FromMilliseconds(350));
                 using var deadline = CancellationTokenSource.CreateLinkedTokenSource(token);
                 deadline.CancelAfter(TimeSpan.FromSeconds(20));
-                request.Headers.UserAgent.ParseAdd("ArcHive/0.11.0");
+                request.Headers.UserAgent.ParseAdd(MetadataText.UserAgent);
                 using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, deadline.Token);
                 if (response.StatusCode == HttpStatusCode.TooManyRequests)
                 {

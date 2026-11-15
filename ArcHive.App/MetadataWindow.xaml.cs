@@ -13,30 +13,58 @@ public partial class MetadataWindow : Window
     private readonly CancellationTokenSource cancellation = new();
     private readonly List<(CheckBox Choice, MetadataProposal Proposal)> rows = [];
     private readonly List<(ArtworkReference Art, ArtworkKind Role)> artworkChoices = [];
-    public MetadataWindow(Game game, MetadataCandidate? initial = null)
+    private IMetadataProvider? searchProvider;
+    private MetadataCandidate? reviewCandidate;
+    private CancellationTokenSource? detailRequest;
+    private int reviewGeneration, lookupGeneration;
+    private CheckBox? releaseChoice;
+    public MetadataWindow(Game game, MetadataCandidate? initial = null, bool enableF95Zone = false)
     {
-        InitializeComponent(); this.game = game; QueryBox.Text = game.Title;
+        InitializeComponent(); this.game = game; QueryBox.Text = MetadataText.SearchTitle(game);
+        F95Choice.IsEnabled = enableF95Zone || initial?.Provider == "f95zone";
+        ThreadLink.Text = game.F95Thread?.Url ?? "";
+        UpdateProviderHint();
         try { foreach (var plugin in IntegrationSession.Catalog.List().Where(p => p.Enabled && p.Manifest.Capabilities.Contains("metadata"))) ProviderChoice.Items.Add(new ComboBoxItem { Content = plugin.Manifest.Name + " (Plugin)", Tag = plugin.Manifest.Id }); }
         catch (Exception ex) { Message.Text = ex.Message; }
-        if (initial is not null) Show(Query(), [initial]);
-        Closed += (_, _) => cancellation.Cancel();
+        if (initial is not null) { if (initial.Provider == "f95zone") { ProviderChoice.SelectedIndex = 6; ThreadLink.Text = F95MetadataProvider.Locator(initial.Id); } Show(Query(), [initial]); }
+        Closed += (_, _) => { reviewGeneration++; detailRequest?.Cancel(); cancellation.Cancel(); };
         try { ProviderSession.Load(); } catch (ProviderException ex) { Message.Text = ex.Message; }
     }
     private void ProviderChanged(object sender, SelectionChangedEventArgs e)
-    { if (Candidates is not null) Candidates.ItemsSource = null; }
+    { if (Candidates is null) return; lookupGeneration++; Candidates.ItemsSource = null; searchProvider = null; UpdateProviderHint(); }
+    private void SearchInputChanged(object sender, TextChangedEventArgs e)
+    { if (Candidates is null) return; lookupGeneration++; Candidates.ItemsSource = null; if (Message is not null) Message.Text = "Search again to use the changed query or thread link."; }
+    private void UpdateProviderHint()
+    {
+        if (ProviderHint is null || ThreadInput is null) return;
+        var f95 = ProviderChoice.SelectedIndex == 6; ThreadInput.Visibility = f95 ? Visibility.Visible : Visibility.Collapsed;
+        ProviderHint.Text = ProviderChoice.SelectedIndex switch
+        {
+            0 => "VNDB searches visual novels and returns descriptions and non-spoiler tags. Other game types may not be listed.",
+            1 => "Steam requires a Web API key for catalog search. Selecting a match loads its public store description and genres; store details may be unavailable for some games.",
+            2 => "IGDB needs a Twitch client ID and secret. Searches descriptions, genres, themes and keywords.",
+            3 or 4 => "itch.io searches only your owned games or projects, not the public catalog. Its account API may not supply tags.",
+            5 => "RAWG needs an API key. Selecting a match loads the full description and tags.",
+            6 => "Paste an F95Zone thread URL or numeric thread ID below. Public thread descriptions, tags, engine and version evidence are reviewed here. Browser logins are not shared with ArcHive.",
+            _ => "Plugin results are reviewed before applying any fields."
+        };
+    }
     private void ConfigureProviders(object sender, RoutedEventArgs e)
     { if (new ProviderSettingsWindow { Owner = this }.ShowDialog() == true) { Candidates.ItemsSource = null; Message.Text = "Provider settings updated. Search when ready."; } }
     private void OpenSource(object sender, System.Windows.Navigation.RequestNavigateEventArgs e) => MetadataSourceLinks.Open(e);
     private MetadataQuery Query() => new(QueryBox.Text, game.ReleaseYear, game.Engine);
     private async void SearchOnline(object sender, RoutedEventArgs e)
     {
+        var generation = ++lookupGeneration;
         SearchActions.IsEnabled = false; Candidates.ItemsSource = null; Message.Text = "Searching selected provider…";
         try
         {
             var query = Query();
             IMetadataProvider provider = ProviderChoice.SelectedItem is ComboBoxItem { Tag: string pluginId } ? new PluginMetadataProvider(IntegrationSession.Catalog, pluginId) : ProviderSession.Get(ProviderChoice.SelectedIndex);
-            var found = await Task.Run(() => provider.SearchAsync(query, cancellation.Token), cancellation.Token);
-            cancellation.Token.ThrowIfCancellationRequested(); Show(query, found);
+            searchProvider = provider;
+            var lookup = provider.Id == "f95zone" ? new MetadataQuery(ThreadLink.Text) : query;
+            var found = await Task.Run(() => provider.SearchAsync(lookup, cancellation.Token), cancellation.Token);
+            cancellation.Token.ThrowIfCancellationRequested(); if (generation != lookupGeneration) return; Show(query, found);
         }
         catch (OperationCanceledException) { Message.Text = "Search canceled or timed out. You can retry."; }
         catch (Exception ex) { Message.Text = "Couldn't retrieve game information. No changes were made. " + ex.Message; }
@@ -50,7 +78,7 @@ public partial class MetadataWindow : Window
         {
             if (new FileInfo(dialog.FileName).Length > 2_000_000) throw new InvalidDataException("Import exceeds 2 MB.");
             var provider = OfflineMetadataProvider.Parse(File.ReadAllText(dialog.FileName));
-            Show(Query(), provider.SearchAsync(Query(), cancellation.Token).GetAwaiter().GetResult());
+            searchProvider = null; Show(Query(), provider.SearchAsync(Query(), cancellation.Token).GetAwaiter().GetResult());
         }
         catch (Exception ex) { Message.Text = "Import failed. " + ex.Message; }
     }
@@ -59,23 +87,48 @@ public partial class MetadataWindow : Window
         Candidates.ItemsSource = MetadataMatching.Rank(query, found);
         Message.Text = found.Count == 0 ? "No matches found. Try another search term or provider." : "Select a candidate to review its fields. No match is selected automatically.";
     }
-    private void SelectCandidate(object sender, SelectionChangedEventArgs e)
+    private async void SelectCandidate(object sender, SelectionChangedEventArgs e)
     {
-        FieldRows.Children.Clear(); rows.Clear(); artworkChoices.Clear(); ApplyButton.IsEnabled = false;
+        var generation = ++reviewGeneration; detailRequest?.Cancel(); detailRequest = null;
+        FieldRows.Children.Clear(); rows.Clear(); artworkChoices.Clear(); releaseChoice = null; reviewCandidate = null; ApplyButton.IsEnabled = false;
         if (Candidates.SelectedItem is not MetadataMatch match) return;
-        foreach (var p in MetadataReconciliation.Preview(game, match.Candidate))
+        var candidate = match.Candidate;
+        if (searchProvider is not null && ProviderSession.Details(searchProvider) is { } details)
         {
-            var choice = new CheckBox { Content = $"Use {p.Field} from {match.Candidate.Provider}/{match.Candidate.Id}", IsChecked = p.Current.Length == 0 };
+            using var request = CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token); detailRequest = request;
+            Message.Text = "Loading details for the selected match…";
+            try
+            {
+                var expanded = await details.GetDetailsAsync(candidate, request.Token);
+                request.Token.ThrowIfCancellationRequested();
+                if (generation != reviewGeneration) return;
+                MetadataValidation.Validate(expanded);
+                if (expanded.Provider != candidate.Provider || expanded.Id != candidate.Id) throw new InvalidDataException("Details do not belong to the selected match.");
+                candidate = expanded;
+                Message.Text = "Details loaded. Review the fields, then Apply Changes.";
+            }
+            catch (OperationCanceledException) { if (generation != reviewGeneration || cancellation.IsCancellationRequested) return; Message.Text = "Detail lookup timed out. Available search fields are shown; reselect the match to retry."; }
+            catch (Exception ex) { if (generation != reviewGeneration) return; Message.Text = "Full details could not be loaded. Available search fields remain usable. " + ex.Message; }
+            finally { if (generation == reviewGeneration) detailRequest = null; }
+        }
+        if (generation != reviewGeneration || cancellation.IsCancellationRequested) return;
+        reviewCandidate = candidate; RenderCandidate(candidate);
+    }
+    private void RenderCandidate(MetadataCandidate candidate)
+    {
+        foreach (var p in MetadataReconciliation.Preview(game, candidate))
+        {
+            var choice = new CheckBox { Content = $"Use {p.Field} from {candidate.Provider}/{candidate.Id}", IsChecked = p.Current.Length == 0 };
             FieldRows.Children.Add(choice);
             var origin = p.Provenance is { } source ? $"{source.Provider}/{source.ProviderId} · {source.RetrievedAt:g}" : "existing / local";
-            FieldRows.Children.Add(new TextBlock { Text = $"Current ({origin}): {p.Current}\nProposed ({match.Candidate.RetrievedAt:g}): {p.Proposed}", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 18) });
+            FieldRows.Children.Add(new TextBlock { Text = $"Current ({origin}): {p.Current}\nProposed ({candidate.RetrievedAt:g}): {p.Proposed}", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0, 0, 0, 18) });
             rows.Add((choice, p));
         }
-        if (match.Candidate.Artwork.Length > 0)
+        if (candidate.Artwork.Length > 0)
         {
             var choiceButtons = new List<(Button Button, ArtworkReference Art, ArtworkKind Role)>();
             FieldRows.Children.Add(new TextBlock { Text = "Artwork — preview downloads an image; choose roles before Apply.", TextWrapping = TextWrapping.Wrap, FontSize = 16 });
-            foreach (var art in match.Candidate.Artwork)
+            foreach (var art in candidate.Artwork)
             {
                 var image = new Artwork { Width = 240, Height = 130, Stretch = System.Windows.Media.Stretch.Uniform };
                 FieldRows.Children.Add(new TextBlock { Text = $"{art.Kind} · {art.Provider}/{art.ProviderId} · {art.RetrievedAt:g}", TextWrapping = TextWrapping.Wrap });
@@ -102,19 +155,33 @@ public partial class MetadataWindow : Window
             }
         }
         else FieldRows.Children.Add(new TextBlock { Text = "This source returned no supported artwork. Existing images will remain.", TextWrapping = TextWrapping.Wrap });
+        if (candidate.ObservedRelease is { } release && !string.IsNullOrWhiteSpace(release.Version))
+        {
+            releaseChoice = new CheckBox { Content = "Use Observed Release", IsChecked = false }; FieldRows.Children.Add(releaseChoice);
+            FieldRows.Children.Add(new TextBlock { Text = $"Current latest release: {game.LatestRelease.Version} {game.LatestRelease.Channel}\nProposed: {release.Version} {release.Channel}\nThis updates latest-known release evidence, not your installed version. Different channels remain incomparable.", TextWrapping = TextWrapping.Wrap, Margin = new Thickness(0,0,0,18) });
+        }
+        if (rows.Count == 1 && candidate.Fields.Count == 0) Message.Text = "This result contains a title only. No description or tags were returned. Try another source or check its connection settings.";
         ApplyButton.IsEnabled = true;
     }
     private void Apply(object sender, RoutedEventArgs e)
     {
-        if (Candidates.SelectedItem is not MetadataMatch match) return;
+        if (reviewCandidate is not { } candidate || Candidates.SelectedItem is not MetadataMatch match || match.Candidate.Id != candidate.Id || match.Candidate.Provider != candidate.Provider) return;
         try
         {
             var chosen = rows.Where(r => r.Choice.IsChecked == true).Select(r => r.Proposal).ToArray();
-            if (chosen.Length == 0 && artworkChoices.Count == 0) { Message.Text = "Choose a field or artwork, or cancel to keep everything."; return; }
+            if (chosen.Length == 0 && artworkChoices.Count == 0 && releaseChoice?.IsChecked != true) { Message.Text = "Choose a field or artwork, or cancel to keep everything."; return; }
+            if (candidate.Provider == "f95zone") F95MetadataProvider.Locator(candidate.Id);
             var artCopy = System.Text.Json.JsonSerializer.Deserialize<GameArtwork>(System.Text.Json.JsonSerializer.Serialize(game.Artwork))!;
             var staging = new Game { Artwork = artCopy };
             foreach (var choice in artworkChoices) ProviderArtwork.Select(staging, choice.Art, choice.Role);
-            MetadataReconciliation.Apply(game, match.Candidate, chosen); game.Artwork = artCopy; DialogResult = true;
+            MetadataReconciliation.Apply(game, candidate, chosen); game.Artwork = artCopy;
+            if (candidate.Provider == "f95zone") F95ThreadSource.ApplyEvidence(game, candidate, releaseChoice?.IsChecked == true);
+            else if (releaseChoice?.IsChecked == true && candidate.ObservedRelease is { } release)
+            {
+                game.LatestRelease = release with { }; game.LatestReleaseSource = candidate.Provider + "/" + candidate.Id;
+                game.LatestReleaseCheckedAt = candidate.RetrievedAt; VersionTracking.Record(game, game.LatestRelease, game.LatestReleaseSource);
+            }
+            DialogResult = true;
         }
         catch (Exception ex) { Message.Text = ex.Message; }
     }

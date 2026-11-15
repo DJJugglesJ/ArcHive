@@ -27,12 +27,12 @@ public partial class SourceConnections : UserControl
         KeyLabel.Text = i == 1 ? "Twitch client secret" : "API key";
         Remember.IsChecked = ProviderSession.Remembered || !new[] { c.SteamKey, c.IgdbClientSecret, c.ItchKey, c.RawgKey }.Any(v => v.Length > 0);
         Capability.Text = i switch {
-            0 => "Steam catalog matching. Uses a Steam Web API key to look up titles. This is separate from your Steam account's game library.",
+            0 => "Steam catalog title search uses a Web API key. Selecting a match retrieves public store descriptions and genres. This is separate from your owned library.",
             1 => "IGDB title search, descriptions and artwork through your registered Twitch application.",
             2 => "Find game information in your owned itch.io games or projects using your own API key.",
-            3 => "RAWG title search and artwork using your API key. Attribution remains visible in ArcHive.",
-            4 => "VNDB title search. No account credentials required.",
-            5 => "Link a specific F95Zone thread and review publicly available title, description and version evidence. Enable thread tools under Optional sources first.",
+            3 => "RAWG title search, full selected-game descriptions, tags and artwork using your API key. Attribution remains visible in ArcHive.",
+            4 => "VNDB visual-novel title search, descriptions and non-spoiler tags. No account credentials required.",
+            5 => "Select F95Zone in Find Game Information and paste a thread URL or ID. Review public descriptions, thread tags, engine and version/channel evidence. Enable it under Optional Sources first.",
             _ => "GOG account access stays in your browser. Add downloaded games and offline archives to ArcHive through Add games." };
         ConnectionState.Text = i < 4 ? (Key.Password.Length > 0 ? "Credentials configured · not verified" : "Not configured") : i == 4 ? "Available without a key" : "Browser access · no ArcHive account connection";
         Limitations.Text = i switch {

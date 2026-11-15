@@ -27,9 +27,9 @@ public sealed class VndbMetadataProvider(HttpClient client) : IMetadataProvider
             using var request = new HttpRequestMessage(HttpMethod.Post, "https://api.vndb.org/kana/vn")
             {
                 Content = JsonContent.Create(new { filters = new[] { "search", "=", title },
-                    fields = "title,alttitle,aliases,description,released,image.url,screenshots.url", sort = "searchrank", results = 20 })
+                    fields = "title,alttitle,aliases,description,released,tags.name,tags.rating,tags.spoiler,tags.lie,image.url,screenshots.url", sort = "searchrank", results = 20 })
             };
-            request.Headers.UserAgent.ParseAdd("ArcHive/0.11.0");
+            request.Headers.UserAgent.ParseAdd(MetadataText.UserAgent);
             using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, deadline.Token);
             if (response.StatusCode == HttpStatusCode.TooManyRequests)
             {
@@ -54,7 +54,15 @@ public sealed class VndbMetadataProvider(HttpClient client) : IMetadataProvider
                 string Text(string name) => row.TryGetProperty(name, out var p) && p.ValueKind == JsonValueKind.String ? p.GetString()! : "";
                 var id = Text("id");
                 if (!System.Text.RegularExpressions.Regex.IsMatch(id, @"^v[1-9][0-9]*$")) throw new InvalidDataException("Invalid VNDB identifier.");
-                var fields = new Dictionary<MetadataField, string> { [MetadataField.Description] = Text("description") };
+                var fields = new Dictionary<MetadataField, string> { [MetadataField.Description] = MetadataText.Plain(Text("description")) };
+                if (row.TryGetProperty("tags", out var tags) && tags.ValueKind == JsonValueKind.Array)
+                {
+                    var names = tags.EnumerateArray().Where(t => t.TryGetProperty("spoiler", out var spoiler) && spoiler.TryGetInt32(out var level) && level == 0 &&
+                        (!t.TryGetProperty("lie", out var lie) || lie.ValueKind != JsonValueKind.True) &&
+                        (!t.TryGetProperty("rating", out var rating) || rating.TryGetDouble(out var score) && score > 0))
+                        .Select(t => MetadataText.Text(t, "name"));
+                    var value = MetadataText.Tags(names); if (value.Length > 0) fields[MetadataField.Tags] = value;
+                }
                 var released = Text("released");
                 if (released.Length >= 4 && int.TryParse(released[..4], out var year) && year is >= 1000 and <= 9999) fields[MetadataField.ReleaseYear] = year.ToString();
                 var aliases = row.TryGetProperty("aliases", out var a) && a.ValueKind == JsonValueKind.Array ? a.EnumerateArray().Select(x => x.GetString() ?? "").ToList() : [];

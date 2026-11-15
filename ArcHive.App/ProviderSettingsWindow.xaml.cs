@@ -35,10 +35,15 @@ internal static class ProviderSession
             3 => new ItchMetadataProvider(new(Client, ["api.itch.io"], TimeSpan.FromSeconds(1)), c.ItchKey),
             4 => new ItchMetadataProvider(new(Client, ["api.itch.io"], TimeSpan.FromSeconds(1)), c.ItchKey, projects: true),
             5 => new RawgMetadataProvider(new(Client, ["api.rawg.io"], TimeSpan.FromSeconds(1)), c.RawgKey),
+            6 => new F95MetadataProvider(new F95ThreadSource(Client)),
             _ => throw new InvalidOperationException("Choose a provider.")
         };
         Providers[index] = provider; return provider;
     }
+    public static IMetadataDetailsProvider? Details(IMetadataProvider provider) => provider.Id == "steam"
+        ? new SteamStoreDetails(new(Client, ["store.steampowered.com"], TimeSpan.FromSeconds(1)))
+        : provider as IMetadataDetailsProvider;
+
 }
 
 public partial class ProviderSettingsWindow : Window

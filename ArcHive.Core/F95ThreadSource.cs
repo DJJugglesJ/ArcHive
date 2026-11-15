@@ -33,7 +33,7 @@ public sealed class F95ThreadSource(HttpClient client)
             var destination = new Uri(url);
             for (var redirects = 0; redirects <= 2; redirects++)
             {
-                using var request = new HttpRequestMessage(HttpMethod.Get, destination); request.Headers.UserAgent.ParseAdd("ArcHive/0.11.0");
+                using var request = new HttpRequestMessage(HttpMethod.Get, destination); request.Headers.UserAgent.ParseAdd(MetadataText.UserAgent);
                 using var response = await client.SendAsync(request, HttpCompletionOption.ResponseHeadersRead, timeout.Token);
                 if ((int)response.StatusCode is >= 300 and < 400)
                 {
@@ -60,11 +60,24 @@ public sealed class F95ThreadSource(HttpClient client)
         catch { throw new ProviderException("Thread lookup failed. No library fields were changed."); }
         finally { gate.Release(); }
     }
+    public static void ApplyEvidence(Game game, MetadataCandidate candidate, bool useRelease)
+    {
+        MetadataValidation.Validate(candidate);
+        if (candidate.Provider != "f95zone") throw new ProviderException("Select an F95Zone match.");
+        var url = F95MetadataProvider.Locator(candidate.Id);
+        game.F95Thread = new() { Url = url, CheckedAt = candidate.RetrievedAt, ObservedTitle = candidate.Title,
+            ObservedVersion = candidate.ObservedRelease is { } observed ? (observed.Version + " " + observed.Channel).Trim() : game.F95Thread?.Url == url ? game.F95Thread.ObservedVersion : "" };
+        if (useRelease && candidate.ObservedRelease is { } release)
+        {
+            game.LatestRelease = release with { }; game.LatestReleaseSource = url; game.LatestReleaseCheckedAt = candidate.RetrievedAt;
+            VersionTracking.Record(game, game.LatestRelease, url);
+        }
+    }
     public static F95ThreadResult Parse(string url, string html)
     {
         url = CanonicalUrl(url);
         if (html.Length > 2_000_000) throw new ProviderException("Thread page exceeds the lookup limit.");
-        string Clean(string value) => Regex.Replace(Regex.Replace(WebUtility.HtmlDecode(value), "<[^>]*>", "", RegexOptions.Singleline, RegexTimeout), @"\s+", " ", RegexOptions.None, RegexTimeout).Trim();
+        string Clean(string value) => MetadataText.Plain(value);
         string Meta(string key)
         {
             foreach (Match tag in Regex.Matches(html, @"<meta\b[^>]{0,10000}>", RegexOptions.IgnoreCase, RegexTimeout))
@@ -80,12 +93,52 @@ public sealed class F95ThreadSource(HttpClient client)
         if (raw.Length == 0 || raw.Length > 700 || Regex.IsMatch(raw, "just a moment|log in|sign in|access denied|attention required|security check", RegexOptions.IgnoreCase, RegexTimeout)) throw new ProviderException("A readable public thread title was not returned. Open the thread in your browser.");
         var canonical = Meta("og:url");
         if (canonical.Length == 0 || CanonicalUrl(WebUtility.HtmlDecode(canonical)) != url) throw new ProviderException("The page does not identify the requested thread.");
-        var version = Regex.Match(raw, @"\[(v?\d+(?:\.\d+){0,7}(?:[a-zA-Z][a-zA-Z0-9.-]*)?)\]", RegexOptions.IgnoreCase, RegexTimeout).Groups[1].Value;
+        var versionMatch = Regex.Match(raw, @"\[(?<version>v?\d+(?:\.\d+){0,7}(?:[a-zA-Z][a-zA-Z0-9.-]*)?)(?:[ \t]+(?<channel>[^\]\r\n]{1,80}))?\]", RegexOptions.IgnoreCase, RegexTimeout);
+        var version = versionMatch.Success ? versionMatch.Value.Trim('[', ']') : "";
         var title = Regex.Replace(raw, @"\s*\|\s*F95zone.*$", "", RegexOptions.IgnoreCase, RegexTimeout);
         title = Regex.Replace(title, @"\[[^\]]*\]", "", RegexOptions.None, RegexTimeout).Trim();
+        var enginePrefix = Regex.Match(title, @"^(Ren'Py|Unity|RPGM|Godot|Unreal Engine)\s*[-–]\s*", RegexOptions.IgnoreCase, RegexTimeout);
+        if (enginePrefix.Success) title = title[enginePrefix.Length..].Trim();
         var fields = new Dictionary<MetadataField, string>(); var description = Clean(Meta("og:description")); if (description.Length > 0) fields[MetadataField.Description] = description[..Math.Min(description.Length, 10000)];
-        var engine = Regex.Match(raw, @"\[(Ren'Py|Unity|RPGM|Godot|Unreal Engine)\]", RegexOptions.IgnoreCase, RegexTimeout); if (engine.Success) fields[MetadataField.Engine] = engine.Groups[1].Value;
-        var candidate = new MetadataCandidate("f95zone", new Uri(url).Segments[^1].Trim('/'), title, [], fields, DateTimeOffset.UtcNow); MetadataValidation.Validate(candidate);
+        var engine = Regex.Match(raw, @"\[(Ren'Py|Unity|RPGM|Godot|Unreal Engine)\]", RegexOptions.IgnoreCase, RegexTimeout); if (engine.Success) fields[MetadataField.Engine] = engine.Groups[1].Value; else if (enginePrefix.Success) fields[MetadataField.Engine] = enginePrefix.Groups[1].Value;
+        // XenForo thread labels/tags live before the first post. Never collect reply tags.
+        var firstArticle = Regex.Match(html, @"<article\b", RegexOptions.IgnoreCase, RegexTimeout);
+        var header = firstArticle.Success ? html[..firstArticle.Index] : html;
+        var tagNames = new List<string>();
+        foreach (Match anchor in Regex.Matches(header, @"<a\b(?<attrs>[^>]{0,8192})>(?<text>.*?)</a\s*>", RegexOptions.IgnoreCase | RegexOptions.Singleline, RegexTimeout))
+        {
+            var attributes = anchor.Groups["attrs"].Value;
+            if (Regex.IsMatch(attributes, "class\\s*=\\s*([\"'])[^\"']*\\btagItem\\b[^\"']*\\1|rel\\s*=\\s*([\"'])tag\\2", RegexOptions.IgnoreCase, RegexTimeout))
+                tagNames.Add(Clean(anchor.Groups["text"].Value));
+        }
+        var tagValue = MetadataText.Tags(tagNames); if (tagValue.Length > 0) fields[MetadataField.Tags] = tagValue;
+        // Prefer the first post's explicit Overview section to the truncated social preview.
+        var article = Regex.Match(html, @"<article\b[^>]*>(?<body>.*?)</article\s*>", RegexOptions.IgnoreCase | RegexOptions.Singleline, RegexTimeout);
+        if (article.Success)
+        {
+            var body = Clean(article.Groups["body"].Value);
+            var overview = Regex.Match(body, @"(?:^|\n)Overview\s*:[ \t]*(?<text>.*?)(?=\n(?:Thread Updated|Release Date|Developer|Censored|Version|OS|Language|Genre|Tags|Installation|Changelog|Downloads?|Screenshots?)[ \t]*:|$)", RegexOptions.IgnoreCase | RegexOptions.Singleline, RegexTimeout);
+            var full = overview.Groups["text"].Value.Trim(); if (full.Length > 0) fields[MetadataField.Description] = full[..Math.Min(full.Length, 20000)];
+        }
+        var candidate = new MetadataCandidate("f95zone", new Uri(url).Segments[^1].Trim('/'), title, [], fields, DateTimeOffset.UtcNow)
+        { ObservedRelease = versionMatch.Success ? new ReleaseInfo { Version = versionMatch.Groups["version"].Value, Channel = versionMatch.Groups["channel"].Value.Trim(), OriginalName = raw } : null };
+        MetadataValidation.Validate(candidate);
         return new(url, candidate, version);
+    }
+}
+
+
+public sealed class F95MetadataProvider(F95ThreadSource source) : IMetadataProvider
+{
+    public string Id => "f95zone";
+    public static string Locator(string input)
+    {
+        var value = input.Trim();
+        if (Regex.IsMatch(value, @"^[1-9][0-9]{0,11}$")) value = "https://f95zone.to/threads/" + value + "/";
+        return F95ThreadSource.CanonicalUrl(value);
+    }
+    public async Task<IReadOnlyList<MetadataCandidate>> SearchAsync(MetadataQuery query, CancellationToken cancellationToken)
+    {
+        var result = await source.CheckAsync(Locator(query.Title), cancellationToken); return [result.Candidate];
     }
 }

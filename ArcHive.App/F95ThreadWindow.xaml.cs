@@ -36,7 +36,7 @@ public partial class F95ThreadWindow : Window
             var url = F95ThreadSource.CanonicalUrl(ThreadUrl.Text);
             var previous = game.F95Thread?.Url == url ? game.F95Thread : null;
             game.F95Thread = new() { Url = url, CheckedAt = result?.Candidate.RetrievedAt ?? previous?.CheckedAt, ObservedTitle = result?.Candidate.Title ?? previous?.ObservedTitle ?? "", ObservedVersion = result?.Version ?? previous?.ObservedVersion ?? "" };
-            if (result is not null && UseVersion.IsChecked == true) { game.LatestRelease = game.LatestRelease with { Version = result.Version }; game.LatestReleaseSource = url; game.LatestReleaseCheckedAt = result.Candidate.RetrievedAt; VersionTracking.Record(game, game.LatestRelease, url); }
+            if (result is not null && UseVersion.IsChecked == true) { game.LatestRelease = result.Candidate.ObservedRelease is { } observed ? observed with { } : game.LatestRelease with { Version = result.Version }; game.LatestReleaseSource = url; game.LatestReleaseCheckedAt = result.Candidate.RetrievedAt; VersionTracking.Record(game, game.LatestRelease, url); }
             DialogResult = true;
         }
         catch (Exception ex) { Status.Text = ex.Message; }

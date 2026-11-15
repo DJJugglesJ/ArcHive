@@ -27,7 +27,7 @@ public partial class MainWindow
     {
         Commit(); if (selected is null) return;
         var copy = JsonSerializer.Deserialize<Game>(JsonSerializer.Serialize(selected))!;
-        if (new MetadataWindow(copy) { Owner = this }.ShowDialog() == true) SaveMetadata(copy);
+        if (new MetadataWindow(copy, enableF95Zone: preferences.EnableF95Zone) { Owner = this }.ShowDialog() == true) SaveMetadata(copy);
     });
     private void UndoMetadata(object sender, RoutedEventArgs e) => Guard(() =>
     {
@@ -37,6 +37,8 @@ public partial class MainWindow
     });
     private void SaveMetadata(Game copy)
     {
+        // Monitoring continues while a metadata dialog is open. Keep the latest sessions.
+        if (selected is not null && copy.Id == selected.Id) copy.Sessions = selected.Sessions;
         // Save a detached library first; failed persistence cannot change the visible game.
         var updated = new Library { Version = library.Version, Roots = library.Roots, Games = library.Games.Select(g => g == selected ? copy : g).ToList() };
         store.Save(updated);

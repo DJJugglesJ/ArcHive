@@ -163,3 +163,12 @@ Live fixture verification confirmed opening details did not change the launch ma
 - The 10,000-game browse fixture verifies combined filters and playtime ordering. Measured at 6 ms in this Windows test run (timing is also printed by the runner); this is a core query measurement, not an end-to-end artwork/UI benchmark.
 - No full end-to-end UI run for this milestone, as requested. No claim of physical-controller testing, live authenticated source testing or real Locale Emulator game execution. Plugin tests run isolated local fixture processes under the test account.
 - Approved branding assets remain unchanged. Source version is 1.0.0; published release assets remain a separate release operation.
+
+
+## Metadata corrections — 1.0.1 (2026-11-14)
+
+- Release app build: zero warnings and errors. All 720 automated checks passed, including Windows Credential Manager checks.
+- Added regression coverage for cleaned search names, F95 thread tags/Overview/named versions, optional release acceptance, manual-field preservation, provenance and SQLite round-trip; VNDB spoiler/lie filtering; RAWG and Steam selected-match details, identity validation, credential isolation, cancellation and malformed release evidence.
+- The actual F95 HTTP adapter retrieved the supplied public thread 65211: Carnal Instinct, Unreal Engine, 38 header tags, a 652-character Overview, version v0.7.9 and channel Halloween. No authentication or challenge bypass was used. Synthetic test markup is committed; the downloaded page is not.
+- No full end-to-end UI run or live authenticated Steam/IGDB/RAWG/itch.io account verification. Fixture checks do not guarantee catalog coverage or availability. F95 lookup requires a thread URL/ID, not a title-only search.
+- Source is 1.0.1. Published v1.0.0 executable and installer assets are unchanged.

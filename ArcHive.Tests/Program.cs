@@ -23,6 +23,17 @@ if (File.Exists(Path.Combine(AppContext.BaseDirectory, "plugin-fixture.mode")))
     Console.Write(System.Text.Json.JsonSerializer.Serialize(new PluginResponse(1, [], request.Launch), PluginCatalog.Json)); return;
 }
 
+if (args.Length == 2 && args[0] == "--f95-live")
+{
+    using var client = new System.Net.Http.HttpClient(new System.Net.Http.HttpClientHandler { AllowAutoRedirect = false, UseCookies = false });
+    var result = await new F95ThreadSource(client).CheckAsync(args[1], default);
+    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new { result.Candidate.Title, result.Version, TagCount = result.Candidate.Fields.GetValueOrDefault(MetadataField.Tags)?.Split(',').Length ?? 0, DescriptionLength = result.Candidate.Fields.GetValueOrDefault(MetadataField.Description)?.Length ?? 0 })); return;
+}
+if (args.Length == 2 && args[0] == "--metadata-probe")
+{
+    var result = F95ThreadSource.Parse("https://f95zone.to/threads/65211/", File.ReadAllText(args[1]));
+    Console.WriteLine(System.Text.Json.JsonSerializer.Serialize(new { result.Candidate.Title, result.Version, Release = result.Candidate.ObservedRelease, TagCount = result.Candidate.Fields.GetValueOrDefault(MetadataField.Tags)?.Split(',').Length ?? 0, DescriptionLength = result.Candidate.Fields.GetValueOrDefault(MetadataField.Description)?.Length ?? 0, Engine = result.Candidate.Fields.GetValueOrDefault(MetadataField.Engine) })); return;
+}
 var root = Path.Combine(Path.GetTempPath(), "archive-test-" + Guid.NewGuid());
 Directory.CreateDirectory(root);
 var passed = 0;
@@ -108,6 +119,7 @@ try
     await SaveBackupTests.Run(root, Check);
     await SourceWorkflowTests.Run(root, Check);
     await V1Tests.Run(root, Check);
+    await MetadataScrubbingTests.Run(root, Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }

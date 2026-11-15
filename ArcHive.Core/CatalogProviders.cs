@@ -5,7 +5,7 @@ using System.Text.Json;
 
 namespace ArcHive.Core;
 
-public sealed class RawgMetadataProvider(ProviderTransport transport, string apiKey) : CachedMetadataProvider
+public sealed class RawgMetadataProvider(ProviderTransport transport, string apiKey) : CachedMetadataProvider, IMetadataDetailsProvider
 {
     public override string Id => "rawg";
     protected override async Task<MetadataCandidate[]> FetchAsync(string title, CancellationToken token)
@@ -27,6 +27,24 @@ public sealed class RawgMetadataProvider(ProviderTransport transport, string api
             return new MetadataCandidate(Id, NumericId(row), Text(row, "name"), [], fields, now) { Artwork = ProviderArtwork.Parse(Id, NumericId(row), row, now) };
         }).ToArray();
     }
+    public async Task<MetadataCandidate> GetDetailsAsync(MetadataCandidate candidate, CancellationToken token)
+    {
+        MetadataText.CheckIdentity(candidate, Id);
+        var key = Uri.EscapeDataString(Required(apiKey));
+        using var json = await transport.SendAsync(new(HttpMethod.Get, $"https://api.rawg.io/api/games/{candidate.Id}?key={key}"), token);
+        var row = json.RootElement;
+        if (NumericId(row) != candidate.Id) throw new ProviderException("RAWG returned details for a different game.");
+        var fields = new Dictionary<MetadataField,string>(candidate.Fields);
+        var description = Text(row,"description_raw"); if (description.Length == 0) description = Text(row,"description");
+        if (description.Length > 0) fields[MetadataField.Description] = MetadataText.Plain(description);
+        var tags = MetadataText.Tags(Names(row,"genres").Concat(Names(row,"tags")));
+        if (tags.Length > 0) fields[MetadataField.Tags] = tags;
+        Year(fields, Text(row,"released"));
+        var name = Text(row,"name");
+        var result = candidate with { Title = name.Length > 0 ? name : candidate.Title, Fields = fields, RetrievedAt = DateTimeOffset.UtcNow };
+        MetadataValidation.Validate(result); return result;
+    }
+
 }
 
 public sealed class IgdbMetadataProvider(ProviderTransport transport, string clientId, string clientSecret) : CachedMetadataProvider
@@ -51,7 +69,7 @@ public sealed class IgdbMetadataProvider(ProviderTransport transport, string cli
         {
             var escaped = title.Replace("\\", "\\\\").Replace("\"", "\\\"");
             var request = new HttpRequestMessage(HttpMethod.Post, "https://api.igdb.com/v4/games")
-            { Content = new StringContent($"search \"{escaped}\"; fields name,alternative_names.name,summary,first_release_date,game_engines.name,genres.name,cover.image_id,artworks.image_id,screenshots.image_id; limit 20;", Encoding.UTF8, "text/plain") };
+            { Content = new StringContent($"search \"{escaped}\"; fields name,alternative_names.name,summary,first_release_date,game_engines.name,genres.name,themes.name,keywords.name,cover.image_id,artworks.image_id,screenshots.image_id; limit 20;", Encoding.UTF8, "text/plain") };
             request.Headers.Add("Client-ID", Required(clientId)); request.Headers.Authorization = new AuthenticationHeaderValue("Bearer", accessToken);
             try
             {
@@ -61,11 +79,12 @@ public sealed class IgdbMetadataProvider(ProviderTransport transport, string cli
                 return rows.EnumerateArray().Select(row =>
                 {
                     var fields = new Dictionary<MetadataField, string>();
-                    if (Text(row, "summary") is { Length: > 0 } description) fields[MetadataField.Description] = description;
+                    if (Text(row, "summary") is { Length: > 0 } description) fields[MetadataField.Description] = MetadataText.Plain(description);
                     if (row.TryGetProperty("first_release_date", out var release) && release.ValueKind == JsonValueKind.Number)
                         fields[MetadataField.ReleaseYear] = DateTimeOffset.FromUnixTimeSeconds(release.GetInt64()).Year.ToString();
                     var engines = Names(row, "game_engines"); if (engines.Length > 0) fields[MetadataField.Engine] = string.Join(", ", engines);
-                    var genres = Names(row, "genres"); if (genres.Length > 0) fields[MetadataField.Tags] = string.Join(", ", genres);
+                    var genres = Names(row, "genres").Concat(Names(row, "themes")).Concat(Names(row, "keywords"));
+                    var tags = MetadataText.Tags(genres); if (tags.Length > 0) fields[MetadataField.Tags] = tags;
                     return new MetadataCandidate(Id, NumericId(row), Text(row, "name"), Names(row, "alternative_names"), fields, now) { Artwork = ProviderArtwork.Parse(Id, NumericId(row), row, now) };
                 }).ToArray();
             }
@@ -128,7 +147,7 @@ public sealed class ItchMetadataProvider(ProviderTransport transport, string api
                 var row = projects ? entry : entry.GetProperty("game");
                 if (Text(row, "classification") is { Length: > 0 } classification && classification != "game") continue;
                 var id = NumericId(row); var fields = new Dictionary<MetadataField, string>();
-                if (Text(row, "short_text") is { Length: > 0 } description) fields[MetadataField.Description] = description;
+                if (Text(row, "short_text") is { Length: > 0 } description) fields[MetadataField.Description] = MetadataText.Plain(description);
                 // published_at is the itch page publication date, not a game release date.
                 items[id] = new(Id, id, Text(row, "title"), [], fields, now) { Artwork = ProviderArtwork.Parse(Id, id, row, now) };
             }
