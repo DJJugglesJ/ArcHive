@@ -44,5 +44,6 @@ public partial class MainWindow
         store.Save(updated);
         selected = null; library = updated;
         Refresh(); Games.SelectedItem = copy;
+        if (detailsPage) { DetailsOptionsButton.Focus(); DetailsOptionsButton.BringIntoView(); }
     }
 }

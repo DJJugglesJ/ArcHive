@@ -212,6 +212,7 @@ public partial class MainWindow : Window
     {
         if (operation is not null) return;
         Commit();
+        var returnFocus = System.Windows.Input.Keyboard.FocusedElement as FrameworkElement;
         operation = new(); Toolbar.IsEnabled = Workspace.IsEnabled = Search.IsEnabled = FavoritesOnly.IsEnabled = StatusFilter.IsEnabled = false;
         CancelButton.IsEnabled = true;
         try { await action(operation.Token); store.Save(library); Refresh(); }
@@ -222,6 +223,7 @@ public partial class MainWindow : Window
             operation.Dispose(); operation = null;
             Toolbar.IsEnabled = Workspace.IsEnabled = Search.IsEnabled = FavoritesOnly.IsEnabled = StatusFilter.IsEnabled = true;
             CancelButton.IsEnabled = false;
+            if (IsActive && returnFocus is { IsVisible: true, IsEnabled: true }) { returnFocus.Focus(); returnFocus.BringIntoView(); }
         }
     }
     private async void AddRoot(object sender, RoutedEventArgs e)

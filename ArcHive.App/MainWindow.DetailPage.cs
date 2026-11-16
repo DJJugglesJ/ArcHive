@@ -41,7 +41,7 @@ public partial class MainWindow
             case GamePrimaryAction.Play: Launch(sender, e); break;
             case GamePrimaryAction.Extract: Extract(sender, e); break;
             case GamePrimaryAction.LinkFolder: LinkFolder(sender, e); break;
-            default: GameSections.SelectedIndex = 3; Status.Text = "Choose an executable or use Scan Game Files in Launch."; break;
+            default: GameSections.SelectedIndex = 3; ProfileChoices.Focus(); ProfileChoices.BringIntoView(); Status.Text = "Choose an executable or use Scan Game Files in Launch."; break;
         }
     }
     private void CopySourcePaths(object sender, RoutedEventArgs e) => Guard(() => { if (selected is not null) Clipboard.SetText(selected.SourceSummary); });

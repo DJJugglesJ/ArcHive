@@ -44,6 +44,21 @@ internal static class ControllerWorkflowTests
                 var choice = new ComboBoxItem { Content = "Choice" }; box.Items.Add(choice);
                 check(ControllerFocus.Ancestor<ComboBox>(choice) == box, "Popup choice resolves its owning selector for Circle/back");
                 check(ControllerFocus.Ancestor<StackPanel>(box) == panel, "Controller finds owning controls through the visual tree");
+                box.Items.Add(new ComboBoxItem { Content="Disabled", IsEnabled=false });
+                box.Items.Add(new ComboBoxItem { Content="Hidden", Visibility=Visibility.Collapsed });
+                box.Items.Add(new ComboBoxItem { Content="Available" }); box.SelectedIndex=0;
+                ControllerFocus.OpenCombo(box); ControllerFocus.StepCombo(box,1);
+                check(box.SelectedIndex == 3, "Controller dropdown skips disabled and hidden choices");
+                ControllerFocus.CloseCombo(box,true);
+                check(box.SelectedIndex == 0, "Circle restores the original dropdown selection");
+                ControllerFocus.OpenCombo(box); ControllerFocus.StepCombo(box,1); ControllerFocus.CloseCombo(box,false);
+                check(box.SelectedIndex == 3, "Cross confirms the chosen dropdown value");
+                ControllerFocus.StepCombo(box,1); check(box.SelectedIndex == 3, "Dropdown navigation stays at the last available choice");
+                ControllerFocus.StepCombo(box,-1); check(box.SelectedIndex == 0, "Reverse dropdown navigation skips unavailable choices");
+                check(MetadataText.PreferredProvider(new(){RawgKey="fixture",SteamKey="fixture"},false)==5, "Metadata starts with configured RAWG rather than unconfigured VNDB");
+                check(MetadataText.PreferredProvider(new(){SteamKey="fixture"},false)==1 && MetadataText.PreferredProvider(new(),false)==0, "Metadata source defaults support Steam and credential-free fallback");
+                check(MetadataText.PreferredProvider(new(){RawgKey="fixture"},true)==6, "Existing enabled F95 association takes precedence");
+
             }
             catch (Exception ex) { failure = ex; }
         });

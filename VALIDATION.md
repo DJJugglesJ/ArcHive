@@ -183,3 +183,13 @@ Live fixture verification confirmed opening details did not change the launch ma
 - VNDB returns zero matches. IGDB was not configured, so its API was not tested.
 - Automated suite: 729 checks passed. Release app build: zero warnings/errors. No full end-to-end UI test performed. Published installer unchanged.
 - Opt-in diagnostic: `dotnet run --project ArcHive.Tests -c Release -- --providers-live "My Sexy Neighbor 2" 3684710`. Saved credentials are used only in memory; output includes result identities and field counts, never keys or descriptions. Optional final argument tests Steam details by ID. Focused diagnostics: `--itch-live` or `--rawg-live` followed by the title. These diagnostics never run as part of the automated suite.
+
+
+## Controller and metadata workflow polish (2026-11-16)
+
+- Release build succeeds without warnings/errors; 737 automated checks pass.
+- New WPF controller regressions cover disabled/hidden dropdown choices, reverse traversal and boundaries, Circle restoring the opening selection, and Cross confirming changes. Source-default checks cover configured RAWG, Steam, existing enabled F95 associations, and credential-free VNDB fallback.
+- Metadata search now offers Stop Search and Circle cancellation without leaving the dialog; edited queries cancel pending work and stale responses do not replace current results. Cross on a selected candidate transfers focus to field review, including after pending details finish.
+- Focus returns after operations while ArcHive is active and after applying metadata in details. Launch setup moves focus to launch profiles.
+- Desktop inventory confirmed another ArcHive installation is open. The single-instance guard prevents opening this build alongside it; the existing user session was left untouched. These changes have not had a live desktop acceptance run or physical-controller verification. Existing automated launch/process tests passed as part of the suite.
+- Published installer remains unchanged.

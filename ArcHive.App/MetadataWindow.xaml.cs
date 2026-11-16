@@ -17,6 +17,8 @@ public partial class MetadataWindow : Window
     private MetadataCandidate? reviewCandidate;
     private CancellationTokenSource? detailRequest;
     private int reviewGeneration, lookupGeneration;
+    private CancellationTokenSource? searchRequest;
+    private bool focusReviewWhenReady;
     private CheckBox? releaseChoice;
     public MetadataWindow(Game game, MetadataCandidate? initial = null, bool enableF95Zone = false)
     {
@@ -27,13 +29,30 @@ public partial class MetadataWindow : Window
         try { foreach (var plugin in IntegrationSession.Catalog.List().Where(p => p.Enabled && p.Manifest.Capabilities.Contains("metadata"))) ProviderChoice.Items.Add(new ComboBoxItem { Content = plugin.Manifest.Name + " (Plugin)", Tag = plugin.Manifest.Id }); }
         catch (Exception ex) { Message.Text = ex.Message; }
         if (initial is not null) { if (initial.Provider == "f95zone") { ProviderChoice.SelectedIndex = 6; ThreadLink.Text = F95MetadataProvider.Locator(initial.Id); } Show(Query(), [initial]); }
-        Closed += (_, _) => { reviewGeneration++; detailRequest?.Cancel(); cancellation.Cancel(); };
-        try { ProviderSession.Load(); } catch (ProviderException ex) { Message.Text = ex.Message; }
+        Closed += (_, _) => { reviewGeneration++; lookupGeneration++; detailRequest?.Cancel(); searchRequest?.Cancel(); cancellation.Cancel(); };
+        try { ProviderSession.Load(); if (initial is null) ProviderChoice.SelectedIndex = MetadataText.PreferredProvider(ProviderSession.Credentials, enableF95Zone && game.F95Thread is not null); } catch (ProviderException ex) { Message.Text = ex.Message; }
     }
+    internal bool HandleController(PadAction action)
+    {
+        if (action == PadAction.Cancel && searchRequest is not null) { searchRequest.Cancel(); return true; }
+        if (action == PadAction.Accept && Candidates.IsKeyboardFocusWithin && Candidates.SelectedItem is MetadataMatch)
+        {
+            focusReviewWhenReady = true; FocusReview(); return true;
+        }
+        return false;
+    }
+    private void FocusReview()
+    {
+        if (!focusReviewWhenReady || reviewCandidate is null) return;
+        focusReviewWhenReady = false;
+        var target = FieldRows.Children.OfType<Control>().FirstOrDefault(c => c.IsEnabled && c.Focusable);
+        if (target is not null) { target.Focus(); target.BringIntoView(); }
+    }
+    private void CancelSearch(object sender, RoutedEventArgs e) => searchRequest?.Cancel();
     private void ProviderChanged(object sender, SelectionChangedEventArgs e)
-    { if (Candidates is null) return; lookupGeneration++; Candidates.ItemsSource = null; searchProvider = null; UpdateProviderHint(); }
+    { if (Candidates is null) return; searchRequest?.Cancel(); lookupGeneration++; Candidates.ItemsSource = null; searchProvider = null; UpdateProviderHint(); }
     private void SearchInputChanged(object sender, TextChangedEventArgs e)
-    { if (Candidates is null) return; lookupGeneration++; Candidates.ItemsSource = null; if (Message is not null) Message.Text = "Search again to use the changed query or thread link."; }
+    { if (Candidates is null) return; searchRequest?.Cancel(); lookupGeneration++; Candidates.ItemsSource = null; if (Message is not null) Message.Text = "Search again to use the changed query or thread link."; }
     private void UpdateProviderHint()
     {
         if (ProviderHint is null || ThreadInput is null) return;
@@ -50,12 +69,15 @@ public partial class MetadataWindow : Window
         };
     }
     private void ConfigureProviders(object sender, RoutedEventArgs e)
-    { if (new ProviderSettingsWindow { Owner = this }.ShowDialog() == true) { Candidates.ItemsSource = null; Message.Text = "Provider settings updated. Search when ready."; } }
+    { if (new ProviderSettingsWindow { Owner = this }.ShowDialog() == true) { lookupGeneration++; searchProvider = null; Candidates.ItemsSource = null; Message.Text = "Provider settings updated. Search when ready."; } }
     private void OpenSource(object sender, System.Windows.Navigation.RequestNavigateEventArgs e) => MetadataSourceLinks.Open(e);
     private MetadataQuery Query() => new(QueryBox.Text, game.ReleaseYear, game.Engine);
     private async void SearchOnline(object sender, RoutedEventArgs e)
     {
+        if (searchRequest is not null) return;
+        using var request = CancellationTokenSource.CreateLinkedTokenSource(cancellation.Token); searchRequest = request;
         var generation = ++lookupGeneration;
+        StopSearch.Visibility = Visibility.Visible; StopSearch.Focus();
         SearchActions.IsEnabled = false; Candidates.ItemsSource = null; Message.Text = "Searching selected provider…";
         try
         {
@@ -63,12 +85,13 @@ public partial class MetadataWindow : Window
             IMetadataProvider provider = ProviderChoice.SelectedItem is ComboBoxItem { Tag: string pluginId } ? new PluginMetadataProvider(IntegrationSession.Catalog, pluginId) : ProviderSession.Get(ProviderChoice.SelectedIndex);
             searchProvider = provider;
             var lookup = provider.Id == "f95zone" ? new MetadataQuery(ThreadLink.Text) : query;
-            var found = await Task.Run(() => provider.SearchAsync(lookup, cancellation.Token), cancellation.Token);
-            cancellation.Token.ThrowIfCancellationRequested(); if (generation != lookupGeneration) return; Show(query, found);
+            var found = await Task.Run(() => provider.SearchAsync(lookup, request.Token), request.Token);
+            request.Token.ThrowIfCancellationRequested(); if (generation != lookupGeneration) return; Show(query, found);
+            if (found.Count > 0) Candidates.Focus();
         }
-        catch (OperationCanceledException) { Message.Text = "Search canceled or timed out. You can retry."; }
-        catch (Exception ex) { Message.Text = "Couldn't retrieve game information. No changes were made. " + ex.Message; }
-        finally { SearchActions.IsEnabled = true; }
+        catch (OperationCanceledException) { if (generation == lookupGeneration && !cancellation.IsCancellationRequested) Message.Text = "Search stopped. Choose a source or search again."; }
+        catch (Exception ex) { if (generation == lookupGeneration && !cancellation.IsCancellationRequested) Message.Text = "Couldn't retrieve game information. No changes were made. " + ex.Message; }
+        finally { searchRequest = null; SearchActions.IsEnabled = true; StopSearch.Visibility = Visibility.Collapsed; if (!cancellation.IsCancellationRequested && Candidates.Items.Count == 0) SearchButton.Focus(); }
     }
     private void ImportOffline(object sender, RoutedEventArgs e)
     {
@@ -89,6 +112,7 @@ public partial class MetadataWindow : Window
     }
     private async void SelectCandidate(object sender, SelectionChangedEventArgs e)
     {
+        focusReviewWhenReady = false;
         var generation = ++reviewGeneration; detailRequest?.Cancel(); detailRequest = null;
         FieldRows.Children.Clear(); rows.Clear(); artworkChoices.Clear(); releaseChoice = null; reviewCandidate = null; ApplyButton.IsEnabled = false;
         if (Candidates.SelectedItem is not MetadataMatch match) return;
@@ -112,7 +136,7 @@ public partial class MetadataWindow : Window
             finally { if (generation == reviewGeneration) detailRequest = null; }
         }
         if (generation != reviewGeneration || cancellation.IsCancellationRequested) return;
-        reviewCandidate = candidate; RenderCandidate(candidate);
+        reviewCandidate = candidate; RenderCandidate(candidate); FocusReview();
     }
     private void RenderCandidate(MetadataCandidate candidate)
     {

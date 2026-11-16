@@ -46,6 +46,27 @@ internal static class ControllerFocus
         }
         return true;
     }
+    private sealed record ComboSelection(int Index);
+    private static readonly System.Runtime.CompilerServices.ConditionalWeakTable<ComboBox, ComboSelection> comboSelections = new();
+    internal static void OpenCombo(ComboBox combo)
+    {
+        comboSelections.Remove(combo); comboSelections.Add(combo, new(combo.SelectedIndex));
+        combo.IsDropDownOpen = true;
+    }
+    internal static void CloseCombo(ComboBox combo, bool cancel)
+    {
+        if (cancel && comboSelections.TryGetValue(combo, out var original) && original.Index < combo.Items.Count) combo.SelectedIndex = original.Index;
+        comboSelections.Remove(combo); combo.IsDropDownOpen = false; combo.Focus();
+    }
+    internal static void StepCombo(ComboBox combo, int step)
+    {
+        for (var index = combo.SelectedIndex + step; index >= 0 && index < combo.Items.Count; index += step)
+        {
+            var choice = combo.Items[index] as ComboBoxItem ?? combo.ItemContainerGenerator.ContainerFromIndex(index) as ComboBoxItem;
+            if (choice is not null && (!choice.IsEnabled || choice.Visibility != Visibility.Visible)) continue;
+            combo.SelectedIndex = index; return;
+        }
+    }
     public static void Handle(Window window, PadAction action)
     {
         if (HandleMenu(action)) return;
@@ -55,8 +76,8 @@ internal static class ControllerFocus
         var combo = Ancestor<ComboBox>(focused);
         if (combo is not null && combo.IsDropDownOpen)
         {
-            if (action is PadAction.Cancel or PadAction.Accept) { combo.IsDropDownOpen = false; combo.Focus(); }
-            else if (action is PadAction.Up or PadAction.Down) combo.SelectedIndex = Math.Clamp(combo.SelectedIndex + (action == PadAction.Up ? -1 : 1), 0, Math.Max(0, combo.Items.Count - 1));
+            if (action is PadAction.Cancel or PadAction.Accept) { CloseCombo(combo, action == PadAction.Cancel); }
+            else if (action is PadAction.Up or PadAction.Down) StepCombo(combo, action == PadAction.Up ? -1 : 1);
             return;
         }
         if (action == PadAction.Cancel) { window.Close(); return; }
@@ -64,7 +85,7 @@ internal static class ControllerFocus
         {
             if (Ancestor<DataGrid>(focused) is { SelectionMode: DataGridSelectionMode.Extended })
             { ControllerKeys.Send(ControllerKeys.Foreground, Key.Space, control: true); return; }
-            if (focused is ComboBox box) { box.IsDropDownOpen = !box.IsDropDownOpen; return; }
+            if (focused is ComboBox box) { OpenCombo(box); return; }
             if (focused is TabItem tab) { tab.IsSelected = true; return; }
             if (focused is Hyperlink hyperlink)
             { (new HyperlinkAutomationPeer(hyperlink).GetPattern(PatternInterface.Invoke) as IInvokeProvider)?.Invoke(); return; }

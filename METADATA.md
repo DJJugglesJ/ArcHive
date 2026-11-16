@@ -104,3 +104,7 @@ The supplied thread 65211 was checked through the actual HTTP source: clean titl
 ### Multi-source follow-up
 
 Live searches for My Sexy Neighbor 2 confirmed Steam and RAWG return the sequel first, with selected-match descriptions and genres/tags. F95 thread 279707 supplies 18 tags and date-based version 2025-12-11. F95 status prefixes (Completed, Abandoned, On Hold) are removed from proposed titles; date-based versions are retained as evidence without asserting update ordering. itch.io accepts an empty-object owned_keys terminal page, as observed from the service, while rejecting nonempty malformed objects. Its account scope still does not search the public catalog. See VALIDATION.md for exact results and limitations.
+
+### Controller review workflow
+
+The dialog starts on an enabled existing F95 association, otherwise configured RAWG, Steam, IGDB, or credential-free VNDB. Source selection remains available. During a search, Stop Search or Circle cancels the request without closing the dialog. Editing a query cancels its pending lookup. Cross on a selected result enters its field choices once details are ready; shoulder traversal remains available between controls. Existing values remain unselected, and Apply is still required to save chosen information and tags.

@@ -30,6 +30,7 @@ public static class MetadataText
         if (Regex.IsMatch(title, @"\[v?\d", RegexOptions.IgnoreCase, Timeout)) title = Regex.Replace(title, @"\[[^\]]*\]", "", RegexOptions.None, Timeout);
         return FilenameParser.Parse(title).Title;
     }
+    public static int PreferredProvider(ProviderCredentials credentials, bool associatedF95) => associatedF95 ? 6 : credentials.RawgKey.Length > 0 ? 5 : credentials.SteamKey.Length > 0 ? 1 : credentials.IgdbClientId.Length > 0 && credentials.IgdbClientSecret.Length > 0 ? 2 : 0;
     public static string UserAgent => "ArcHive/" + typeof(Game).Assembly.GetName().Version!.ToString(3);
     public static string Text(JsonElement row, string name) => row.TryGetProperty(name, out var p) && p.ValueKind == JsonValueKind.String ? p.GetString()! : "";
     public static string[] Names(JsonElement row, string name) => row.TryGetProperty(name, out var list) && list.ValueKind == JsonValueKind.Array ? list.EnumerateArray().Select(x => Text(x, "name")).Where(x => x.Length > 0).ToArray() : [];
