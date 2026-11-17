@@ -29,11 +29,25 @@ public partial class MetadataWindow : Window
         try { foreach (var plugin in IntegrationSession.Catalog.List().Where(p => p.Enabled && p.Manifest.Capabilities.Contains("metadata"))) ProviderChoice.Items.Add(new ComboBoxItem { Content = plugin.Manifest.Name + " (Plugin)", Tag = plugin.Manifest.Id }); }
         catch (Exception ex) { Message.Text = ex.Message; }
         if (initial is not null) { if (initial.Provider == "f95zone") { ProviderChoice.SelectedIndex = 6; ThreadLink.Text = F95MetadataProvider.Locator(initial.Id); } Show(Query(), [initial]); }
+        if (initial is null) Message.Text = "Choose a source and search to review game information.";
         Closed += (_, _) => { reviewGeneration++; lookupGeneration++; detailRequest?.Cancel(); searchRequest?.Cancel(); cancellation.Cancel(); };
         try { ProviderSession.Load(); if (initial is null) ProviderChoice.SelectedIndex = MetadataText.PreferredProvider(ProviderSession.Credentials, enableF95Zone && game.F95Thread is not null); } catch (ProviderException ex) { Message.Text = ex.Message; }
     }
     internal bool HandleController(PadAction action)
     {
+        if (action == PadAction.Options)
+        {
+            var menu = new ContextMenu { PlacementTarget = this, Placement = System.Windows.Controls.Primitives.PlacementMode.Center };
+            void Add(string label, Action action, bool enabled = true)
+            { var item = new MenuItem { Header=label, IsEnabled=enabled }; item.Click += (_,_)=> { menu.IsOpen=false; action(); }; menu.Items.Add(item); }
+            Add("Apply Reviewed Fields", () => Apply(this,new()), reviewCandidate is not null && ApplyButton.IsEnabled);
+            Add("Back to Matches", () => Candidates.Focus(), Candidates.Items.Count>0);
+            Add("Choose Source", () => ProviderChoice.Focus(), searchRequest is null);
+            Add("Stop Search", () => searchRequest?.Cancel(), searchRequest is not null);
+            Add("Return to Review", () => { focusReviewWhenReady=true; FocusReview(); });
+            menu.Opened += (_,_) => menu.Dispatcher.BeginInvoke(new Action(()=>menu.Items.OfType<MenuItem>().FirstOrDefault(i=>i.IsEnabled)?.Focus()));
+            menu.IsOpen=true; return true;
+        }
         if (action == PadAction.Cancel && searchRequest is not null) { searchRequest.Cancel(); return true; }
         if (action == PadAction.Accept && Candidates.IsKeyboardFocusWithin && Candidates.SelectedItem is MetadataMatch)
         {

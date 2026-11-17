@@ -21,6 +21,7 @@ Built with **C# / .NET 10 / WPF** and **SQLite**. Source version: **1.0.1**. [Pu
 - **Protect progress.** Configure save folders, create snapshots, review restores and retain protected pre-restore backups. Regular snapshot retention is configurable.
 - **Play from the couch.** Native DualSense/DS4 USB or Bluetooth and Xbox/XInput navigation; selectable button jewels, controller-support badges, context menus and an on-screen keyboard. Cross/A selects, Circle/B goes back, Triangle/Y opens context options, Options/Start opens the menu.
 - **Keep control.** A discreet 18 toggle manages manually classified NSFW visibility. Settings provides a confirmed library purge that retains game files and a recovery database.
+- **Stay current.** Check GitHub releases in Settings > Updates, optionally check at startup, and download a verified installer before choosing to install. [Update workflow and limits](UPDATES.md).
 - **Extend explicitly.** Configure an existing Locale Emulator installation or install and enable trusted metadata/launch plugins. [Integration contracts and limits](INTEGRATIONS.md).
 
 ## Run from source

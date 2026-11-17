@@ -52,6 +52,7 @@ public partial class MainWindow
         if (window is ControllerKeyboard keyboard) { if (ControllerFocus.HandleMenu(action)) return; if (action is PadAction.Menu or PadAction.Options) ShowApplicationMenu(keyboard); else keyboard.Handle(action); return; }
         if (ControllerFocus.HandleMenu(action)) return;
         if (action == PadAction.Menu) { ShowApplicationMenu(window); return; }
+        if (window is UpdateWindow updates && updates.HandleController(action)) return;
         if (window is MetadataWindow metadata && metadata.HandleController(action)) return;
         var focused = Keyboard.FocusedElement as DependencyObject;
         if (action == PadAction.Keyboard || action == PadAction.Accept && focused is TextBox { IsReadOnly: false } or PasswordBox)

@@ -12,7 +12,7 @@
    <Button x:Name="StopSearch" Content="Stop Search" Click="CancelSearch" Visibility="Collapsed" HorizontalAlignment="Left"/>
    <TextBlock x:Name="Message" TextWrapping="Wrap" Margin="0,12"/>
   </StackPanel>
-  <StackPanel DockPanel.Dock="Bottom"><TextBlock Text="Unchecked fields keep their current value. Existing values are unchecked by default. Provider text is displayed as plain text." TextWrapping="Wrap" Margin="0,10"/><WrapPanel><Button x:Name="ApplyButton" Content="{x:Static core:UiText.ApplyChanges}" Click="Apply" IsEnabled="False"/><Button Content="{x:Static core:UiText.Cancel}" IsCancel="True"/></WrapPanel></StackPanel>
+  <StackPanel DockPanel.Dock="Bottom"><TextBlock Text="Cross: review / choose fields. Triangle: apply or return to matches. Unselected fields keep their current values." TextWrapping="Wrap" Margin="0,10"/><WrapPanel><Button x:Name="ApplyButton" Content="{x:Static core:UiText.ApplyChanges}" Click="Apply" IsEnabled="False"/><Button Content="{x:Static core:UiText.Cancel}" IsCancel="True"/></WrapPanel></StackPanel>
   <Grid><Grid.RowDefinitions><RowDefinition Height="180"/><RowDefinition Height="*"/></Grid.RowDefinitions>
    <ListBox x:Name="Candidates" AutomationProperties.Name="Game information matches" SelectionChanged="SelectCandidate"><ListBox.ItemTemplate><DataTemplate><TextBlock Text="{Binding}" TextWrapping="Wrap" Margin="5,8"/></DataTemplate></ListBox.ItemTemplate></ListBox>
    <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto"><StackPanel x:Name="FieldRows"/></ScrollViewer>

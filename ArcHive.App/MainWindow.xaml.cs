@@ -78,7 +78,7 @@ public partial class MainWindow : Window
         ready = true;
         StartPlaytime();
         Refresh();
-        Loaded += (_, _) => Gallery.Focus();
+        Loaded += (_, _) => { Gallery.Focus(); CheckStartupUpdate(); };
         Closing += OnClosing;
         Closed += (_, _) => extractionQueue?.Dispose();
         if (extractionQueue.Jobs.Any(j => j.State != ExtractionState.Completed && j.State != ExtractionState.Cancelled))

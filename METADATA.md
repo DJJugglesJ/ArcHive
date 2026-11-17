@@ -108,3 +108,5 @@ Live searches for My Sexy Neighbor 2 confirmed Steam and RAWG return the sequel 
 ### Controller review workflow
 
 The dialog starts on an enabled existing F95 association, otherwise configured RAWG, Steam, IGDB, or credential-free VNDB. Source selection remains available. During a search, Stop Search or Circle cancels the request without closing the dialog. Editing a query cancels its pending lookup. Cross on a selected result enters its field choices once details are ready; shoulder traversal remains available between controls. Existing values remain unselected, and Apply is still required to save chosen information and tags.
+
+Triangle in metadata review opens shortcuts for Apply Reviewed Fields, Back to Matches, Choose Source and Return to Review. Applying still requires at least one chosen field, artwork or observed release; the shortcut does not change reconciliation or manual-preservation rules.

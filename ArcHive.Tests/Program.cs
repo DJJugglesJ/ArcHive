@@ -1,6 +1,24 @@
 using System.IO.Compression;
 using ArcHive.Core;
 
+if (args.Length == 2 && args[0] == "--workflow-fixture")
+{
+    var folder=Path.GetFullPath(args[1]); Directory.CreateDirectory(folder);
+    if (File.Exists(Path.Combine(folder,"library.db"))) throw new IOException("Use a new fixture directory.");
+    var profile=new LaunchProfile {Name="UI launch fixture",ExecutablePath=Path.Combine(AppContext.BaseDirectory,"ArcHive.Tests.exe"),WorkingDirectory=AppContext.BaseDirectory,Arguments=["--ui-game",Path.Combine(folder,"launched.txt")]};
+    var installation=new GameInstallation {Path=AppContext.BaseDirectory,Profiles=[profile],DefaultProfileId=profile.Id};
+    var game=new Game {Title="My Sexy Neighbor 2",Installations=[installation]};
+    var db=new SqliteLibraryStore(Path.Combine(folder,"library.db"));db.Load();db.Save(new(){Games=[game]});
+    new AppPreferencesStore(Path.Combine(folder,"settings.json")).Save(new(){EnableF95Zone=true,GamepadEnabled=true});
+    Console.WriteLine("Created isolated UI fixture.");return;
+}
+if (args.Length == 2 && args[0] == "--ui-game") { File.WriteAllText(args[1],"Launched through ArcHive");await Task.Delay(20000);return; }
+if (args.Length == 1 && args[0] == "--updates-live")
+{
+    using var client=new System.Net.Http.HttpClient(new System.Net.Http.HttpClientHandler {AllowAutoRedirect=false,UseCookies=false});
+    var release=await new AppUpdates(client).CheckAsync(default);
+    Console.WriteLine($"Current {AppUpdates.Current}; latest {release.Version}; package {release.FileName}; size {release.Size}; digest present {release.Sha256.Length==64}");return;
+}
 if (args.Length >= 2 && args[0] == "--launch-probe")
 {
     File.WriteAllText(args[1], System.Text.Json.JsonSerializer.Serialize(new { Arguments = args.Skip(2).ToArray(), WorkingDirectory = Environment.CurrentDirectory }));
@@ -125,6 +143,7 @@ try
     await SourceWorkflowTests.Run(root, Check);
     await V1Tests.Run(root, Check);
     await MetadataScrubbingTests.Run(root, Check);
+    await AppUpdateTests.Run(root, Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }

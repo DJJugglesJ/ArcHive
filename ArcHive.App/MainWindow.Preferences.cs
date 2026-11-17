@@ -34,7 +34,7 @@ public partial class MainWindow
         var window = new SettingsWindow(preferences, library.Roots, data) { Owner = this };
         if (window.ShowDialog() != true) return;
         preferenceStore.Save(window.Result); preferences = window.Result; ShowPreferences(); galleryColumns = Math.Max(1, (int)(Gallery.ActualWidth / (preferences.LibraryDensity == LibraryDensity.Compact ? 190 : 240))); Refresh();
-        switch (window.RequestedAction) { case "purge": PurgeLibrary(); break; case "add": AddRoot(this, new()); break; case "scan": Rescan(this, new()); break; case "organize": OrganizeLibrary(this, new()); break; case "import": OpenOwnedLibrary(this, new()); break; case "queue": OpenExtractionQueue(this, new()); break; }
+        switch (window.RequestedAction) { case "install-update": InstallAppUpdate(window.UpdateInstaller,window.UpdateRelease); break; case "purge": PurgeLibrary(); break; case "add": AddRoot(this, new()); break; case "scan": Rescan(this, new()); break; case "organize": OrganizeLibrary(this, new()); break; case "import": OpenOwnedLibrary(this, new()); break; case "queue": OpenExtractionQueue(this, new()); break; }
     });
     private void ToggleNsfw(object sender, RoutedEventArgs e) => Guard(() =>
     {
