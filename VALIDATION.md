@@ -205,3 +205,11 @@ Live fixture verification confirmed opening details did not change the launch ma
 - FIXED AND RETESTED: Triangle now offers Apply Reviewed Fields, Back to Matches, Choose Source and Return to Review, avoiding traversal through every artwork action. Applying with no chosen fields refuses to save; selecting only Title and applying through Triangle/Cross saved that field and preserved tags/session history. Focus returned to game options. Fresh dialogs now show an appropriate initial instruction.
 - PASS: test library survived restart. SQLite integrity_check returned ok and foreign_key_check returned zero rows after both metadata saves. The isolated test app was closed normally; user library/settings were not used for writes. Saved RAWG credentials were used in memory for the authorized provider lookup.
 - LIMITS: this is a focused desktop acceptance run, not all UI screens, physical-controller testing or a full game gameplay session. Active-search cancellation is automated-tested; the live RAWG request completed before the attempted Circle cancellation, which correctly returned to details. Newer-package installation through the updater is not live-tested because no newer packaged release exists. Download/hash/failure branches use deterministic synthetic package bytes and never execute them. No release assets were republished.
+
+
+## Update readiness — 1.0.2 (2026-11-16)
+
+- Release build passed; all 753 automated checks passed. NuGet vulnerability lookup emitted NU1900 because its service was unavailable.
+- Settings now opens with a visible selected-tab focus. Live isolated-library checks passed for initial focus, shoulder traversal into ordering, Cross opening the dropdown, and Circle dismissing it. Controller diagnostics use the same routing as gamepads; no physical controller was used.
+- Verified downloads disable redundant Download actions. Missing or changed staged installers clear readiness and require a fresh download.
+- The real installed 1.0.1 library was backed up before testing. The live 1.0.1-to-1.0.2 installation results will be recorded with the release after publishing the stable package required by the old updater.

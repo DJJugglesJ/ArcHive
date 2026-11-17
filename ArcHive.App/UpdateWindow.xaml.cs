@@ -33,7 +33,7 @@ public partial class UpdateWindow : Window
         finally
         {
             pending=null;
-            if (!closed) { StopButton.Visibility=Visibility.Collapsed; Progress.Visibility=Visibility.Collapsed; CheckButton.IsEnabled=true; DownloadButton.IsEnabled=release is not null && release.Version>AppUpdates.Current; InstallButton.IsEnabled=InstallerPath is not null; (InstallButton.IsEnabled ? InstallButton : DownloadButton.IsEnabled ? DownloadButton : CheckButton).Focus(); }
+            if (!closed) { StopButton.Visibility=Visibility.Collapsed; Progress.Visibility=Visibility.Collapsed; CheckButton.IsEnabled=true; DownloadButton.IsEnabled=release is not null && release.Version>AppUpdates.Current && InstallerPath is null; InstallButton.IsEnabled=InstallerPath is not null; (InstallButton.IsEnabled ? InstallButton : DownloadButton.IsEnabled ? DownloadButton : CheckButton).Focus(); }
         }
     }
     private async void Check(object sender,RoutedEventArgs e) => await Run(async token=>
@@ -52,7 +52,9 @@ public partial class UpdateWindow : Window
     private async void Install(object sender,RoutedEventArgs e) => await Run(async token=>
     {
         if (release is null || InstallerPath is null) return;
-        await AppUpdates.VerifyAsync(InstallerPath,release,token);
+        try { await AppUpdates.VerifyAsync(InstallerPath,release,token); }
+        catch (Exception ex) when (ex is InvalidDataException or IOException or UnauthorizedAccessException)
+        { InstallerPath=null; Status.Text="The downloaded installer is missing or has changed. Download a fresh copy before installing."; return; }
         if (!closed) DialogResult=true;
     });
 }

@@ -6,7 +6,7 @@
 
 Turn a folder of downloads into an artwork-rich collection. Keep versions together, choose how games launch, track your playtime and protect your saves.
 
-Built with **C# / .NET 10 / WPF** and **SQLite**. Source version: **1.0.1**. [Published Windows releases](https://github.com/DJJugglesJ/ArcHive/releases) are listed separately from source builds.
+Built with **C# / .NET 10 / WPF** and **SQLite**. Source version: **1.0.2**. [Published Windows releases](https://github.com/DJJugglesJ/ArcHive/releases) are listed separately from source builds.
 
 ## Your games, in one place
 

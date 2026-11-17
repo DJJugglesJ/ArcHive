@@ -21,6 +21,7 @@ public partial class SettingsWindow : Window
         F95Enabled.IsChecked = settings.EnableF95Zone; Roots.ItemsSource = roots.ToArray();
         DataLocation.Text = DisplayPaths.Compact(data); DataLocation.ToolTip = data;
         Profiles.SelectedIndex = (int)settings.ControllerProfile; Gamepad.IsChecked = settings.GamepadEnabled;
+        Loaded += (_, _) => (SettingsTabs.SelectedItem as TabItem)?.Focus();
     }
     private void ProfileChanged(object sender, SelectionChangedEventArgs e)
     {
