@@ -18,7 +18,7 @@
 | 0.11.0 | Source settings, browser sign-in links, optional owned-library import, public F95Zone thread association/update checks, controller-accessible dialogs and menus, branded release. |
 | 1.0.0 | Optional Locale Emulator profiles and explicit process-based metadata/launch plugins; consolidated UI terminology; library purge with recovery database; playtime sessions and correction; duplicate merging with retained source records and backup ownership; collections, filters and statistics; reviewed canonical/display naming; batch collection/played changes, extraction, local identification, file rename/relocation and recovery journals. |
 | 1.0.1 | Metadata corrections: VNDB tags, selected-match RAWG/Steam detail retrieval, richer IGDB tags, cleaned search titles, integrated F95Zone thread metadata/version review; controller review shortcuts and focus improvements; GitHub release update checks, verified installer downloads and explicit install handoff. |
-| 1.0.2 | Settings initial controller focus; clearer verified-download state and recovery from missing or altered staged installers; branded updater validation release. |
+| 1.0.2 | Readable dark updater window; Settings initial controller focus; clearer verified-download state and recovery from missing or altered staged installers; branded updater validation release. |
 
 The 1.0.0 row describes the source implementation. Published installers are listed on [GitHub Releases](https://github.com/DJJugglesJ/ArcHive/releases). See [V1-WORKFLOWS.md](V1-WORKFLOWS.md) and [VALIDATION.md](VALIDATION.md) for supported workflows and verification evidence.
 

@@ -213,3 +213,5 @@ Live fixture verification confirmed opening details did not change the launch ma
 - Settings now opens with a visible selected-tab focus. Live isolated-library checks passed for initial focus, shoulder traversal into ordering, Cross opening the dropdown, and Circle dismissing it. Controller diagnostics use the same routing as gamepads; no physical controller was used.
 - Verified downloads disable redundant Download actions. Missing or changed staged installers clear readiness and require a fresh download.
 - The real installed 1.0.1 library was backed up before testing. The live 1.0.1-to-1.0.2 installation results will be recorded with the release after publishing the stable package required by the old updater.
+
+- Found in installed 1.0.1: updater lacked an explicit window background, leaving pale text on white. Set the approved dark background and foreground in 1.0.2.
