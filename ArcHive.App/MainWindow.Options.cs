@@ -61,19 +61,24 @@ public partial class MainWindow
         optionsMenu = new ContextMenu { PlacementTarget = anchor ?? (detailsPage ? PlayButton : archivesView ? ArchiveList : Gallery), Placement = anchor is null ? PlacementMode.Center : PlacementMode.Bottom };
         void Add(string label, Action action, bool enabled = true)
         {
-            var item = new MenuItem { Header = label, IsEnabled = enabled };
+            var item = new MenuItem { Header = label, IsEnabled = enabled, FontSize=16, Padding=new Thickness(18,10,18,10) };
             item.Click += (_, _) => { optionsMenu.IsOpen = false; action(); };
             optionsMenu.Items.Add(item); if (enabled) optionActions.Add((item, action));
         }
-        Add("Open Game Details", ShowDetailsPage);
+        if (!detailsPage) Add("Open Game Details", ShowDetailsPage);
+        Add(selected.Favorite ? "Remove from Favorites" : "Add to Favorites", () => Guard(() =>
+        { FavoriteBox.IsChecked = !selected.Favorite; Commit(); store.Save(library); Refresh(); if (detailsPage && selected is null) BackToCollection(this, new()); else if (detailsPage) DetailsOptionsButton.Focus(); else FocusSelectedEntry(); }));
+        Add("Find Game Information", () => FindMetadata(this, new()));
+        Add("Launch Options", () => { ShowDetailsPage(); GameSections.SelectedIndex=3; ProfileChoices.Focus(); ProfileChoices.BringIntoView(); });
+        optionsMenu.Items.Add(new Separator());
         Add("Scan Game Files", () => DetectLaunch(this, new()), selected.Installations.Count > 0);
         Add("Manage Archive…", () => Extract(this, new()), selected.Archives.Count > 0);
         Add("Open Game Folder", () => OpenSource(this, new()), ActiveInstallation is not null && Directory.Exists(ActiveInstallation.Path));
         Add("Playtime & Naming…", () => OpenGameHistory(this, new()));
         Add("Save Backups", () => OpenSaveBackups(this, new()));
         if (preferences.EnableF95Zone) Add("F95Zone Thread & Updates…", () => OpenF95Thread(this, new()));
-        Add("Find Game Information", () => FindMetadata(this, new()));
-        Add("Organize Library", () => OrganizeLibrary(this, new()));
+        optionsMenu.Items.Add(new Separator());
+        Add("Remove from Library…", RemoveSelectedEntry);
         optionsMenu.Opened += (_, _) => Dispatcher.BeginInvoke(() => optionActions.FirstOrDefault().Item?.Focus());
         optionsMenu.IsOpen = true;
     }
@@ -100,8 +105,8 @@ public partial class MainWindow
         var index = GamepadNavigation.Move(Games.SelectedIndex, Games.Items.Count, archivesView ? 1 : galleryColumns, action);
         if (index < 0) return;
         Games.SelectedIndex = index;
-        if (archivesView) { ArchiveList.SelectedItem = Games.SelectedItem; ArchiveList.ScrollIntoView(Games.SelectedItem); }
-        else if (index / galleryColumns < Gallery.Items.Count) { Gallery.Focus(); Gallery.ScrollIntoView(Gallery.Items[index / galleryColumns]); }
+        if (archivesView) { ArchiveList.SelectedItem = Games.SelectedItem; FocusSelectedEntry(); }
+        else FocusSelectedEntry();
     }
     private void WindowOptionsKey(object sender, KeyEventArgs e)
     {

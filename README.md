@@ -6,7 +6,7 @@
 
 Turn a folder of downloads into an artwork-rich collection. Keep versions together, choose how games launch, track your playtime and protect your saves.
 
-Built with **C# / .NET 10 / WPF** and **SQLite**. Source version: **1.0.2**. [Published Windows releases](https://github.com/DJJugglesJ/ArcHive/releases) are listed separately from source builds.
+Built with **C# / .NET 10 / WPF** and **SQLite**. Source version: **1.0.3**. [Published Windows releases](https://github.com/DJJugglesJ/ArcHive/releases) are listed separately from source builds.
 
 ## Your games, in one place
 
@@ -20,6 +20,7 @@ Built with **C# / .NET 10 / WPF** and **SQLite**. Source version: **1.0.2**. [Pu
 - **Merge with evidence.** Find shared paths, possible title matches and byte-identical archives. Choose a primary game, retain conflicting source records and preserve launch profiles, sessions and save-backup ownership. No automatic deletion.
 - **Protect progress.** Configure save folders, create snapshots, review restores and retain protected pre-restore backups. Regular snapshot retention is configurable.
 - **Play from the couch.** Native DualSense/DS4 USB or Bluetooth and Xbox/XInput navigation; selectable button jewels, controller-support badges, context menus and an on-screen keyboard. Cross/A selects, Circle/B goes back, Triangle/Y opens context options, Options/Start opens the menu.
+- **Remove an entry.** Open a game’s Options menu and choose Remove from Library. Confirmation defaults to Cancel. Original games, archives and saves remain on disk; rescanning a registered folder may rediscover the game.
 - **Keep control.** A discreet 18 toggle manages manually classified NSFW visibility. Settings provides a confirmed library purge that retains game files and a recovery database.
 - **Stay current.** Check GitHub releases in Settings > Updates, optionally check at startup, and download a verified installer before choosing to install. [Update workflow and limits](UPDATES.md).
 - **Extend explicitly.** Configure an existing Locale Emulator installation or install and enable trusted metadata/launch plugins. [Integration contracts and limits](INTEGRATIONS.md).

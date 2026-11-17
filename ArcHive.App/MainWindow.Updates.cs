@@ -30,8 +30,8 @@ public partial class MainWindow
             Commit(); store.Save(library); preferenceStore.Save(preferences);
             void StartInstaller(object? sender,EventArgs e)
             {
-                try { Process.Start(new ProcessStartInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),"msiexec.exe")) { UseShellExecute=false, ArgumentList={"/i",path} }); }
-                catch { MessageBox.Show("Windows Installer could not start. The verified installer is retained in the library data updates folder.","ArcHive Update"); }
+                try { Process.Start(new ProcessStartInfo(Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.System),"msiexec.exe")) { UseShellExecute=false, ArgumentList={"/i",path,"/norestart","/l*v",path+".install.log"} }); }
+                catch { MessageBox.Show("Windows Installer could not start. The verified installer is retained at: " + path + ". You can retry it or choose another download location.","ArcHive Update"); }
             }
             Closed+=StartInstaller; Close(); if (IsVisible) Closed-=StartInstaller;
         }

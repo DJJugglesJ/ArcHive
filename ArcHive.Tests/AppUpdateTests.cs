@@ -22,6 +22,12 @@ internal static class AppUpdateTests
         var folder=Path.Combine(root,"updates");
         var path=await service.DownloadAsync(found,folder,null,default);
         check(File.ReadAllBytes(path).SequenceEqual(bytes) && !Directory.EnumerateFiles(folder,"*.partial").Any(),"Verified download is promoted only after size and digest checks");
+        var alternate=Path.Combine(root,"chosen-update-location");
+        var relocated=await service.DownloadAsync(found,alternate,null,default);
+        check(Path.GetDirectoryName(relocated)==alternate && File.ReadAllBytes(relocated).SequenceEqual(bytes),"Update download honors an alternate staging folder and verifies bytes");
+        var retry=await service.DownloadAsync(found,alternate,null,default);
+        check(retry!=relocated && File.Exists(relocated),"Retry retains previous verified package without overwriting it");
+        await Reject(()=>service.DownloadAsync(found,relocated,null,default),"Unusable staging path fails without silently changing location");
         await Reject(()=>service.DownloadAsync(release with {Version=AppUpdates.Current},folder,null,default),"Updater refuses equal or older versions");
         using var corrupt=new HttpClient(new Handler(_=>new(HttpStatusCode.OK){Content=new ByteArrayContent(new byte[bytes.Length])}));
         await Reject(()=>new AppUpdates(corrupt).DownloadAsync(release,folder,null,default),"Corrupt installer digest rejected");

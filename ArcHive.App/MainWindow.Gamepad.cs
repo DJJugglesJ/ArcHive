@@ -66,7 +66,7 @@ public partial class MainWindow
         }
         if (window == this && action == PadAction.Cancel && ControllerFocus.Ancestor<ComboBox>(focused)?.IsDropDownOpen != true)
         {
-            if (detailsPage) BackToCollection(this, new()); else (archivesView ? (Control)ArchiveList : Gallery).Focus();
+            if (detailsPage) BackToCollection(this, new()); else FocusSelectedEntry();
             return;
         }
         if (window == this && !detailsPage && action is not (PadAction.Previous or PadAction.Next) &&

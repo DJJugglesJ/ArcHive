@@ -30,7 +30,7 @@ public partial class MainWindow
         SearchFilters.Visibility = Visibility.Visible;
         PageTitle.Text = archivesView ? "Archives" : FavoritesOnly.IsChecked == true ? "Favorites" : "Library";
         PageSubtitle.Text = archivesView ? "Inspect your downloads. Extract when you are ready." : "Your games, all in one place.";
-        Refresh(); (archivesView ? (Control)ArchiveList : Gallery).Focus();
+        Refresh(); FocusSelectedEntry();
     }
     private void PrimaryGameAction(object sender, RoutedEventArgs e)
     {

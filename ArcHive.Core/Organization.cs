@@ -135,6 +135,7 @@ public static class BatchOperations
                 case BatchAction.MarkNsfw: case BatchAction.ClearNsfw:
                     before = game.IsNsfw.ToString(); game.IsNsfw = request.Action == BatchAction.MarkNsfw; after = game.IsNsfw.ToString(); break;
                 case BatchAction.RemoveEntries:
+                    if (game.Sessions.Any(s => s.Active)) throw new InvalidOperationException("Finish active play sessions before removing a game.");
                     before = $"{game.Archives.Count} archives / {game.Installations.Count} installations linked";
                     after = "Remove library entry only; files retained"; copy.Games.Remove(game); break;
                 default: throw new ArgumentException("Unknown action.");

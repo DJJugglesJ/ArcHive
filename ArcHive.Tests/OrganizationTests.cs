@@ -76,6 +76,12 @@ internal static class OrganizationTests
         var remove = Plan(BatchAction.RemoveEntries);
         check(remove.Result.Games.Select(g => g.Id).SequenceEqual([c.Id, shared.Id]) && remove.Result.Roots.SequenceEqual(library.Roots), "Batch forget removes only selected records and retains scan roots");
         check(File.Exists(aPath) && File.Exists(bPath) && Directory.Exists(folder), "Removing entries never removes archives or installations");
+        var single = BatchOperations.Preview(library, [a.Id], new(BatchAction.RemoveEntries));
+        check(single.Changes.Count == 1 && single.Result.Games.All(g => g.Id != a.Id) && single.Result.Games.Count == library.Games.Count-1, "Single-entry removal preserves every other game");
+        a.Sessions.Add(new PlaySession { Active = true });
+        try { BatchOperations.Preview(library, [a.Id], new(BatchAction.RemoveEntries)); throw new Exception("Active game removal was allowed"); }
+        catch (InvalidOperationException) { check(library.Games.Contains(a) && a.Sessions[0].Active, "Active session blocks removal without modifying the library"); }
+        a.Sessions.Clear();
         check(JsonSerializer.Serialize(library) == original, "Every batch preview preserves the original library");
         check(JsonSerializer.Serialize(tagged.Result.Games[0].Installations) == JsonSerializer.Serialize(a.Installations) && tagged.Result.Games[0].Archives[0].Id == a.Archives[0].Id, "Batch retains launch arguments, profile IDs, archive links and location metadata");
         void Reject(IEnumerable<Guid> ids, BatchRequest request, string name)
