@@ -112,6 +112,8 @@ public sealed class F95ThreadSource(HttpClient client)
             var attributes = anchor.Groups["attrs"].Value;
             if (Regex.IsMatch(attributes, "class\\s*=\\s*([\"'])[^\"']*\\btagItem\\b[^\"']*\\1|rel\\s*=\\s*([\"'])tag\\2", RegexOptions.IgnoreCase, RegexTimeout))
                 tagNames.Add(Clean(anchor.Groups["text"].Value));
+            else if (Regex.IsMatch(attributes, @"href\s*=\s*[""''](?:https://f95zone\.to)?/tags/[^""'']+[""'']", RegexOptions.IgnoreCase, RegexTimeout))
+                tagNames.Add(Clean(anchor.Groups["text"].Value));
         }
         var tagValue = MetadataText.Tags(tagNames); if (tagValue.Length > 0) fields[MetadataField.Tags] = tagValue;
         // Prefer the first post's explicit Overview section to the truncated social preview.

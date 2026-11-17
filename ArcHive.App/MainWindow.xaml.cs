@@ -104,7 +104,7 @@ public partial class MainWindow : Window
         var current = selected;
         var profileId = editorProfile?.Id;
         Games.ItemsSource = library.Games.Where(g =>
-            preferences.Includes(g) && (!archivesView || g.Archives.Count > 0) &&
+            preferences.Includes(g) && (activeTag is null || GameTags.Contains(g.Tags, activeTag)) && (!archivesView || g.Archives.Count > 0) &&
             (StatusFilter.SelectedIndex <= 0 || g.Progress.ToString() == StatusFilter.SelectedItem as string) &&
             (FavoritesOnly.IsChecked != true || g.Favorite) &&
             (g.Title.Contains(Search.Text, StringComparison.OrdinalIgnoreCase) || g.Tags.Contains(Search.Text, StringComparison.OrdinalIgnoreCase) || g.Naming.CanonicalTitle.Contains(Search.Text, StringComparison.OrdinalIgnoreCase) || g.Naming.OriginalName.Contains(Search.Text, StringComparison.OrdinalIgnoreCase) || g.Collections.Any(c => c.Contains(Search.Text, StringComparison.OrdinalIgnoreCase))))
@@ -117,6 +117,7 @@ public partial class MainWindow : Window
         ArchiveList.ItemsSource = Games.ItemsSource;
         ArchiveList.SelectedItem = Games.SelectedItem;
         RebuildGallery();
+        ShowTagFilters();
         EmptyTitle.Text = library.Games.Count == 0 ? UiText.EmptyTitle : UiText.NoMatches;
         EmptyDescription.Text = library.Games.Count == 0 ? UiText.EmptyDescription : UiText.NoMatchesDescription;
         EmptyState.Visibility = Games.Items.Count == 0 ? Visibility.Visible : Visibility.Collapsed;
@@ -147,6 +148,7 @@ public partial class MainWindow : Window
         TitleBox.Text = selected.Title;
         ReleaseYearBox.Text = selected.ReleaseYear; EngineBox.Text = selected.Engine; ControllerSupportBox.SelectedItem = selected.ControllerSupport;
         TagsBox.Text = selected.Tags;
+        ShowDetailTags();
         DescriptionBox.Text = selected.Description;
         FavoriteBox.IsChecked = selected.Favorite; NsfwBox.IsChecked = selected.IsNsfw;
         PlayedBox.IsChecked = selected.Played;

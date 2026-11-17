@@ -144,6 +144,7 @@ try
     await V1Tests.Run(root, Check);
     await MetadataScrubbingTests.Run(root, Check);
     await AppUpdateTests.Run(root, Check);
+    TagLaunchTests.Run(root, Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }

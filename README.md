@@ -10,7 +10,8 @@ Built with **C# / .NET 10 / WPF** and **SQLite**. Source version: **1.0.3**. [Pu
 
 ## Your games, in one place
 
-- **Discover and launch.** Recursively find archives and executable folders. Keep multiple installations, versions and named launch profiles with individual arguments, working directories and defaults.
+- **Browse by tag.** Click tag chips in game details to filter the library, see tag counts, and clear the active filter. Edit tags as removable chips or add several at once; review public F95Zone link metadata beside the tag list.
+- **Discover and launch.** Recursively find archives and executable folders. A sole non-helper executable whose cleaned name matches its folder receives an editable automatic profile when details open. Existing choices are preserved. Keep multiple installations, versions and named launch profiles with individual arguments, working directories and defaults.
 - **Inspect before extracting.** Preview ZIP/RAR/7z contents and issues, queue jobs, cancel safely and recover interrupted extraction without deleting originals.
 - **Find information with confidence.** Review Steam, IGDB, itch.io, VNDB and RAWG candidates. Choose individual fields and artwork, preserve attribution and manual choices, and undo metadata changes. F95Zone appears in Find Game Information for public-thread descriptions, tags, engine and version/channel review.
 - **Enjoy the artwork.** Covers, cinematic backdrops, screenshots and an artwork-rich grid use asynchronous bounded caches with offline reuse.

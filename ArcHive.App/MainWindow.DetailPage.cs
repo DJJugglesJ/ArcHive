@@ -11,11 +11,12 @@ public partial class MainWindow
     private void ShowDetailsPage()
     {
         if (selected is null || operation is not null) return;
+        ConfigureAutomaticLaunch();
         detailsPage = true; detailAction = 0; GameSections.SelectedIndex = 0; CollectionActions.Visibility = Visibility.Collapsed;
         BrowsePane.Visibility = Visibility.Collapsed; InspectorBorder.Visibility = Visibility.Visible;
         Grid.SetColumn(InspectorBorder, 0); Grid.SetColumnSpan(InspectorBorder, 2); InspectorColumn.Width = new GridLength(0);
         BackToLibrary.Visibility = Visibility.Visible; InspectorToggle.Visibility = Visibility.Collapsed;
-        SearchFilters.Visibility = Visibility.Collapsed;
+        SearchFilters.Visibility = Visibility.Collapsed; TagBrowser.Visibility = Visibility.Collapsed;
         PageTitle.Text = "Game Details"; PageSubtitle.Text = DisplayPaths.Compact(selected.SourceLocation);
         DetailsScroller.ScrollToTop(); PlayButton.Focus();
         Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ContextIdle, new Action(() => { if (detailsPage && IsActive) PlayButton.Focus(); }));
@@ -27,7 +28,7 @@ public partial class MainWindow
         Commit(); detailsPage = false; ShowPreferences();
         InspectorBorder.Visibility = Visibility.Collapsed; BrowsePane.Visibility = Visibility.Visible;
         BackToLibrary.Visibility = Visibility.Collapsed; InspectorToggle.Visibility = Visibility.Collapsed; CollectionActions.Visibility = Visibility.Visible;
-        SearchFilters.Visibility = Visibility.Visible;
+        SearchFilters.Visibility = Visibility.Visible; TagBrowser.Visibility = Visibility.Visible;
         PageTitle.Text = archivesView ? "Archives" : FavoritesOnly.IsChecked == true ? "Favorites" : "Library";
         PageSubtitle.Text = archivesView ? "Inspect your downloads. Extract when you are ready." : "Your games, all in one place.";
         Refresh(); FocusSelectedEntry();
