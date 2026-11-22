@@ -72,18 +72,18 @@ public static class NamingReview
         if (changeDisplay) MetadataReconciliation.SetManual(game, MetadataField.Title, canonical.Trim());
     }
 }
-public sealed record BrowseOptions(string Collection = "", string Tag = "", string Engine = "", bool ControllerOnly = false, bool UnplayedOnly = false, string Installation = "", string Sort = "Library Settings");
+public sealed record BrowseOptions(string Collection = "", string Tag = "", string Engine = "", bool ControllerOnly = false, bool UnplayedOnly = false, string Installation = "", string Sort = "Library Settings", string Rating = "All Ratings");
 public sealed record LibraryStatistics(int Games, int Favorites, int Played, int Completed, double Hours);
 public static class LibraryBrowsing
 {
     public static IEnumerable<Game> Apply(IEnumerable<Game> games, BrowseOptions options)
     {
-        var query = games.Where(g => (options.Collection.Length == 0 || g.Collections.Contains(options.Collection, StringComparer.OrdinalIgnoreCase)) &&
+        var query = games.Where(g => (options.Rating == "All Ratings" || (options.Rating == "Unrated" ? g.PersonalReview.Stars is null : options.Rating == "Rated" ? g.PersonalReview.Stars is not null : g.PersonalReview.Stars >= 4)) && (options.Collection.Length == 0 || g.Collections.Contains(options.Collection, StringComparer.OrdinalIgnoreCase)) &&
             (options.Tag.Length == 0 || g.Tags.Split(',').Any(t => t.Trim().Equals(options.Tag, StringComparison.OrdinalIgnoreCase))) &&
             (options.Engine.Length == 0 || g.Engine.Equals(options.Engine, StringComparison.OrdinalIgnoreCase)) &&
             (!options.ControllerOnly || g.HasControllerSupport) && (!options.UnplayedOnly || !g.Played) &&
             (options.Installation.Length == 0 || g.InstallationStatus == options.Installation));
-        return options.Sort switch { "Playtime" => query.OrderByDescending(g => g.PlaytimeSeconds).ThenBy(g => g.Title), "Recently Played" => query.OrderByDescending(g => g.LastLaunched).ThenBy(g => g.Title), "Title" => query.OrderBy(g => g.Title, StringComparer.OrdinalIgnoreCase), _ => query };
+        return options.Sort switch { "Your Rating" => query.OrderByDescending(g=>g.PersonalReview.Stars.HasValue).ThenByDescending(g=>g.PersonalReview.Stars).ThenBy(g=>g.Title), "Playtime" => query.OrderByDescending(g => g.PlaytimeSeconds).ThenBy(g => g.Title), "Recently Played" => query.OrderByDescending(g => g.LastLaunched).ThenBy(g => g.Title), "Title" => query.OrderBy(g => g.Title, StringComparer.OrdinalIgnoreCase), _ => query };
     }
     public static LibraryStatistics Statistics(IEnumerable<Game> games)
     { var list = games.ToArray(); return new(list.Length, list.Count(g => g.Favorite), list.Count(g => g.Played), list.Count(g => g.Progress == GameProgress.Completed), list.Sum(g => g.PlaytimeSeconds) / 3600); }

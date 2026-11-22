@@ -22,12 +22,13 @@
 | 1.0.3 | Separate temporary updater staging, alternative download-folder selection and installer logs; direct confirmed library removal with active-session protection; larger grouped game options and selected-entry focus restoration; clickable tag filters and chip editing; direct reviewed F95 link import with additional header tag parsing; conservative automatic launch profiles for matching single-executable folders. |
 | 1.0.4 | Public HTTPS archive queue; cancellation and restart recovery; signature/hash review; explicit library and extraction handoff; responsive progress and cancellable verification. |
 | 1.0.5 | Searchable tag browsing; alphabetical, most-used and favorites-first tag ordering; favorite tags and games; persistent exact-tag and game-ID blacklists with restore management and draft Save/Cancel. |
+| 1.0.6 | Personal half-star ratings and private reviews with timestamps, rating filters and sorting; retained reviews through rescans, metadata updates and duplicate merges; dependency maintenance and enforced vulnerability auditing. |
 
 The 1.0.0 row describes the source implementation. Published installers are listed on [GitHub Releases](https://github.com/DJJugglesJ/ArcHive/releases). See [V1-WORKFLOWS.md](V1-WORKFLOWS.md) and [VALIDATION.md](VALIDATION.md) for supported workflows and verification evidence.
 
 ## Planned — consolidated scope (planning revision 1.7)
 
-This is a **forward-looking planning revision**, not an ArcHive application release. The version-history table above documents shipped source changes through 1.0.5. Items below are planned unless separately recorded as implemented and verified. Do not interpret proposed APIs, layouts, or integrations as already shipping.
+This is a **forward-looking planning revision**, not an ArcHive application release. The version-history table above documents shipped source changes through 1.0.6. Items below are planned unless separately recorded as implemented and verified. Do not interpret proposed APIs, layouts, or integrations as already shipping.
 
 **Product objective:** A local-first, artwork-rich standalone-game library that can discover, download, organize, preserve, launch and play games from a controller-first experience. Desktop mode and fully offline Library operation remain first-class.
 
@@ -44,7 +45,7 @@ This is a **forward-looking planning revision**, not an ArcHive application rele
 
 ### Phase 1 — Library intelligence and managed storage (P0/P1)
 
-- **ARCH-LIB-01 — Personal ratings/reviews (P1):** Store a nullable personal 0.5–5 star rating, personal review and timestamps; display separately from provider scores; preserve through rescans and moves. Support sorting and filters.
+- **ARCH-LIB-01 — Personal ratings/reviews:** Shipped in 1.0.6; see version history.
 - **ARCH-LIB-02 — Smart naming (P1):** Parse CamelCase, punctuation, release-group/platform suffixes, build numbers and irregular versions; retain original names and parsed evidence; offer previewable naming templates, collision checks and manual overrides. A proposed title never becomes the primary identity.
 - **ARCH-LIB-03 — Archive inspection and duplicates (P1):** ZIP/RAR/7z manifest inspection, integrity checks and nested-root detection; duplicate candidates by name/size/manifests, confirmed identical archives by streaming hashes; prevent traversal, dangerous links, excessive output and overwrite.
 - **ARCH-LIB-04 — Executable detection (P1):** Rank executable candidates from filename, PE metadata, engine layout and helper/installer exclusions; preserve manually chosen launch profiles. Support multiple executable/renderer/architecture profiles.

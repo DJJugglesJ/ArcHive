@@ -13,6 +13,7 @@ public partial class MainWindow
     }
     private void ShowDetailTags()
     {
+        PersonalReviewButton.Content=(selected?.PersonalReview.Summary ?? "Your Rating") + " · Review…";
         DetailTagButtons.Children.Clear(); var tags=GameTags.Parse(selected?.Tags);
         NoTagsHint.Visibility=tags.Length==0 ? Visibility.Visible : Visibility.Collapsed;
         foreach(var tag in tags) DetailTagButtons.Children.Add(TagButton(tag,tag));

@@ -41,9 +41,10 @@ public sealed class BrowseWindow : ToolWindow
         var availability = Options("Installation Status", ["", "Ready to Play", "Folder Linked", "Archived", "Missing Files", "Not Installed"], current.Installation);
         var controller = Options("Controller Support", ["All Games", "Controller Supported"], current.ControllerOnly ? "Controller Supported" : "All Games");
         var played = Options("Play History", ["All Games", "Unplayed"], current.UnplayedOnly ? "Unplayed" : "All Games");
-        var sort = Options("Sort By", ["Library Settings", "Title", "Recently Played", "Playtime"], current.Sort);
+        var rating = Options("Your Rating", ["All Ratings", "Rated", "Unrated", "4 Stars & Up"], current.Rating);
+        var sort = Options("Sort By", ["Library Settings", "Title", "Recently Played", "Playtime", "Your Rating"], current.Sort);
         Label("Filters apply together with search, Play Status, favorites and NSFW visibility. Statistics cover the library allowed by your NSFW setting.");
-        ActionButton("Apply Filters", () => { Result = new(collections.SelectedItem as string ?? "", tags.SelectedItem as string ?? "", engines.SelectedItem as string ?? "", controller.SelectedIndex == 1, played.SelectedIndex == 1, availability.SelectedItem as string ?? "", sort.SelectedItem as string ?? "Title"); DialogResult = true; });
+        ActionButton("Apply Filters", () => { Result = new(collections.SelectedItem as string ?? "", tags.SelectedItem as string ?? "", engines.SelectedItem as string ?? "", controller.SelectedIndex == 1, played.SelectedIndex == 1, availability.SelectedItem as string ?? "", sort.SelectedItem as string ?? "Title", rating.SelectedItem as string ?? "All Ratings"); DialogResult = true; });
         ActionButton("Clear Browse Filters", () => { Result = new(); DialogResult = true; }); ActionButton("Cancel", () => DialogResult = false); Body.Children.Add(StatusText);
     }
 }

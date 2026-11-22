@@ -109,3 +109,9 @@ This first integration accepts direct public files, not store pages, forum threa
 Open **Tags & Blacklists** from the library toolbar. Search tags, sort them alphabetically, by usage or favorites first, and toggle favorite or blacklist status. Switch to **Games** to favorite or blacklist individual games, including those currently hidden by a tag rule. Save applies the draft; Cancel leaves it unchanged.
 
 **Browse by tag** includes tag search and a favorite-tags filter. Blacklisted tags hide games with that exact tag; blacklisted games are tracked by stable game ID. Favorites never override a blacklist. Restore a rule in the same manager; a game hidden by a tag remains hidden until that tag rule is restored. No game files, metadata or source records are deleted. The existing NSFW visibility setting still applies.
+
+## Personal ratings and reviews (1.0.6)
+
+Open a game's Overview and choose **Your rating · Review…** to save a personal half-star rating (0.5–5) and private notes. Choose Unrated to clear the rating; an unrated game may still have notes. Save applies changes and Cancel leaves them unchanged. Creation and edit timestamps are retained; saving unchanged content does not change the timestamp.
+
+Under **Browse…**, filter to Rated, Unrated or 4 Stars & Up, or sort by Your Rating with unrated games last. Reviews live in the existing SQLite library metadata, separate from provider fields and scores. Older entries default to Unrated. Duplicate merges retain the primary review and preserve the other game's review in its source record.

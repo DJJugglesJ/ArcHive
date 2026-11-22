@@ -10,6 +10,7 @@ public sealed class Game : System.ComponentModel.INotifyPropertyChanged
     public bool IsSelected { get => isSelected; set { if (isSelected == value) return; isSelected = value; PropertyChanged?.Invoke(this, new(nameof(IsSelected))); } }
     public List<PlaySession> Sessions { get; set; } = [];
     public List<string> Collections { get; set; } = [];
+    public PersonalReview PersonalReview { get; set; } = new();
     public GameNaming Naming { get; set; } = new();
     public List<Game> MergedRecords { get; set; } = [];
     [System.Text.Json.Serialization.JsonIgnore] public double PlaytimeSeconds => Sessions.Sum(s => s.Seconds);

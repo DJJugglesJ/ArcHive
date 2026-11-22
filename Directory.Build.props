@@ -3,7 +3,9 @@
     <EnableMultiArchive Condition="'$(EnableMultiArchive)' == ''">true</EnableMultiArchive>
     <TargetFramework>net10.0-windows</TargetFramework>
     <TargetFramework Condition="'$(CompatibilityCheck)' == 'true'">net8.0-windows</TargetFramework>
-    <Version>1.0.5</Version>
+    <Version>1.0.6</Version>
+    <NuGetAuditMode>all</NuGetAuditMode>
+    <WarningsAsErrors>$(WarningsAsErrors);NU1900;NU1901;NU1902;NU1903;NU1904</WarningsAsErrors>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <DefineConstants Condition="'$(EnableMultiArchive)' == 'true'">$(DefineConstants);MULTI_ARCHIVE</DefineConstants>

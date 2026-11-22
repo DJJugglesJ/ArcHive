@@ -147,6 +147,7 @@ try
     TagLaunchTests.Run(root, Check);
     await DownloadTests.Run(root, Check);
     BrowseRulesTests.Run(root, Check);
+    PersonalReviewTests.Run(root, Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }
