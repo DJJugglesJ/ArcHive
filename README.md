@@ -95,3 +95,11 @@ The automated suite covers persistence/migration, safe extraction, source provid
 [ROADMAP.md](ROADMAP.md) records changes by version and planned work, including additional source/engine coverage, scheduled backups and release checks, cross-drive relocation, portability and further performance/accessibility work.
 
 Developed by Bellum Labs · Nicholas Gartin. © 2026 Bellum Labs. All rights reserved.
+
+## Download queue (1.0.4)
+
+Open **Downloads** beside Add Games. Paste a permanent public HTTPS file link and enter a ZIP, RAR or 7z filename, then choose **Add to Queue**. **Start / Retry Queue** processes entries one at a time. Stop cancels the active transfer; interrupted, cancelled and failed transfers restart from the beginning when retried.
+
+Choose a ready archive and **Add to Library & Review** to verify its saved hash, add it to the library, and open the existing archive preview/extraction queue. Nothing extracts or launches automatically. Re-reviewing the same downloaded path reuses its library entry. Use duplicate review to merge with an existing game when appropriate.
+
+This first integration accepts direct public files, not store pages, forum threads, checkout pages, signed query-string URLs or authenticated downloads. Use your browser for those flows and add the resulting local archive. No cookies or source credentials are used by the downloader. Public IPv4 HTTPS endpoints are supported; the size limit is 32 GiB per file. Files are stored under the ArcHive data directory's downloads folder; partial files are retained for recovery and overwritten on an explicit retry. Hash verification detects changes after download; it is not publisher authentication or a malware scan.

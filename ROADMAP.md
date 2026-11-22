@@ -20,12 +20,13 @@
 | 1.0.1 | Metadata corrections: VNDB tags, selected-match RAWG/Steam detail retrieval, richer IGDB tags, cleaned search titles, integrated F95Zone thread metadata/version review; controller review shortcuts and focus improvements; GitHub release update checks, verified installer downloads and explicit install handoff. |
 | 1.0.2 | Readable dark updater window; Settings initial controller focus; clearer verified-download state and recovery from missing or altered staged installers; branded updater validation release. |
 | 1.0.3 | Separate temporary updater staging, alternative download-folder selection and installer logs; direct confirmed library removal with active-session protection; larger grouped game options and selected-entry focus restoration; clickable tag filters and chip editing; direct reviewed F95 link import with additional header tag parsing; conservative automatic launch profiles for matching single-executable folders. |
+| 1.0.4 | Public HTTPS archive queue; cancellation and restart recovery; signature/hash review; explicit library and extraction handoff; responsive progress and cancellable verification. |
 
 The 1.0.0 row describes the source implementation. Published installers are listed on [GitHub Releases](https://github.com/DJJugglesJ/ArcHive/releases). See [V1-WORKFLOWS.md](V1-WORKFLOWS.md) and [VALIDATION.md](VALIDATION.md) for supported workflows and verification evidence.
 
 ## Planned — consolidated scope (planning revision 1.7)
 
-This is a **forward-looking planning revision**, not an ArcHive application release. The version-history table above documents shipped source changes through 1.0.3 and is retained unchanged. Items below are planned unless separately recorded as implemented and verified. Do not interpret proposed APIs, layouts, or integrations as already shipping.
+This is a **forward-looking planning revision**, not an ArcHive application release. The version-history table above documents shipped source changes through 1.0.4. Items below are planned unless separately recorded as implemented and verified. Do not interpret proposed APIs, layouts, or integrations as already shipping.
 
 **Product objective:** A local-first, artwork-rich standalone-game library that can discover, download, organize, preserve, launch and play games from a controller-first experience. Desktop mode and fully offline Library operation remain first-class.
 
@@ -78,6 +79,8 @@ This is a **forward-looking planning revision**, not an ArcHive application rele
 - **Previously planned source work remains:** Broader source/engine coverage, provider release lookups and scheduled update checks, extra F95Zone fields, authorized private-source access when supported, and F95Checker import.
 
 ### Phase 4 — Unified downloads, BitTorrent and updates (P1; advanced reuse P2)
+
+Implemented foundation in 1.0.4: permanent public HTTPS archive links, a sequential persistent queue, stop/retry from the beginning, completed-file hash review and explicit extraction handoff. The broader capabilities below remain planned.
 
 - **ARCH-DL-01 — Native HTTP/HTTPS queue:** Persistent queue, pause/retry/cancel, concurrency/bandwidth limits, verified range-resume when supported, ETag/Last-Modified and size validation, partial-file verification, disk-space checks and restart recovery. Do not concatenate bytes when a remote object changes.
 - **ARCH-DL-02 — Embedded source browser:** Optional WebView2 discovery/authentication view with controller navigation and external-browser fallback. Native transfers take over only supported downloads; expiring links, provider permissions and authentication constraints must be respected.
