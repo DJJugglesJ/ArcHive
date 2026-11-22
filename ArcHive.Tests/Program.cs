@@ -148,6 +148,7 @@ try
     await DownloadTests.Run(root, Check);
     BrowseRulesTests.Run(root, Check);
     PersonalReviewTests.Run(root, Check);
+    SmartNamingTests.Run(root, Check);
     Console.WriteLine($"All {passed} checks passed.");
 }
 finally { Directory.Delete(root, true); }

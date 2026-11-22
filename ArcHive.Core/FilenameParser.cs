@@ -2,7 +2,12 @@ using System.Text.RegularExpressions;
 
 namespace ArcHive.Core;
 
-public sealed record ParsedGameName(string Original, string Title, string? Version, string? Platform);
+public sealed record ParsedGameName(string Original, string Title, string? Version, string? Platform)
+{
+    public string? Build { get; init; }
+    public string? ReleaseGroup { get; init; }
+    public string[] Evidence { get; init; } = [];
+}
 public static class FilenameParser
 {
     // Keep numeric identifiers, but include immediate parent context on new discoveries.
@@ -21,16 +26,20 @@ public static class FilenameParser
         var extension = Path.GetExtension(name);
         if (new[] { ".zip", ".rar", ".7z", ".exe" }.Contains(extension, StringComparer.OrdinalIgnoreCase))
             name = name[..^extension.Length];
-        var version = Regex.Match(name, @"(?i)(?<![a-z0-9])v(?:er(?:sion)?)?[ ._-]?(\d+(?:\.\d+)*[a-z]?)(?![a-z0-9])");
-        var platform = Regex.Match(name, @"(?i)(?<![a-z0-9])(win(?:dows)?(?:32|64)?|linux|mac(?:os)?)(?![a-z0-9])");
+        // Only explicitly labelled release groups are removable; arbitrary brackets may be title text.
+        var group = Regex.Match(name, @"(?i)\[(?:group|release-group)[ :=_-]+([^\]\r\n]+)\]$");
+        var tokenSource = group.Success ? name[..group.Index] : name;
+        var version = Regex.Match(tokenSource, @"(?i)(?<![a-z0-9])v(?:er(?:sion)?)?[ ._-]?(\d+(?:[.\-]\d+)*(?:[ ._-]?(?:alpha|beta|rc|preview|hotfix)[ ._-]?\d*|[a-z])?)(?![a-z0-9])");
+        var platform = Regex.Match(tokenSource, @"(?i)(?<![a-z0-9])(win(?:dows)?(?:32|64)?|linux|mac(?:os)?)(?![a-z0-9])");
+        var build = Regex.Match(tokenSource, @"(?i)(?<![a-z0-9])build[ ._#-]*(\d+)(?![a-z0-9])");
         var title = name;
         // Remove only explicit release/platform tokens. Bare numbers remain part of the title.
-        foreach (var match in new[] { version, platform }.Where(m => m.Success).OrderByDescending(m => m.Index))
+        foreach (var match in new[] { version, platform, build, group }.Where(m => m.Success).OrderByDescending(m => m.Index))
             title = title.Remove(match.Index, match.Length);
         title = Regex.Replace(title, @"\[\s*\]|\(\s*\)", " ");
         title = Regex.Replace(title, @"([A-Z]+)([A-Z][a-z])", "$1 $2");
         title = Regex.Replace(title, @"([a-z0-9])([A-Z])", "$1 $2");
-        title = Regex.Replace(title, @"[_\s]+", " ").Trim(' ', '-', '.');
+        title = Regex.Replace(title, @"[._\s]+", " ").Trim(' ', '-', '.');
         if (string.IsNullOrWhiteSpace(title)) title = name;
         return new(original, title, version.Success ? version.Groups[1].Value : null,
             platform.Success ? platform.Value.ToLowerInvariant() switch
@@ -40,6 +49,11 @@ public static class FilenameParser
                 "win" or "windows" => "Windows",
                 "linux" => "Linux",
                 _ => "macOS"
-            } : null);
+            } : null)
+        {
+            Build = build.Success ? build.Groups[1].Value : null,
+            ReleaseGroup = group.Success ? group.Groups[1].Value : null,
+            Evidence = new[] { version, platform, build, group }.Where(m => m.Success).Select(m => "Explicit token: " + m.Value).ToArray()
+        };
     }
 }

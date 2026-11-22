@@ -161,3 +161,8 @@ The planning consolidation does **not** cancel these pre-existing ROADMAP items:
 - Test same-title disambiguation, arbitrary version formats, parallel installations, wrong-executable avoidance, safe cleanup, torrent seeding retention, interrupted file moves, download resume, corrupted archives and source outages.
 - Verify physical controllers, mapped-key cleanup, overlay focus, keyboard-only accessibility, and functioning offline mode.
 - Ship no automated destructive changes without recovery and explicit user-approved rules. Documentation updates do not imply implementation or release.
+
+## Implemented after 1.0.6 (next release)
+
+- ARCH-LIB-02: explicit prerelease/date versions, build numbers, labelled release-group suffixes and dot separators; original names and token evidence retained. Unlabelled bracket text and bare numbers remain title content.
+- Batch naming templates support {title}, {version}, {platform} and {build}, with per-location release values, preview invalidation when edited, missing-field/unsafe-name/collision rejection, and the existing journaled rename and recovery flow. Reviewed canonical titles take precedence; game identity, display titles and personal reviews remain unchanged by file renames.

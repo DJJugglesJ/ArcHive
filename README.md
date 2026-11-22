@@ -115,3 +115,9 @@ Open **Tags & Blacklists** from the library toolbar. Search tags, sort them alph
 Open a game's Overview and choose **Your rating · Review…** to save a personal half-star rating (0.5–5) and private notes. Choose Unrated to clear the rating; an unrated game may still have notes. Save applies changes and Cancel leaves them unchanged. Creation and edit timestamps are retained; saving unchanged content does not change the timestamp.
 
 Under **Browse…**, filter to Rated, Unrated or 4 Stars & Up, or sort by Your Rating with unrated games last. Reviews live in the existing SQLite library metadata, separate from provider fields and scores. Older entries default to Unrated. Duplicate merges retain the primary review and preserve the other game's review in its source record.
+
+## Smart naming (next release)
+
+Review parser suggestions in **Playtime & Naming**. Explicit versions (including prerelease and date forms), build numbers, platform tokens and labelled `[group-Name]` suffixes have retained evidence. Arbitrary bracket text is kept to avoid discarding developer or title information.
+
+In **Batch Tools**, use **Naming Template** before **Preview File Renames**. The default `{title}` keeps existing behavior; `{title} - {version}` separates installed or archived versions. `{platform}` and `{build}` are also supported. Missing fields require reviewing release information or changing the template. Unsafe names and destination collisions are rejected. Edit a template to discard its old preview, then preview again before applying. Relocation retains filenames.

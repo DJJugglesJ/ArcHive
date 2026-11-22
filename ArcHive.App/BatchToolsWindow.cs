@@ -16,6 +16,7 @@ public sealed class BatchToolsWindow : ToolWindow
     private Action? apply;
     private readonly Button applyButton;
     private bool working;
+    private readonly TextBox namingTemplate;
     public BatchToolsWindow(Library source, Game[] selection, Action<Library> save, ExtractionQueue queue, string journal, Func<Library> readPersisted) : base("Batch Tools")
     {
         this.source = source; this.selection = selection; this.save = save; this.queue = queue; this.journal = journal; this.readPersisted = readPersisted;
@@ -23,6 +24,9 @@ public sealed class BatchToolsWindow : ToolWindow
         var primary = new ComboBox { ItemsSource = selection, DisplayMemberPath = nameof(Game.Title), SelectedIndex = 0 }; Body.Children.Add(primary);
         primary.SelectionChanged += (_, _) => Invalidate();
         ActionButton("Preview Duplicate Merge", () => { Invalidate(); CheckQueue(); var p = DuplicateMerge.Preview(source, selection.Select(g => g.Id), ((Game)primary.SelectedItem).Id); preview.Text = string.Join("\n\n", p.Summary); Ready(() => { save(DuplicateMerge.Apply(source, p)); DialogResult = true; }); });
+        namingTemplate = Input("Naming Template", "{title}");
+        Label("Use {title}, {version}, {platform} or {build}. Example: {title} - {version}. Missing values require a different template. Each source keeps its own version.");
+        namingTemplate.TextChanged += (_, _) => Invalidate();
         ActionButton("Preview File Renames…", () => BeginFiles(null, true));
         ActionButton("Preview Relocation…", () => { var picker = new OpenFolderDialog { Title = "Choose Destination on the Same Drive" }; if (picker.ShowDialog(this) == true) BeginFiles(picker.FolderName, false); });
         ActionButton("Recover Interrupted File Changes", () => { Invalidate(); StatusText.Text = LibraryFileMoves.Recover(readPersisted(), journal); });
@@ -40,7 +44,7 @@ public sealed class BatchToolsWindow : ToolWindow
     private async void BeginFiles(string? folder, bool rename)
     {
         if (working) return; Invalidate(); working = true; Body.IsEnabled = false;
-        try { CheckQueue(); var p = await Task.Run(() => LibraryFileMoves.Preview(source, selection.Select(g => g.Id), folder, rename)); preview.Text = string.Join("\n\n", p.Moves.Select(m => m.Source + "\n→ " + m.Destination)); Ready(() => ApplyFiles(p)); }
+        try { CheckQueue(); var template = namingTemplate.Text; var p = await Task.Run(() => LibraryFileMoves.Preview(source, selection.Select(g => g.Id), folder, rename, template)); preview.Text = string.Join("\n\n", p.Moves.Select(m => m.Source + "\n→ " + m.Destination)); Ready(() => ApplyFiles(p)); }
         catch (Exception ex) { StatusText.Text = ex.Message; }
         finally { working = false; Body.IsEnabled = true; }
     }

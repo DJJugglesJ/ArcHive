@@ -1,15 +1,9 @@
 # Next ArcHive increment
 
-0.9.0 delivers launch/engine suggestions with evidence and opt-in application, source visibility and numeric-name context, right-click/Triangle options and selection/theme fixes verified in a live desktop fixture session.
+Latest published application: 1.0.6 (personal ratings and reviews).
 
-Next core-workflow gaps: duplicate reconciliation/merge, batch identification and previewed relocation; broader engine signatures and richer filename review. Playtime remains planned. Opt-in F95Zone thread associations and public checks are delivered in 0.11.0. Save-folder snapshots and previewed restores are delivered in 0.10.0. Archive decoder hardening, hardware power-loss tests, physical-controller verification, accessibility and large-library benchmarks remain validation work.
+Implemented for the next release: ARCH-LIB-02 smart naming, token evidence, and previewed per-location naming templates. See SMART-NAMING.md for verification and supported syntax.
 
-### Details-first release polish
+Next roadmap item: ARCH-LIB-03 archive inspection and duplicates. Review the existing preview, extraction-safety and duplicate-hashing implementations against manifest comparison, integrity and nested-root detection requirements before extending them. Preserve manual choices and journaled recovery.
 
-Left-click or Cross/A opens a dedicated details page; Play is a separate action. Right-click or Triangle/Y opens options. Boolean controls use selected buttons with accessible checked state. Display paths retain the drive and final two components, with full paths available through tooltips and Copy full paths. Stored paths remain unchanged.
-
-Live fixture verification confirmed opening details did not change the launch marker, explicit Play did, and the details layout fit a 1014-pixel-wide window. Automated checks cover compact drive/UNC paths, unchanged stored paths, and held-accept suppression.
-
-0.10.0 adds explicit per-game save locations, local hash-verified folder snapshots, regular-snapshot retention, restore previews with stale-state checks, protected pre-restore snapshots and interrupted-swap recovery. Automatic save discovery, scheduling, cloud storage and retention of protected recovery copies remain future work.
-
-0.11.0 reorganizes navigation, details and settings; adds explicit F95Zone thread review, per-source vault credentials/browser links and optional owned-title import. Remaining integration gaps: authenticated GOG sync, private F95Zone access, automatic storefront installation, full modal controller navigation and live-account validation.
+ROADMAP.md is the consolidated roadmap; earlier release history remains there. No installer release is implied by a source milestone.

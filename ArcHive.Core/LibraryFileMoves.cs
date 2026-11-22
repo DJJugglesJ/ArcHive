@@ -32,7 +32,7 @@ public static class LibraryFileMoves
         if (!directory && entries.Count == 1) entries[0] = entries[0][(entries[0].IndexOf(':') + 1)..];
         return Convert.ToHexString(SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(string.Join("\n", entries.Order(StringComparer.Ordinal)))));
     }
-    public static FileMovePlan Preview(Library source, IEnumerable<Guid> selection, string? destinationFolder, bool rename)
+    public static FileMovePlan Preview(Library source, IEnumerable<Guid> selection, string? destinationFolder, bool rename, string namingTemplate = "{title}")
     {
         var ids = selection.ToHashSet(); if (ids.Count == 0) throw new ArgumentException("Select games first.");
         if (destinationFolder is not null) { destinationFolder = Path.GetFullPath(destinationFolder); PathSafety.NoLinks(destinationFolder); if (!Directory.Exists(destinationFolder)) throw new DirectoryNotFoundException("Choose an existing destination folder."); }
@@ -42,10 +42,10 @@ public static class LibraryFileMoves
             if (game.Sessions.Any(s => s.Active)) throw new InvalidOperationException("Close tracked games before moving their files.");
             var title = game.Naming.CanonicalTitle.Length > 0 ? game.Naming.CanonicalTitle : game.Title;
             if (rename && (title.IndexOfAny(Path.GetInvalidFileNameChars()) >= 0 || title.TrimEnd(' ', '.') != title || title.Length > 120 || string.IsNullOrWhiteSpace(title) || title is "." or ".." || System.Text.RegularExpressions.Regex.IsMatch(title, @"^(CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9])(?:\.|$)", System.Text.RegularExpressions.RegexOptions.IgnoreCase))) throw new IOException("The title is not a safe filename: " + title);
-            foreach (var location in game.Installations.Select(i => (i.Path, Directory: true)).Concat(game.Archives.Select(a => (a.Path, Directory: false))))
+            foreach (var location in game.Installations.Select(i => (i.Path, Directory: true, i.Release)).Concat(game.Archives.Select(a => (a.Path, Directory: false, a.Release))))
             {
                 var path = Path.GetFullPath(location.Path); var parent = destinationFolder ?? Path.GetDirectoryName(path)!;
-                var name = rename ? title + (location.Directory ? "" : Path.GetExtension(path)) : Path.GetFileName(path);
+                var name = rename ? NamingTemplates.Render(namingTemplate, title, path, location.Release) + (location.Directory ? "" : Path.GetExtension(path)) : Path.GetFileName(path);
                 var target = Path.Combine(parent, name); if (Game.SamePath(path, target)) continue;
                 if (!string.Equals(Path.GetPathRoot(path), Path.GetPathRoot(target), StringComparison.OrdinalIgnoreCase)) throw new IOException("This operation supports moves on the same drive only.");
                 if (source.Roots.Any(r => Game.SamePath(r, path))) throw new IOException("A registered library root cannot be moved. Select a game subfolder.");

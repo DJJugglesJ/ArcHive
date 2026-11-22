@@ -59,6 +59,7 @@ public static class NamingReview
     {
         var path = game.SourceLocation; var parsed = FilenameParser.FromLocation(path, game.Installations.Count > 0);
         var evidence = new List<string> { "Source: " + path, "Bare numbers and date-like tokens remain part of the title." };
+        evidence.AddRange(parsed.Evidence);
         if (parsed.Version is not null) evidence.Add("Explicit version token: " + parsed.Version);
         if (parsed.Platform is not null) evidence.Add("Explicit platform token: " + parsed.Platform);
         var ambiguous = !parsed.Title.Any(char.IsLetter) || Regex.IsMatch(parsed.Title, @"\b\d{4}[-._ ]\d{1,2}[-._ ]\d{1,2}\b");
