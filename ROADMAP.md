@@ -21,12 +21,13 @@
 | 1.0.2 | Readable dark updater window; Settings initial controller focus; clearer verified-download state and recovery from missing or altered staged installers; branded updater validation release. |
 | 1.0.3 | Separate temporary updater staging, alternative download-folder selection and installer logs; direct confirmed library removal with active-session protection; larger grouped game options and selected-entry focus restoration; clickable tag filters and chip editing; direct reviewed F95 link import with additional header tag parsing; conservative automatic launch profiles for matching single-executable folders. |
 | 1.0.4 | Public HTTPS archive queue; cancellation and restart recovery; signature/hash review; explicit library and extraction handoff; responsive progress and cancellable verification. |
+| 1.0.5 | Searchable tag browsing; alphabetical, most-used and favorites-first tag ordering; favorite tags and games; persistent exact-tag and game-ID blacklists with restore management and draft Save/Cancel. |
 
 The 1.0.0 row describes the source implementation. Published installers are listed on [GitHub Releases](https://github.com/DJJugglesJ/ArcHive/releases). See [V1-WORKFLOWS.md](V1-WORKFLOWS.md) and [VALIDATION.md](VALIDATION.md) for supported workflows and verification evidence.
 
 ## Planned — consolidated scope (planning revision 1.7)
 
-This is a **forward-looking planning revision**, not an ArcHive application release. The version-history table above documents shipped source changes through 1.0.4. Items below are planned unless separately recorded as implemented and verified. Do not interpret proposed APIs, layouts, or integrations as already shipping.
+This is a **forward-looking planning revision**, not an ArcHive application release. The version-history table above documents shipped source changes through 1.0.5. Items below are planned unless separately recorded as implemented and verified. Do not interpret proposed APIs, layouts, or integrations as already shipping.
 
 **Product objective:** A local-first, artwork-rich standalone-game library that can discover, download, organize, preserve, launch and play games from a controller-first experience. Desktop mode and fully offline Library operation remain first-class.
 
@@ -159,9 +160,3 @@ The planning consolidation does **not** cancel these pre-existing ROADMAP items:
 - Test same-title disambiguation, arbitrary version formats, parallel installations, wrong-executable avoidance, safe cleanup, torrent seeding retention, interrupted file moves, download resume, corrupted archives and source outages.
 - Verify physical controllers, mapped-key cleanup, overlay focus, keyboard-only accessibility, and functioning offline mode.
 - Ship no automated destructive changes without recovery and explicit user-approved rules. Documentation updates do not imply implementation or release.
-
-## Implemented since 1.0.4 (next release)
-
-- Searchable tag browsing; alphabetical, most-used and favorites-first tag ordering.
-- Favorite tags and games; persistent exact-tag and game-ID blacklists with an explicit restore manager.
-- Draft editing with Save/Cancel; blacklist rules hide entries without deleting files or metadata.

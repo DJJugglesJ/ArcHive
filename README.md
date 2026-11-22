@@ -104,7 +104,7 @@ Choose a ready archive and **Add to Library & Review** to verify its saved hash,
 
 This first integration accepts direct public files, not store pages, forum threads, checkout pages, signed query-string URLs or authenticated downloads. Use your browser for those flows and add the resulting local archive. No cookies or source credentials are used by the downloader. Public IPv4 HTTPS endpoints are supported; the size limit is 32 GiB per file. Files are stored under the ArcHive data directory's downloads folder; partial files are retained for recovery and overwritten on an explicit retry. Hash verification detects changes after download; it is not publisher authentication or a malware scan.
 
-## Tag preferences and blacklists (next release)
+## Tag preferences and blacklists (1.0.5)
 
 Open **Tags & Blacklists** from the library toolbar. Search tags, sort them alphabetically, by usage or favorites first, and toggle favorite or blacklist status. Switch to **Games** to favorite or blacklist individual games, including those currently hidden by a tag rule. Save applies the draft; Cancel leaves it unchanged.
 
