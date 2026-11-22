@@ -103,3 +103,9 @@ Open **Downloads** beside Add Games. Paste a permanent public HTTPS file link an
 Choose a ready archive and **Add to Library & Review** to verify its saved hash, add it to the library, and open the existing archive preview/extraction queue. Nothing extracts or launches automatically. Re-reviewing the same downloaded path reuses its library entry. Use duplicate review to merge with an existing game when appropriate.
 
 This first integration accepts direct public files, not store pages, forum threads, checkout pages, signed query-string URLs or authenticated downloads. Use your browser for those flows and add the resulting local archive. No cookies or source credentials are used by the downloader. Public IPv4 HTTPS endpoints are supported; the size limit is 32 GiB per file. Files are stored under the ArcHive data directory's downloads folder; partial files are retained for recovery and overwritten on an explicit retry. Hash verification detects changes after download; it is not publisher authentication or a malware scan.
+
+## Tag preferences and blacklists (next release)
+
+Open **Tags & Blacklists** from the library toolbar. Search tags, sort them alphabetically, by usage or favorites first, and toggle favorite or blacklist status. Switch to **Games** to favorite or blacklist individual games, including those currently hidden by a tag rule. Save applies the draft; Cancel leaves it unchanged.
+
+**Browse by tag** includes tag search and a favorite-tags filter. Blacklisted tags hide games with that exact tag; blacklisted games are tracked by stable game ID. Favorites never override a blacklist. Restore a rule in the same manager; a game hidden by a tag remains hidden until that tag rule is restored. No game files, metadata or source records are deleted. The existing NSFW visibility setting still applies.

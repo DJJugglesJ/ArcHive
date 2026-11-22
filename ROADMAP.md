@@ -159,3 +159,9 @@ The planning consolidation does **not** cancel these pre-existing ROADMAP items:
 - Test same-title disambiguation, arbitrary version formats, parallel installations, wrong-executable avoidance, safe cleanup, torrent seeding retention, interrupted file moves, download resume, corrupted archives and source outages.
 - Verify physical controllers, mapped-key cleanup, overlay focus, keyboard-only accessibility, and functioning offline mode.
 - Ship no automated destructive changes without recovery and explicit user-approved rules. Documentation updates do not imply implementation or release.
+
+## Implemented since 1.0.4 (next release)
+
+- Searchable tag browsing; alphabetical, most-used and favorites-first tag ordering.
+- Favorite tags and games; persistent exact-tag and game-ID blacklists with an explicit restore manager.
+- Draft editing with Save/Cancel; blacklist rules hide entries without deleting files or metadata.

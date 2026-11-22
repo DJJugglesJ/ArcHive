@@ -20,9 +20,21 @@ public partial class MainWindow
     private void ShowTagFilters()
     {
         LibraryTagButtons.Children.Clear(); if(activeTag is not null) TagBrowser.IsExpanded=true; ActiveTagButton.Content=activeTag is null ? "All tags" : "Clear tag: " + activeTag;
-        foreach(var group in library.Games.Where(preferences.Includes).SelectMany(g=>GameTags.Parse(g.Tags)).GroupBy(t=>t,StringComparer.OrdinalIgnoreCase).OrderBy(g=>g.Key,StringComparer.OrdinalIgnoreCase))
-            LibraryTagButtons.Children.Add(TagButton(group.Key,$"{group.Key} ({group.Count()})"));
+        foreach(var tag in preferences.BrowseRules.Tags(library.Games.Where(preferences.Includes).ToArray(),TagSearch.Text,FavoriteTagsOnly.IsChecked==true).Where(t=>!t.Blacklisted&&t.Count>0))
+            LibraryTagButtons.Children.Add(TagButton(tag.Name,$"{(tag.Favorite ? "★ " : "")}{tag.Name} ({tag.Count})"));
     }
+    private void TagSearchChanged(object sender,RoutedEventArgs e) { if(ready)ShowTagFilters(); }
+    private void ManageBrowseRules(object sender,RoutedEventArgs e)=>Guard(()=>
+    {
+        if(operation is not null)return;
+        Commit();var dialog=new BrowseRulesWindow(preferences,library.Games){Owner=this};
+        if(dialog.ShowDialog()!=true)return;
+        var updated=System.Text.Json.JsonSerializer.Deserialize<Library>(System.Text.Json.JsonSerializer.Serialize(library))!;
+        foreach(var game in updated.Games)if(dialog.Favorites.TryGetValue(game.Id,out var favorite))game.Favorite=favorite;
+        store.Save(updated);library=updated;Games.SelectedItem=null;selected=null;
+        preferenceStore.Save(dialog.Result);preferences=dialog.Result;
+        if(detailsPage)BackToCollection(this,new());else Refresh();
+    });
     private void ClearTagFilter(object sender,RoutedEventArgs e) { Commit(); activeTag=null; Refresh(); FocusSelectedEntry(); }
     private void EditTags(object sender,RoutedEventArgs e)
     {

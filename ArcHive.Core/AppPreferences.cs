@@ -15,7 +15,8 @@ public sealed class AppPreferences
     public ControllerProfile ControllerProfile { get; set; } = ControllerProfile.DualSense;
     public bool ShowNsfw { get; set; }
     public bool GamepadEnabled { get; set; } = true;
-    public bool Includes(Game game) => ShowNsfw || !game.IsNsfw;
+    public BrowseRules BrowseRules { get; set; } = new();
+    public bool Includes(Game game) => (ShowNsfw || !game.IsNsfw) && !BrowseRules.Blocks(game);
 }
 public sealed record ControllerPrompts(string Accept, string Cancel, string Alternate, string Menu, string Previous, string Next)
 {
@@ -32,12 +33,12 @@ public sealed class AppPreferencesStore(string file)
     {
         if (!File.Exists(file)) return new();
         var settings = JsonSerializer.Deserialize<AppPreferences>(File.ReadAllText(file)) ?? throw new InvalidDataException("Invalid app settings.");
-        if (!Enum.IsDefined(settings.ControllerProfile) || !Enum.IsDefined(settings.LibraryOrder) || !Enum.IsDefined(settings.LibraryDensity)) throw new InvalidDataException("Unsupported controller profile.");
+        if (settings.BrowseRules is null || settings.BrowseRules.FavoriteTags is null || settings.BrowseRules.BlacklistedTags is null || settings.BrowseRules.BlacklistedGames is null || !Enum.IsDefined(settings.BrowseRules.TagOrder) || !Enum.IsDefined(settings.ControllerProfile) || !Enum.IsDefined(settings.LibraryOrder) || !Enum.IsDefined(settings.LibraryDensity)) throw new InvalidDataException("Unsupported controller profile.");
         return settings;
     }
     public void Save(AppPreferences settings)
     {
-        if (!Enum.IsDefined(settings.ControllerProfile) || !Enum.IsDefined(settings.LibraryOrder) || !Enum.IsDefined(settings.LibraryDensity)) throw new InvalidDataException("Unsupported controller profile.");
+        if (settings.BrowseRules is null || settings.BrowseRules.FavoriteTags is null || settings.BrowseRules.BlacklistedTags is null || settings.BrowseRules.BlacklistedGames is null || !Enum.IsDefined(settings.BrowseRules.TagOrder) || !Enum.IsDefined(settings.ControllerProfile) || !Enum.IsDefined(settings.LibraryOrder) || !Enum.IsDefined(settings.LibraryDensity)) throw new InvalidDataException("Unsupported controller profile.");
         Directory.CreateDirectory(Path.GetDirectoryName(Path.GetFullPath(file))!);
         var temporary = file + "." + Guid.NewGuid().ToString("N") + ".tmp";
         try
